@@ -39,8 +39,7 @@ namespace ApiEstoque.Services
                 
                 var evidence = _mapper.Map<EvidenceModel>(model);
                 evidence.status = StandartStatus.Ativo.ToString();
-                await _evidenceRepository.addEvidence(evidence);
-                return _mapper.Map<EvidenceDto>(evidence);
+                return _mapper.Map<EvidenceDto>(await _evidenceRepository.addEvidence(evidence));
             }
             catch (FailureRequestException ex)
             {
@@ -58,8 +57,7 @@ namespace ApiEstoque.Services
             {
                 var result = await _evidenceRepository.GetEvidenceById(idEvidence);
                 if(result == null) throw new FailureRequestException(404, "Id da evidencia nao localizada");
-                await _evidenceRepository.deleteEvidence(result);
-                return true;
+                return await _evidenceRepository.deleteEvidence(result);
             }
             catch (FailureRequestException ex)
             {
@@ -78,7 +76,7 @@ namespace ApiEstoque.Services
                 var findProduct = await _productRepository.GetProductById(idProduct);
                 if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
                 var findEvidende = await _evidenceRepository.GetAllEvidenceByProductId(idProduct);
-                if (findEvidende == null) throw new FailureRequestException(404, "Nenhum Historico localizado para o Produto");
+                if (findEvidende == null) return new List<EvidenceDto>();
                 return _mapper.Map<List<EvidenceDto>>(findEvidende);
             }
             catch (FailureRequestException ex)
@@ -98,7 +96,7 @@ namespace ApiEstoque.Services
                 var findShop = await _shopRepository.GetShopById(idShop);
                 if (findShop == null) throw new FailureRequestException(404, "Id do shop nao localizado");
                 var findEvidende = await _evidenceRepository.GetAllEvidenceByShopId(idShop);
-                if (findEvidende == null) throw new FailureRequestException(404, "Nenhum Historico localizado para o Shop");
+                if (findEvidende == null) return new List<EvidenceDto>();
                 return _mapper.Map<List<EvidenceDto>>(findEvidende);
             }
             catch (FailureRequestException ex)

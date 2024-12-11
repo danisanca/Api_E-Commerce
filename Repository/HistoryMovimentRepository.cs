@@ -14,10 +14,11 @@ namespace ApiEstoque.Repository
             _db = db;
         }
 
-        public async Task AddHistory(HistoryMovimentModel model)
+        public async Task<HistoryMovimentModel> AddHistory(HistoryMovimentModel model)
         {
             await _db.HistoryMoviment.AddAsync(model);
             await _db.SaveChangesAsync();
+            return model;
         }
 
         public async Task<List<HistoryMovimentModel>> GetAllHistoryMovimentByProductId(int idProduct)

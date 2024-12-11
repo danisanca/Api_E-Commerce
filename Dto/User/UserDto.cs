@@ -7,6 +7,6 @@
         public string username { get; set; }
         public string email { get; set; }
         public string status { get; set; }
-        public string typeAccout { get; set; }
+        public string typeAccount { get; set; }
     }
 }

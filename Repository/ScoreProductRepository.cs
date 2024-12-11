@@ -14,10 +14,11 @@ namespace ApiEstoque.Repository
             _db = db;
         }
 
-        public async Task CreateScore(ScoreProductModel model)
+        public async Task<ScoreProductModel> CreateScore(ScoreProductModel model)
         {
             await _db.ScoreProduct.AddAsync(model);
             await _db.SaveChangesAsync();
+            return model;
         }
 
         public async Task<List<ScoreProductModel>> GetAllScoreProductByProductId(int idProduct)
@@ -45,10 +46,11 @@ namespace ApiEstoque.Repository
             return await _db.ScoreProduct.FirstOrDefaultAsync(x => x.id == id);
         }
 
-        public async Task UpdateScore(ScoreProductModel model)
+        public async Task<bool> UpdateScore(ScoreProductModel model)
         {
             _db.ScoreProduct.Update(model);
             await _db.SaveChangesAsync();
+            return true;
         }
     }
 }

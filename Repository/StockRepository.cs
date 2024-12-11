@@ -14,10 +14,11 @@ namespace ApiEstoque.Repository
             _db = db;
         }
 
-        public async Task AddStock(StockModel stockModel)
+        public async Task<StockModel> AddStock(StockModel stockModel)
         {
             await _db.Stock.AddAsync(stockModel);
             await _db.SaveChangesAsync();
+            return stockModel;
         }
 
         public async Task<StockModel> GetStockByProductId(int idProduct)
@@ -45,16 +46,18 @@ namespace ApiEstoque.Repository
             return await _db.Stock.FirstOrDefaultAsync(x => x.id == id);
         }
 
-        public async Task UpdateStock(StockModel stockModel)
+        public async Task<bool> UpdateStock(StockModel stockModel)
         {
             _db.Stock.Update(stockModel);
             await _db.SaveChangesAsync();
+            return true;
         }
 
-        public async Task DeleteStock(StockModel stockModel)
+        public async Task<bool> DeleteStock(StockModel stockModel)
         {
             _db.Stock.Remove(stockModel);
             await _db.SaveChangesAsync();
+            return true;
         }
     }
 }

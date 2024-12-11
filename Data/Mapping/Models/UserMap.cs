@@ -14,7 +14,7 @@ namespace ApiEstoque.Data.Mapping.Models
             builder.Property(x => x.email).IsRequired().HasMaxLength(100).IsUnicode(true);
             builder.Property(x => x.password).IsRequired().HasMaxLength(255);
             builder.Property(x => x.status).IsRequired().HasMaxLength(24);
-            builder.Property(x => x.typeAccout).IsRequired();
+            builder.Property(x => x.typeAccount).IsRequired();
             builder.Property(x => x.createdAt).IsRequired();
             builder.Property(x => x.updatedAt).IsRequired();
         }

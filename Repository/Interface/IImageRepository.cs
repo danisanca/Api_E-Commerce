@@ -5,8 +5,8 @@ namespace ApiEstoque.Repository.Interface
 {
     public interface IImageRepository
     {
-        Task CreateImage(ImageModel image);
-        Task UpdateImage(ImageModel image);
+        Task<ImageModel> CreateImage(ImageModel image);
+        Task<bool> UpdateImage(ImageModel image);
         Task<List<ImageModel>> GetAllImages(FilterGetRoutes status);
         Task<ImageModel> GetImageById(int id);
         Task<ImageModel> GetImageByUrl(string url);

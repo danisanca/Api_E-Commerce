@@ -15,10 +15,11 @@ namespace ApiEstoque.Repository
             _db = db;
         }
 
-        public async Task CreateShop(ShopModel modelShop)
+        public async Task<ShopModel> CreateShop(ShopModel modelShop)
         {
             await _db.Shop.AddAsync(modelShop);
             await _db.SaveChangesAsync();
+            return modelShop;
         }
 
         public async Task<List<ShopModel>> GetAllShops(FilterGetRoutes status)
@@ -43,10 +44,11 @@ namespace ApiEstoque.Repository
             return await _db.Shop.FirstOrDefaultAsync(x => x.userId == userId);
         }
 
-        public async Task UpdateShop(ShopModel modelShop)
+        public async Task<bool> UpdateShop(ShopModel modelShop)
         {
             _db.Shop.Update(modelShop);
             await _db.SaveChangesAsync();
+            return true;
         }
     }
 }

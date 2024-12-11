@@ -39,8 +39,8 @@ namespace ApiEstoque.Services
                    && model.action != MovimentAction.Acerto.ToString() && model.action != MovimentAction.Venda.ToString()) 
                     throw new FailureRequestException(404, "Tipo de Movimentação Invalida.");
                 var history = _mapper.Map<HistoryMovimentModel>(model);
-                await _historyMovimentRepository.AddHistory(history);
-                return _mapper.Map<HistoryMovimentDto>(history);
+                
+                return _mapper.Map<HistoryMovimentDto>(await _historyMovimentRepository.AddHistory(history));
             }
             catch (FailureRequestException ex)
             {
@@ -60,7 +60,7 @@ namespace ApiEstoque.Services
                 var findProduct = await _productRepository.GetProductById(idProduct);
                 if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
                 var findHistory = await _historyMovimentRepository.GetAllHistoryMovimentByProductId(idProduct);
-                if (findHistory == null) throw new FailureRequestException(404, "Nenhum Historico localizado para o Produto");
+                if (findHistory == null) return new List<HistoryMovimentDto>();
                 return _mapper.Map<List<HistoryMovimentDto>>(findHistory);
             }
             catch (FailureRequestException ex)
@@ -81,7 +81,7 @@ namespace ApiEstoque.Services
                 var findShop = await _shopRepository.GetShopById(idShop);
                 if (findShop == null) throw new FailureRequestException(404, "Id do shop nao localizado");
                 var findHistory = await _historyMovimentRepository.GetAllHistoryMovimentByShopId(idShop);
-                if (findHistory == null) throw new FailureRequestException(404, "Nenhum Historico localizado para o Shop");
+                if (findHistory == null) return new List<HistoryMovimentDto>();
                 return _mapper.Map<List<HistoryMovimentDto>>(findHistory);
             }
             catch (FailureRequestException ex)

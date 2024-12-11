@@ -15,10 +15,11 @@ namespace ApiEstoque.Repository
             _db = db;
         }
 
-        public async Task CreateProduct(ProductModel productModel)
+        public async Task<ProductModel> CreateProduct(ProductModel productModel)
         {
             await _db.Product.AddAsync(productModel);
             await _db.SaveChangesAsync();
+            return productModel;
         }
 
         public async Task<List<ProductModel>> GetAllProductByCategoryId(int id, int idShop)
@@ -42,10 +43,11 @@ namespace ApiEstoque.Repository
             return await _db.Product.Where(x => x.name == name && x.shopId == idShop).FirstOrDefaultAsync();
         }
 
-        public async Task UpdateProduct(ProductModel productModel)
+        public async Task<bool> UpdateProduct(ProductModel productModel)
         {
             _db.Product.Update(productModel);
             await _db.SaveChangesAsync();
+            return true;
         }
     }
 }

@@ -31,9 +31,8 @@ namespace ApiEstoque.Services
                     ImageModel image = await _imageRepository.GetImageById(id);
                     if (image == null) throw new FailureRequestException(404, "Id da imagem não localizado.");
                     if (image.status == StandartStatus.Ativo.ToString()) throw new FailureRequestException(409, "Imagem ja esta ativa.");
-                image.status = StandartStatus.Ativo.ToString();
-                await _imageRepository.UpdateImage(image);
-                return true;
+                    image.status = StandartStatus.Ativo.ToString();
+                    return await _imageRepository.UpdateImage(image);
 
             }
                 catch (FailureRequestException ex)
@@ -42,7 +41,7 @@ namespace ApiEstoque.Services
                 }
                 catch (Exception e)
                 {
-                    throw new Exception($"Falha ao ativar categoria. Detalhe do erro: {e.Message}");
+                    throw new Exception(e.Message);
                 }
         }
 
@@ -54,8 +53,7 @@ namespace ApiEstoque.Services
                 if (getByUrl != null) throw new FailureRequestException(409, "Url da imagem ja cadastrada.");
                 var model = _mapper.Map<ImageModel>(image);
                 model.status = StandartStatus.Ativo.ToString();
-                await _imageRepository.CreateImage(model);
-                return _mapper.Map<ImageDto>(model);
+                return _mapper.Map<ImageDto>(await _imageRepository.CreateImage(model));
             }
             catch (FailureRequestException ex)
             {
@@ -63,7 +61,7 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception($"Falha ao criar image. Detalhe do erro: {e.Message}");
+                throw new Exception(e.Message);
             }
         }
 
@@ -75,8 +73,7 @@ namespace ApiEstoque.Services
                 if (image == null) throw new FailureRequestException(404, "Id da imagem não localizado.");
                 if (image.status == StandartStatus.Desabilitado.ToString()) throw new FailureRequestException(409, "Imagem ja esta desabilitada.");
                 image.status = StandartStatus.Desabilitado.ToString();
-                await _imageRepository.UpdateImage(image);
-                return true;
+                return await _imageRepository.UpdateImage(image);
             }
             catch (FailureRequestException ex)
             {
@@ -84,7 +81,7 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception($"Falha ao criar image. Detalhe do erro: {e.Message}");
+                throw new Exception(e.Message);
             }
         }
 
@@ -93,7 +90,7 @@ namespace ApiEstoque.Services
             try
             {
                 var findImages = await _imageRepository.GetAllImages(status);
-                if (findImages == null) throw new FailureRequestException(200, "Nenhuma imagem cadastrada");
+                if (findImages == null) return new List<ImageDto>();
                 return _mapper.Map<List<ImageDto>>(findImages);
             }
             catch (FailureRequestException ex)
@@ -102,7 +99,7 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception($"Falha ao criar image. Detalhe do erro: {e.Message}");
+                throw new Exception(e.Message);
             }
         }
 
@@ -120,7 +117,7 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception($"Falha ao criar image. Detalhe do erro: {e.Message}");
+                throw new Exception(e.Message);
             }
         }
 
@@ -138,7 +135,7 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception($"Falha ao criar image. Detalhe do erro: {e.Message}");
+                throw new Exception(e.Message);
             }
         }
 
@@ -152,8 +149,7 @@ namespace ApiEstoque.Services
                 if (findUrl != null) throw new FailureRequestException(404, "Url ja cadastrada");
                 var model = _mapper.Map<ImageModel>(findImage);
                 model.url = image.url;
-                await _imageRepository.UpdateImage(model);
-                return true;
+                return await _imageRepository.UpdateImage(model);
             }
             catch (FailureRequestException ex)
             {
@@ -161,7 +157,7 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception($"Falha ao criar image. Detalhe do erro: {e.Message}");
+                throw new Exception(e.Message);
             }
         }
     }

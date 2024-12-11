@@ -32,11 +32,10 @@ namespace ApiEstoque.Services
                 ProductModel findProduct = await _productRepository.GetProductById(stockCreate.productId);
                 if(findProduct == null ) throw new FailureRequestException(404, "Id da produto não localizada.");
                 StockModel findStock = await _stockRepository.GetStockByProductId(stockCreate.productId);
-                if (findStock != null) throw new FailureRequestException(404, "Produto ja cadastrado no estoque.");
+                if (findStock != null) throw new FailureRequestException(409, "Produto ja cadastrado no estoque.");
                 var model = _mapper.Map<StockModel>(stockCreate);
                 model.status = StandartStatus.Ativo.ToString();
-                await _stockRepository.AddStock(model);
-                return _mapper.Map<StockDto>(model);
+                return _mapper.Map<StockDto>(await _stockRepository.AddStock(model));
 
             }
             catch (FailureRequestException ex)
@@ -55,8 +54,7 @@ namespace ApiEstoque.Services
             {
                 var findStock = await _stockRepository.GetStockById(idStock);
                 if (findStock == null) throw new FailureRequestException(404, "Id do stock não localizado.");
-                await _stockRepository.DeleteStock(findStock);
-                return true;
+                return await _stockRepository.DeleteStock(findStock); 
             }
             catch (FailureRequestException ex)
             {
@@ -134,10 +132,9 @@ namespace ApiEstoque.Services
                 if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
                 var findStock = await _stockRepository.GetStockById(stockUpdate.idStock);
                 if (findStock == null) throw new FailureRequestException(404, "Não há estoque para esse id.");
-                if (findStock.productId != stockUpdate.productId) throw new FailureRequestException(404, "O id do produto não é o mesmo que esta cadastrado.");
+                if (findStock.productId != stockUpdate.productId) throw new FailureRequestException(409, "O id do produto não é o mesmo que esta cadastrado.");
                 findStock.amount = stockUpdate.amount;
-                await _stockRepository.UpdateStock(findStock);
-                return true;
+                return await _stockRepository.UpdateStock(findStock); 
             }
             catch (FailureRequestException ex)
             {

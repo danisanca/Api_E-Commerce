@@ -5,9 +5,13 @@ using ApiEstoque.Repository;
 using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services;
 using ApiEstoque.Services.Interface;
+using ApiEstoque.Services.Security;
+using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Net;
 namespace ApiEstoque
 {
     public class Program
@@ -15,9 +19,10 @@ namespace ApiEstoque
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+            var configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .Build();
             // Add services to the container.
-
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -57,23 +62,80 @@ namespace ApiEstoque
             builder.Services.AddScoped<IEvidenceService, EvidenceService>();
             builder.Services.AddScoped<IScoreProductRepository, ScoreProductRepository>();
             builder.Services.AddScoped<IScoreProductService, ScoreProductService>();
+            builder.Services.AddScoped<ILoginService, LoginService>();
+            //-
+            //-- Configurando o Token
+            var signingConfigurations = new SigningConfigurations();
+            builder.Services.AddSingleton(signingConfigurations);
+            
+            builder.Services.AddAuthentication(authOptions =>
+            {
+                authOptions.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                authOptions.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(bearerOptions =>
+            {
+                
+                var paramsValidation = bearerOptions.TokenValidationParameters;
+                paramsValidation.IssuerSigningKey = signingConfigurations.Key;
+                paramsValidation.ValidAudience = configuration["Audience"];
+                paramsValidation.ValidIssuer = configuration["Issuer"];
+                paramsValidation.ValidateLifetime = true;
+                paramsValidation.ClockSkew = TimeSpan.Zero;
+            });
+            builder.Services.AddAuthorization(auth =>
+            {
+                
+                auth.AddPolicy("Bearer", new AuthorizationPolicyBuilder()
+                .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+                .RequireAuthenticatedUser().Build());
+            });
+            //Configurando Autenticação no Swagger
+            builder.Services.AddSwaggerGen(c =>
+            {
+                
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "Entre com o Token Jwt",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey
+                    
+                    
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement{
+                    {
+                        new OpenApiSecurityScheme{
+                            Reference = new OpenApiReference{
+                                Id = "Bearer",
+                                Type = ReferenceType.SecurityScheme
+                            }
+                        }, new List<String>()
+                    }
+                });
+            });
+            //Configurando Cors
+            builder.Services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                {
+                    builder.AllowAnyOrigin()
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+                });
+            });
             //-
             var app = builder.Build();
-
+            app.UseCors();
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
-
             app.MapControllers();
-
             app.Run();
         }
     }

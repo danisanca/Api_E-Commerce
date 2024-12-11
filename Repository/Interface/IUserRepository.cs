@@ -10,7 +10,7 @@ namespace ApiEstoque.Repository.Interface
         Task<UserModel> GetUserById(int idUser);
         Task<UserModel> GetUserByEmail(string email);
         Task<UserModel> GetUserByUsername(string username);
-        Task AddUser(UserModel userCreate);
-        Task UpdateUser(UserModel userUpdate); 
+        Task<UserModel> AddUser(UserModel userCreate);
+        Task<bool> UpdateUser(UserModel userUpdate); 
     }
 }

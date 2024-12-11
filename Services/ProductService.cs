@@ -36,8 +36,7 @@ namespace ApiEstoque.Services
                 if (result == null) throw new FailureRequestException(404, "Id do produto não localizado");
                 if (result.status == StandartStatus.Ativo.ToString()) throw new FailureRequestException(409, "Produto ja esta ativo");
                 result.status = StandartStatus.Ativo.ToString();
-                await _productRepository.UpdateProduct(result);
-                return true;
+                return await _productRepository.UpdateProduct(result);
             }
             catch (FailureRequestException ex)
             {
@@ -67,8 +66,7 @@ namespace ApiEstoque.Services
                 }
                 ProductModel product = _mapper.Map<ProductModel>(productModel);
                 product.status = StandartStatus.Ativo.ToString();
-                await _productRepository.CreateProduct(product);
-                return _mapper.Map<ProductDto>(product);
+                return _mapper.Map<ProductDto>(await _productRepository.CreateProduct(product));
 
             }
             catch (FailureRequestException ex)
@@ -89,8 +87,7 @@ namespace ApiEstoque.Services
                 if (result == null) throw new FailureRequestException(404, "Id do produto não localizado");
                 if (result.status == StandartStatus.Desabilitado.ToString()) throw new FailureRequestException(409, "Produto ja esta ativo");
                 result.status = StandartStatus.Desabilitado.ToString();
-                await _productRepository.UpdateProduct(result);
-                return true;
+                return await _productRepository.UpdateProduct(result);
             }
             catch (FailureRequestException ex)
             {
@@ -111,7 +108,7 @@ namespace ApiEstoque.Services
                 var findCategory = await _categoriesRepository.GetCategoriesById(idCategory);
                 if (findCategory == null) throw new FailureRequestException(404, "Categoria nao localizada.");
                 var findProduct = await _productRepository.GetAllProductByCategoryId(idCategory, idShop);
-                if (findProduct == null) throw new FailureRequestException(404, "Nenhum produto localizado.");
+                if (findProduct == null) return new List<ProductDto>();
                 return _mapper.Map<List<ProductDto>>(findProduct);
             }
             catch (FailureRequestException ex)
@@ -131,7 +128,7 @@ namespace ApiEstoque.Services
                 var findShop = await _shopRepository.GetShopById(idShop);
                 if (findShop == null) throw new FailureRequestException(404, "Id da loja nao localizada.");
                 var findProduct = await _productRepository.GetAllProductsByShopId(status, idShop);
-                if (findProduct == null) throw new FailureRequestException(404, "Nenhum produto localizado.");
+                if (findProduct == null) return new List<ProductDto>();
                 return _mapper.Map<List<ProductDto>>(findProduct);
             }
             catch (FailureRequestException ex)
@@ -204,8 +201,7 @@ namespace ApiEstoque.Services
                 result.categoriesId = productModel.categoriesId;
                 result.description = productModel.description;
 
-                await _productRepository.UpdateProduct(result);
-                return true;
+                return await _productRepository.UpdateProduct(result);
             }
             catch (FailureRequestException ex)
             {

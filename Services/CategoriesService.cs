@@ -7,6 +7,7 @@ using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
 using AutoMapper;
+using System.Collections.Generic;
 
 namespace ApiEstoque.Services
 {
@@ -31,8 +32,7 @@ namespace ApiEstoque.Services
                 if (category == null) throw new FailureRequestException(404, "Id da categoria não localizada.");
                 if (category.status == StandartStatus.Ativo.ToString()) throw new FailureRequestException(409, "Categoria ja está ativa.");
                 category.status = StandartStatus.Ativo.ToString();
-                await _categoriesRepository.UpdateCategories(category);
-                return true;
+                return await _categoriesRepository.UpdateCategories(category);
             }
             catch (FailureRequestException ex)
             {
@@ -40,7 +40,7 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception($"Falha ao ativar categoria. Detalhe do erro: {e.Message}");
+                throw new Exception(e.Message);
             }
         }
 
@@ -54,8 +54,7 @@ namespace ApiEstoque.Services
                 if (result != null) throw new FailureRequestException(409, "Categoria ja cadastrada.");
                 var model = _mapper.Map<CategoriesModel>(categories);
                 model.status = StandartStatus.Ativo.ToString();
-                await _categoriesRepository.CreateCategories(model);
-                return _mapper.Map<CategoriesDto>(model);
+                return _mapper.Map<CategoriesDto>(await _categoriesRepository.CreateCategories(model));
 
             }
             catch (FailureRequestException ex)
@@ -64,7 +63,7 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception($"Falha ao criar categoria. Detalhe do erro: {e.Message}");
+                throw new Exception(e.Message);
             }
         }
 
@@ -76,8 +75,7 @@ namespace ApiEstoque.Services
                 if (category == null) throw new FailureRequestException(404, "Id da categoria não localizada.");
                 if (category.status == StandartStatus.Desabilitado.ToString()) throw new FailureRequestException(409, "Categoria ja esta desabilitada");
                 category.status = StandartStatus.Desabilitado.ToString();
-                await _categoriesRepository.UpdateCategories(category);
-                return true;
+                return await _categoriesRepository.UpdateCategories(category);
             }
             catch (FailureRequestException ex)
             {
@@ -85,7 +83,7 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception($"Falha ao desabilitar categoria. Detalhe do erro: {e.Message}");
+                throw new Exception(e.Message);
             }
         }
 
@@ -96,7 +94,7 @@ namespace ApiEstoque.Services
                 var findShop = await _shopRepository.GetShopById(shopId);
                 if (findShop == null) throw new FailureRequestException(404, "Id da loja nao localizada.");
                 var findCategories = await _categoriesRepository.GetAllCategories(shopId, status);
-                if (findCategories == null) throw new FailureRequestException(200, "Nenhuma categoria cadastrada");
+                if (findCategories == null) return new List<CategoriesDto>();
                 return _mapper.Map<List<CategoriesDto>>(findCategories); 
             }
             catch (FailureRequestException ex)
@@ -105,7 +103,7 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception($"Falha ao buscar categorias. Detalhe do erro: {e.Message}");
+                throw new Exception(e.Message);
             }
         }
 
@@ -123,7 +121,7 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception($"Falha ao buscar categoria pelo id. Detalhe do erro: {e.Message}");
+                throw new Exception(e.Message); ;
             }
         }
 
@@ -143,7 +141,7 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception($"Falha ao buscar categoria pelo nome. Detalhe do erro: {e.Message}");
+                throw new Exception(e.Message);
             }
         }
 
@@ -158,8 +156,7 @@ namespace ApiEstoque.Services
                 var findName = await _categoriesRepository.GetCategoriesByName(categories.name,categories.shopId);
                 if (findName != null) throw new FailureRequestException(409, "Categoria ja cadastrada com esse nome.");
                 findCategory.name = categories.name;
-                await _categoriesRepository.UpdateCategories(findCategory);
-                return true;
+                return await _categoriesRepository.UpdateCategories(findCategory);
             }
             catch (FailureRequestException ex)
             {
@@ -167,7 +164,7 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception($"Falha ao atualizar categoria. Detalhe do erro: {e.Message}");
+                throw new Exception(e.Message);
             }
         }
     }

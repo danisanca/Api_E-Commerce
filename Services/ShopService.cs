@@ -29,8 +29,7 @@ namespace ApiEstoque.Services
                 if (result == null) throw new FailureRequestException(404, "Id do shop não localizado.");
                 if(result.status == StandartStatus.Ativo.ToString()) throw new FailureRequestException(409, "O shop ja se encontra ativo.");
                 result.status = StandartStatus.Ativo.ToString();
-                await _shopRepository.UpdateShop(result);
-                return true;
+                return await _shopRepository.UpdateShop(result);
             }
             catch (FailureRequestException ex)
             {
@@ -48,14 +47,13 @@ namespace ApiEstoque.Services
             {
                 var findUser = await _userRepository.GetUserById(shopCreateDto.userId);
                 if (findUser == null) throw new FailureRequestException(404, "Usuario não localizado.");
-                if (findUser.typeAccout == TypeUserEnum.Owner.ToString()) throw new FailureRequestException(409, "Usuario já possui uma loja.");
+                if (findUser.typeAccount == TypeUserEnum.Owner.ToString()) throw new FailureRequestException(409, "Usuario já possui uma loja.");
                 
                 ShopModel shop = _mapper.Map<ShopModel>(shopCreateDto);
                 shop.status = StandartStatus.Ativo.ToString();
                 await _shopRepository.UpdateShop(shop);
-                findUser.typeAccout = TypeUserEnum.Owner.ToString();
-                await _userRepository.UpdateUser(findUser);
-                return _mapper.Map<ShopDto>(shop);
+                findUser.typeAccount = TypeUserEnum.Owner.ToString();
+                return _mapper.Map<ShopDto>(await _userRepository.UpdateUser(findUser));
             }
             catch (FailureRequestException ex)
             {
@@ -75,8 +73,7 @@ namespace ApiEstoque.Services
                 if (result == null) throw new FailureRequestException(404, "Id da loja não localizado.");
                 if (result.status == StandartStatus.Desabilitado.ToString()) throw new FailureRequestException(409, "A loja ja se encontra desabilitado.");
                 result.status = StandartStatus.Desabilitado.ToString();
-                await _shopRepository.UpdateShop(result);
-                return true;
+                return await _shopRepository.UpdateShop(result);
             }
             catch (FailureRequestException ex)
             {
@@ -93,7 +90,7 @@ namespace ApiEstoque.Services
             try
             {
                 var findShop = await _shopRepository.GetAllShops(status);
-                if (findShop == null) throw new FailureRequestException(200, "Nenhuma loja cadastrada");
+                if (findShop == null) return new List<ShopDto>();
                 return _mapper.Map<List<ShopDto>>(findShop);
             }
             catch (FailureRequestException ex)
@@ -168,8 +165,7 @@ namespace ApiEstoque.Services
                 if (findShop == null) throw new FailureRequestException(404, "Nenhuma loja encontrar para o id");
                 if (findShop.name == shopUpdateDto.name) throw new FailureRequestException(409, "O nome nao pode ser o mesmo que esta cadastrado.");
                 findShop.name = shopUpdateDto.name;
-                await _shopRepository.UpdateShop(findShop);
-                return true;
+                return await _shopRepository.UpdateShop(findShop);
             }
             catch (FailureRequestException ex)
             {

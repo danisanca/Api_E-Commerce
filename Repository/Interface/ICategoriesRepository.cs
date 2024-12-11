@@ -5,10 +5,10 @@ namespace ApiEstoque.Repository.Interface
 {
     public interface ICategoriesRepository
     {
-        Task CreateCategories(CategoriesModel categories);
-        Task UpdateCategories(CategoriesModel categories);
-        Task <List<CategoriesModel>> GetAllCategories(int shopId, FilterGetRoutes status);
-        Task <CategoriesModel> GetCategoriesById(int id);
+        Task<CategoriesModel> CreateCategories(CategoriesModel categories);
+        Task<bool> UpdateCategories(CategoriesModel categories);
+        Task<List<CategoriesModel>> GetAllCategories(int shopId, FilterGetRoutes status);
+        Task<CategoriesModel> GetCategoriesById(int id);
         Task<CategoriesModel> GetCategoriesByName(string name, int shopId);
 
     }

@@ -14,17 +14,18 @@ namespace ApiEstoque.Repository
             _db = db;
         }
 
-        public async Task addEvidence(EvidenceModel model)
+        public async Task<EvidenceModel> addEvidence(EvidenceModel model)
         {
             await _db.Evidence.AddAsync(model);
             await _db.SaveChangesAsync();
+            return model;
         }
 
-        public async Task deleteEvidence(EvidenceModel model)
+        public async Task<bool> deleteEvidence(EvidenceModel model)
         {
              _db.Evidence.Remove(model);
             await _db.SaveChangesAsync();
-
+            return true;
         }
 
         public async Task<List<EvidenceModel>> GetAllEvidenceByProductId(int idProduct)

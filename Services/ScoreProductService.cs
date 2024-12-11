@@ -35,7 +35,7 @@ namespace ApiEstoque.Services
                 var findProduct = await _productRepository.GetProductById(idProduct);
                 if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
                 var findScore = await _scoreProductRepository.GetAllScoreProductByProductId(idProduct);
-                if (findScore.IsNullOrEmpty()) throw new FailureRequestException(404, "Nenhuma nota encontrada.");
+                if (findScore == null) throw new FailureRequestException(404, "Nenhuma nota encontrada.");
                 var QtdScore = findScore.Count();
                 var stars = 0.0f;
                 foreach (ScoreProductModel note in findScore)
@@ -67,7 +67,7 @@ namespace ApiEstoque.Services
                 var findProduct = await _productRepository.GetProductById(model.productId);
                 if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
                 var findScore = await _scoreProductRepository.GetAllScoreProductByProductId(model.productId);
-                if (!findScore.IsNullOrEmpty())
+                if (findScore != null)
                 {
                     ScoreProductModel newScore = _mapper.Map<ScoreProductModel>(model);
                     await _scoreProductRepository.CreateScore(newScore);
@@ -86,8 +86,7 @@ namespace ApiEstoque.Services
                 else
                 {
                     ScoreProductModel newScore = _mapper.Map<ScoreProductModel>(model);
-                    await _scoreProductRepository.CreateScore(newScore);
-                    return _mapper.Map<ScoreProductDto>(newScore);
+                    return _mapper.Map<ScoreProductDto>(await _scoreProductRepository.CreateScore(newScore));
 
                 }
 

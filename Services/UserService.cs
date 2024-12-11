@@ -33,13 +33,13 @@ namespace ApiEstoque.Services
 
 
                 var model = _mapper.Map<UserModel>(userCreate);
+                model.SetPasswordHash();
                 model.status = StandartStatus.Ativo.ToString();
-                if (typeUser == TypeUserEnum.Standart) model.typeAccout = TypeUserEnum.Standart.ToString();
-                if (typeUser == TypeUserEnum.Admin) model.typeAccout = TypeUserEnum.Admin.ToString();
-                if (typeUser == TypeUserEnum.Owner) model.typeAccout = TypeUserEnum.Owner.ToString();
-                //Falta adicionar função para encryptar a senha
-                await _userRepository.AddUser(model);
-                return _mapper.Map<UserDto>(model);
+                if (typeUser == TypeUserEnum.Standart) model.typeAccount = TypeUserEnum.Standart.ToString();
+                if (typeUser == TypeUserEnum.Admin) model.typeAccount = TypeUserEnum.Admin.ToString();
+                if (typeUser == TypeUserEnum.Owner) model.typeAccount = TypeUserEnum.Owner.ToString();
+                
+                return _mapper.Map<UserDto>(await _userRepository.AddUser(model));
             }
             catch (FailureRequestException ex)
             {
@@ -47,7 +47,7 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception($"Falha ao criar usuario. Detalhe do erro: {e.Message}");
+                throw new Exception(e.Message);
             }
         }
 
@@ -56,7 +56,7 @@ namespace ApiEstoque.Services
             try
             {
                 var findUsers = await _userRepository.GetAllUsers(status);
-                if (findUsers == null) throw new FailureRequestException(200, "Nenhum usuario cadastrado");
+                if (findUsers == null) return new List<UserDto>();
                 return _mapper.Map<List<UserDto>>(findUsers);
             }
             catch (FailureRequestException ex)
@@ -65,7 +65,7 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception($"Erro ao buscar o usuario. Detalhe do erro:{e.Message}");
+                throw new Exception(e.Message);
             }
         }
 
@@ -85,7 +85,7 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception($"Erro ao buscar o usuario. Detalhe do erro:{e.Message}");
+                throw new Exception(e.Message);
             }
         }
 
@@ -103,7 +103,7 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception($"Erro ao buscar o usuario. Detalhe do erro:{e.Message}");
+                throw new Exception(e.Message); ;
             }
         }
 
@@ -122,7 +122,7 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception($"Erro ao buscar o usuario. Detalhe do erro:{e.Message}");
+                throw new Exception(e.Message);
             }
         }
 
@@ -138,10 +138,9 @@ namespace ApiEstoque.Services
                     if (findEmail != null) throw new FailureRequestException(409, "E-mail ja cadastro");
                     findUser.email = userUpdate.email;
                 }
-                    findUser.name = userUpdate.name;
-                //Falta adicionar função para encryptar a senha
-                await _userRepository.UpdateUser(findUser);
-                return true;
+                findUser.name = userUpdate.name;
+                
+                return await _userRepository.UpdateUser(findUser);
             }
             catch (FailureRequestException ex)
             {
@@ -149,7 +148,7 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception($"Erro ao atualizar o usuario. Detalhe do erro:{e.Message}");
+                throw new Exception(e.Message);
             }
         }
 
@@ -161,8 +160,7 @@ namespace ApiEstoque.Services
                 if (findUser == null) throw new FailureRequestException(404, "Id do usuario não localizado");
                 if (findUser.status == StandartStatus.Ativo.ToString()) throw new FailureRequestException(409, "Usuario ja esta ativo");
                 findUser.status = StandartStatus.Ativo.ToString();
-                await _userRepository.UpdateUser(findUser);
-                return true;
+                return await _userRepository.UpdateUser(findUser);
             }
             catch (FailureRequestException ex)
             {
@@ -170,7 +168,7 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception($"Erro ao ativar o usuario. Detalhe do erro:{e.Message}");
+                throw new Exception(e.Message);
             }
         }
 
@@ -182,8 +180,7 @@ namespace ApiEstoque.Services
                 if (findUser == null) throw new FailureRequestException(404, "Id do usuario não localizado");
                 if (findUser.status == StandartStatus.Desabilitado.ToString()) throw new FailureRequestException(409, "Usuario ja esta Desabilitado");
                 findUser.status = StandartStatus.Desabilitado.ToString();
-                await _userRepository.UpdateUser(findUser);
-                return true;
+                return await _userRepository.UpdateUser(findUser);
             }
             catch (FailureRequestException ex)
             {
@@ -191,7 +188,7 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception($"Erro ao desabilitar o usuario. Detalhe do erro:{e.Message}");
+                throw new Exception(e.Message);
             }
         }
 

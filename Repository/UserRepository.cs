@@ -17,10 +17,11 @@ namespace ApiEstoque.Repository
             _db = db;
         }
 
-        public async Task AddUser(UserModel userCreate)
+        public async Task<UserModel> AddUser(UserModel userCreate)
         {
-            await _db.User.AddAsync(userCreate);
+            var user = await _db.User.AddAsync(userCreate);
             await _db.SaveChangesAsync();
+            return userCreate;
         }
 
 
@@ -46,10 +47,11 @@ namespace ApiEstoque.Repository
             return await _db.User.FirstOrDefaultAsync(x => x.username == username);
         }
 
-        public async Task UpdateUser(UserModel userUpdate)
+        public async Task<bool> UpdateUser(UserModel userUpdate)
         {
             _db.User.Update(userUpdate);
             await _db.SaveChangesAsync();
+            return true;
         }
     }
 }

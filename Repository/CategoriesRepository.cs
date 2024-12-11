@@ -17,10 +17,11 @@ namespace ApiEstoque.Repository
             _db = db;
         }
 
-        public async Task CreateCategories(CategoriesModel categories)
+        public async Task<CategoriesModel> CreateCategories(CategoriesModel categories)
         {
             await _db.Categories.AddAsync(categories);
             await _db.SaveChangesAsync();
+            return categories;
         }
 
         public async Task<List<CategoriesModel>> GetAllCategories(int shopId, FilterGetRoutes status)
@@ -40,10 +41,11 @@ namespace ApiEstoque.Repository
             return await _db.Categories.Where(x => x.name == name && x.shopId == shopId).FirstOrDefaultAsync();
         }
 
-        public async Task UpdateCategories(CategoriesModel categories)
+        public async Task<bool> UpdateCategories(CategoriesModel categories)
         {
             _db.Categories.Update(categories);
             await _db.SaveChangesAsync();
+            return true;
         }
     }
 }

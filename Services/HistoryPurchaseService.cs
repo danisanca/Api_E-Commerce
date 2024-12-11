@@ -37,8 +37,8 @@ namespace ApiEstoque.Services
                 var findUser = await _userRepository.GetUserById(model.userId);
                 if (findUser == null) throw new FailureRequestException(404, "Id do usuario nao localizado");
                 var history = _mapper.Map<HistoryPurchaseModel>(model);
-                await _historyPurchaseRepository.AddHistory(history);
-                return _mapper.Map<HistoryPurchaseDto>(history);
+                
+                return _mapper.Map<HistoryPurchaseDto>(await _historyPurchaseRepository.AddHistory(history));
             }
             catch (FailureRequestException ex)
             {
@@ -58,7 +58,7 @@ namespace ApiEstoque.Services
                 var findProduct = await _productRepository.GetProductById(idProduct);
                 if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
                 var findHistory = await _historyPurchaseRepository.GetAllHistoryPurchaseByProductId(idProduct);
-                if (findHistory == null) throw new FailureRequestException(404, "Nenhum Historico localizado para o Produto");
+                if (findHistory == null) return new List<HistoryPurchaseDto>();
                 return _mapper.Map<List<HistoryPurchaseDto>>(findHistory);
             }
             catch (FailureRequestException ex)
@@ -79,7 +79,7 @@ namespace ApiEstoque.Services
                 var findShop = await _shopRepository.GetShopById(idShop);
                 if (findShop == null) throw new FailureRequestException(404, "Id do shop nao localizado");
                 var findHistory = await _historyPurchaseRepository.GetAllHistoryPurchaseByShopId(idShop);
-                if (findHistory == null) throw new FailureRequestException(404, "Nenhum Historico localizado para o Shop");
+                if (findHistory == null) return new List<HistoryPurchaseDto>();
                 return _mapper.Map<List<HistoryPurchaseDto>>(findHistory);
             }
             catch (FailureRequestException ex)
