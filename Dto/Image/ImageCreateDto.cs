@@ -14,5 +14,8 @@ namespace ApiEstoque.Dto.Image
         [Required(ErrorMessage = "ShopId é um campo obrigátorio.")]
         public int shopId { get; set; }
 
+        [Required(ErrorMessage = "ProductId é um campo obrigátorio.")]
+        public int productId { get; set; }
+
     }
 }

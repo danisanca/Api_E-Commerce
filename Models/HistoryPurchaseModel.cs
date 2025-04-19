@@ -4,6 +4,7 @@
     {
         public int id { get; set; }
         public int productId { get; set; }
+        public float price { get; set; }
         public virtual ProductModel product { get; set; }
         public int userId { get; set; }
         public virtual UserModel user { get; set; }

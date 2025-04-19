@@ -6,19 +6,22 @@ using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
 using AutoMapper;
 using ApiEstoque.Helpers;
+using ApiEstoque.Dto.Adress;
 
 namespace ApiEstoque.Services
 {
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IAddressRepository _addressRepository;
         private readonly IMapper _mapper;
         private readonly string _tokenAdmin;
-        public UserService(IUserRepository userRepository, IMapper mapper, IConfiguration configuration)
+        public UserService(IUserRepository userRepository, IMapper mapper, IConfiguration configuration, IAddressRepository addressRepository)
         {
             _userRepository = userRepository;
             _mapper = mapper;
             _tokenAdmin = configuration["Tokens:TokenAdmin"]; ;
+            _addressRepository = addressRepository;
         }
 
         public async Task<UserDto> CreateUser(UserCreateDto userCreate, TypeUserEnum typeUser, string? TokenAdmin = null)
@@ -69,8 +72,6 @@ namespace ApiEstoque.Services
             }
         }
 
-       
-
         public async Task<UserDto> GetUserByEmail(string email)
         {
             try
@@ -103,7 +104,7 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message); ;
+                throw new Exception(e.Message);
             }
         }
 
@@ -130,7 +131,7 @@ namespace ApiEstoque.Services
         {
             try
             {
-                UserModel findUser = await _userRepository.GetUserById(userUpdate.idUser);
+                UserModel findUser = await _userRepository.GetUserById(userUpdate.id);
                 if (findUser == null) throw new FailureRequestException(404, "Id do usuario não localizado");
                 if (findUser.email != userUpdate.email)
                 {
@@ -192,6 +193,58 @@ namespace ApiEstoque.Services
             }
         }
 
+        public async Task<UserFullDto> GetUserFullByIdUser(int idUser)
+        {
+            try
+            {
+                UserModel findUser = await _userRepository.GetUserById(idUser);
+                if (findUser == null) throw new FailureRequestException(404, "Id do usuario não localizado");
+                AddressModel findAddress = await _addressRepository.GetAddressByUserId(idUser);
+                if (findAddress == null) throw new FailureRequestException(404, "Endereço para o id do usuario não foi localizado");
+                var userDto = _mapper.Map<UserDto>(findUser);
+                var modelUser = new UserFullDto
+                {
+                    id = userDto.id,
+                    name = userDto.name,
+                    username = userDto.username,
+                    email = userDto.email,
+                    status = userDto.status,
+                    typeAccount = userDto.typeAccount,
+                    address = _mapper.Map<AddressDto>(findAddress),
+                };
+                return modelUser;
+            }
+            catch (FailureRequestException ex)
+            {
+                throw new FailureRequestException(ex.StatusCode, ex.Message);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message); ;
+            }
+        }
 
+        public async Task<bool> ChangePassword(ChangePasswordDto modelPassword)
+        {
+            try
+            {
+                UserModel findUser = await _userRepository.GetUserById(modelPassword.idUser);
+                if (findUser == null) throw new FailureRequestException(404, "Id do usuario não localizado");
+                var currentPassword = modelPassword.CurrentPassword.CreateHash();
+                if (currentPassword != findUser.password) throw new FailureRequestException(404, "Senha Atual Incorreta");
+                if (modelPassword.NewPassword != modelPassword.ConfirmNewPassword) throw new FailureRequestException(404, "Você digitou senhas diferentes na confirmação.");
+                findUser.password = modelPassword.NewPassword.CreateHash();
+
+                return await _userRepository.UpdateUser(findUser);
+            }
+            catch (FailureRequestException ex)
+            {
+                throw new FailureRequestException(ex.StatusCode, ex.Message);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message); ;
+            }
+        }
     }
 }

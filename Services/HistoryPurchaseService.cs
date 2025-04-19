@@ -17,15 +17,17 @@ namespace ApiEstoque.Services
         private readonly IShopRepository _shopRepository;
         private readonly IProductRepository _productRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IImageRepository _imageRepository;
 
         public HistoryPurchaseService(IMapper mapper, IHistoryPurchaseRepository historyPurchaseRepository,
-            IShopRepository shopRepository, IProductRepository productRepository, IUserRepository userRepository)
+            IShopRepository shopRepository, IProductRepository productRepository, IUserRepository userRepository, IImageRepository imageRepository)
         {
             _mapper = mapper;
             _userRepository = userRepository;
             _historyPurchaseRepository = historyPurchaseRepository;
             _shopRepository = shopRepository;
             _productRepository = productRepository;
+            _imageRepository = imageRepository;
         }
 
         public async Task<HistoryPurchaseDto> CreateHistoryPurchase(HistoryPurchaseCreateDto model)
@@ -90,6 +92,40 @@ namespace ApiEstoque.Services
             {
                 throw new Exception(e.Message);
             }
+        }
+
+        public async Task<List<HistoryPurchaseFullDto>> GetAllHistoryPurchaseByUserId(int idUser)
+        {
+            var findUser = await _userRepository.GetUserById(idUser);
+            if (findUser == null) throw new FailureRequestException(404, "Id do usuario nao localizado");
+            var findHistory = await _historyPurchaseRepository.GetAllHistoryPurchaseByUserId(idUser);
+
+            var historyList = new List<HistoryPurchaseFullDto>();
+
+            foreach (var history in findHistory)
+            {
+                var findProduct = await _productRepository.GetProductById(history.productId);
+                var findImage = await _imageRepository.GetImagesByIdProduct(findProduct.id);
+                var listUrls = findImage.Select(img => img.url).ToList();
+                var model = new HistoryPurchaseFullDto
+                {
+                    id = history.id,
+                    createdAt = history.createdAt,
+                    item = new ItemDto
+                    {
+                        productId = history.productId,
+                        productName = findProduct.description,
+                        amount = history.amount,
+                        imageUrl = listUrls,
+                        description = findProduct.description,
+                        priceProduct = history.price,
+                        priceTotal = (history.price * history.amount),
+                    }
+                };
+
+                historyList.Add(model);
+            }
+            return historyList;
         }
 
         public async Task<HistoryPurchaseDto> GetHistoryPurchaseById(int id)

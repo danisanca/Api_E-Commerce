@@ -9,6 +9,7 @@ namespace ApiEstoque.Repository.Interface
         Task<bool> UpdateImage(ImageModel image);
         Task<List<ImageModel>> GetAllImages(FilterGetRoutes status);
         Task<ImageModel> GetImageById(int id);
+        Task<List<ImageModel>> GetImagesByIdProduct(int idProduct);
         Task<ImageModel> GetImageByUrl(string url);
     }
 }

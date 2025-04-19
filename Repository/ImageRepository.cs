@@ -34,6 +34,11 @@ namespace ApiEstoque.Repository
             return await _db.Image.FirstOrDefaultAsync(x => x.id == id);
         }
 
+        public async Task<List<ImageModel>> GetImagesByIdProduct(int idProduct)
+        {
+            return await _db.Image.Where(x => x.productId == idProduct).ToListAsync();
+        }
+
         public async Task<ImageModel> GetImageByUrl(string url)
         {
             return await _db.Image.FirstOrDefaultAsync(x => x.url == url);

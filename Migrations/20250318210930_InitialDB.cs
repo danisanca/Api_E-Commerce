@@ -22,7 +22,7 @@ namespace ApiEstoque.Migrations
                     password = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     status = table.Column<string>(type: "nvarchar(24)", maxLength: 24, nullable: false),
-                    typeAccout = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    typeAccount = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     createdAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     updatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -111,6 +111,7 @@ namespace ApiEstoque.Migrations
                     price = table.Column<float>(type: "real", nullable: false),
                     categoriesId = table.Column<int>(type: "int", nullable: false),
                     imageId = table.Column<int>(type: "int", nullable: true),
+                    shopId = table.Column<int>(type: "int", nullable: false),
                     description = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     status = table.Column<string>(type: "nvarchar(45)", maxLength: 45, nullable: false),
                     createdAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -130,6 +131,12 @@ namespace ApiEstoque.Migrations
                         column: x => x.imageId,
                         principalTable: "Image",
                         principalColumn: "id");
+                    table.ForeignKey(
+                        name: "FK_Product_Shop_shopId",
+                        column: x => x.shopId,
+                        principalTable: "Shop",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -141,7 +148,7 @@ namespace ApiEstoque.Migrations
                     productId = table.Column<int>(type: "int", nullable: false),
                     userId = table.Column<int>(type: "int", nullable: false),
                     status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    drescription = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    description = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     createdAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -319,6 +326,11 @@ namespace ApiEstoque.Migrations
                 name: "IX_Product_imageId",
                 table: "Product",
                 column: "imageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Product_shopId",
+                table: "Product",
+                column: "shopId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ScoreProduct_productId",

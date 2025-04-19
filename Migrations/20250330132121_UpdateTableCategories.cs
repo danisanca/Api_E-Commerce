@@ -5,24 +5,24 @@
 namespace ApiEstoque.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateTBUser : Migration
+    public partial class UpdateTableCategories : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "typeAccout",
-                table: "User",
-                newName: "typeAccount");
+            migrationBuilder.AddColumn<string>(
+                name: "imageUrl",
+                table: "Categories",
+                type: "nvarchar(max)",
+                nullable: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "typeAccount",
-                table: "User",
-                newName: "typeAccout");
+            migrationBuilder.DropColumn(
+                name: "imageUrl",
+                table: "Categories");
         }
     }
 }

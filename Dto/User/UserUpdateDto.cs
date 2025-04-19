@@ -5,7 +5,7 @@ namespace ApiEstoque.Dto.User
     public class UserUpdateDto
     {
         [Required(ErrorMessage = "Id do usuario é um campo obrigatório.")]
-        public int idUser { get; set; }
+        public int id { get; set; }
 
         [StringLength(45, ErrorMessage = "O nome deve ter no maximo {1} characters.")]
         [Required(ErrorMessage = "Nome é um campo obrigatório.")]

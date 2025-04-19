@@ -18,16 +18,21 @@ namespace ApiEstoque
     {
         public static void Main(string[] args)
         {
+            
             var builder = WebApplication.CreateBuilder(args);
             var configuration = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json")
             .Build();
+
+            
+            MercadoPago.Config.MercadoPagoConfig.AccessToken = builder.Configuration.GetValue<string>("MercadoPago:AccessToken");
             // Add services to the container.
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            
+            //Mercardo Pago
+           
             //Configuração do AutoMapper
             var config = new AutoMapper.MapperConfiguration(cfg =>
             {
@@ -63,6 +68,10 @@ namespace ApiEstoque
             builder.Services.AddScoped<IScoreProductRepository, ScoreProductRepository>();
             builder.Services.AddScoped<IScoreProductService, ScoreProductService>();
             builder.Services.AddScoped<ILoginService, LoginService>();
+            builder.Services.AddScoped<IDiscountRepository, DiscountRepository>();
+            builder.Services.AddScoped<IDiscountService, DiscountService>();
+            builder.Services.AddScoped<IAddressRepository, AddressRepository>();
+            builder.Services.AddScoped<IAddressService, AddressService>();
             //-
             //-- Configurando o Token
             var signingConfigurations = new SigningConfigurations();
@@ -126,6 +135,8 @@ namespace ApiEstoque
             });
             //-
             var app = builder.Build();
+
+
             app.UseCors();
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

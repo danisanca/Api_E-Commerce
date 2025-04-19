@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApiEstoque.Migrations
 {
     [DbContext(typeof(ApiContext))]
-    [Migration("20241204164350_UpdateDb")]
-    partial class UpdateDb
+    [Migration("20250318220106_UpdateImg")]
+    partial class UpdateImg
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -71,7 +71,7 @@ namespace ApiEstoque.Migrations
                     b.Property<DateTime>("createdAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("drescription")
+                    b.Property<string>("description")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
@@ -172,6 +172,9 @@ namespace ApiEstoque.Migrations
 
                     b.Property<DateTime>("createdAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("productId")
+                        .HasColumnType("int");
 
                     b.Property<int>("shopId")
                         .HasColumnType("int");
@@ -386,7 +389,7 @@ namespace ApiEstoque.Migrations
                         .HasMaxLength(24)
                         .HasColumnType("nvarchar(24)");
 
-                    b.Property<string>("typeAccout")
+                    b.Property<string>("typeAccount")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

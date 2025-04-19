@@ -9,5 +9,6 @@ namespace ApiEstoque.Services.Interface
         Task<HistoryPurchaseDto> GetHistoryPurchaseById(int id);
         Task<List<HistoryPurchaseDto>> GetAllHistoryPurchaseByProductId(int idProduct);
         Task<List<HistoryPurchaseDto>> GetAllHistoryPurchaseByShopId(int idShop);
+        Task<List<HistoryPurchaseFullDto>> GetAllHistoryPurchaseByUserId(int idShop);
     }
 }

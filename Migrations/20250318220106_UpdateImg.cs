@@ -5,24 +5,25 @@
 namespace ApiEstoque.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateTBEvidence : Migration
+    public partial class UpdateImg : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "drescription",
-                table: "Evidence",
-                newName: "description");
+            migrationBuilder.AddColumn<int>(
+                name: "productId",
+                table: "Image",
+                type: "int",
+                nullable: false,
+                defaultValue: 0);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "description",
-                table: "Evidence",
-                newName: "drescription");
+            migrationBuilder.DropColumn(
+                name: "productId",
+                table: "Image");
         }
     }
 }

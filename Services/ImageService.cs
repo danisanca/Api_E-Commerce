@@ -8,6 +8,7 @@ using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
 using AutoMapper;
 using System;
+using System.Collections.Generic;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace ApiEstoque.Services
@@ -16,11 +17,13 @@ namespace ApiEstoque.Services
     {
         private readonly IMapper _mapper;
         private readonly IImageRepository _imageRepository;
+        private readonly IProductRepository _productRepository;
 
-        public ImageService(IMapper mapper, IImageRepository imageRepository)
+        public ImageService(IMapper mapper, IImageRepository imageRepository, IProductRepository productRepository)
         {
             _mapper = mapper;
             _imageRepository = imageRepository;
+            _productRepository = productRepository;
         }
 
         public async Task<bool> ActiveImage(int id)
@@ -110,6 +113,25 @@ namespace ApiEstoque.Services
                 var findImage = await _imageRepository.GetImageById(id);
                 if (findImage == null) throw new FailureRequestException(404, "Id da imagem nao localizada");
                 return _mapper.Map<ImageDto>(findImage);
+            }
+            catch (FailureRequestException ex)
+            {
+                throw new FailureRequestException(ex.StatusCode, ex.Message);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<List<ImageDto>> GetImagesByIdProduct(int idProduct)
+        {
+            try
+            {
+                var findProduct = await _productRepository.GetProductById(idProduct);
+                if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizada");
+                var findImages = await _imageRepository.GetImagesByIdProduct(idProduct);
+                return _mapper.Map<List<ImageDto>>(findImages);
             }
             catch (FailureRequestException ex)
             {

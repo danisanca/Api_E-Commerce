@@ -6,7 +6,7 @@ namespace ApiEstoque.Dto.Categories
     {
         public int id { get; set; }
         public string name { get; set; }
-        public int shopId { get; set; }
+        public string imageUrl { get; set; }
         public string status { get; set; }
     }
 }

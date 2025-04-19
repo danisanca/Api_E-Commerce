@@ -62,7 +62,7 @@ namespace ApiEstoque.Services
                         string token = CreateToken(identity, createDate, expirationDate, handler);
                         var findShop = await _shopRepository.GetShopByUserId(baseUser.id);
                         var idShop = findShop == null? 0 : findShop.id;
-                        var json = SuccessObject(createDate, expirationDate, token, user, idShop);
+                        var json = SuccessObject(createDate, expirationDate, token);
                         return json;
                        
                     }
@@ -98,7 +98,7 @@ namespace ApiEstoque.Services
             return token;
         }
 
-        private object SuccessObject(DateTime createDate, DateTime expirationDate, string token, LoginDto user, int? shopId = 0)
+        private object SuccessObject(DateTime createDate, DateTime expirationDate, string token)
         {
             return new
             {
@@ -106,8 +106,6 @@ namespace ApiEstoque.Services
                 created = createDate.ToString("yyyy-MM-dd HH:mm:ss"),
                 expiration = expirationDate.ToString("yyyy-MM-dd HH:mm:ss"),
                 acessToken = "Bearer " + token,
-                userName = user.email,
-                shopId = shopId == 0 ? 0:shopId,
                 message = "Usuário logado com sucesso."
             };
         }

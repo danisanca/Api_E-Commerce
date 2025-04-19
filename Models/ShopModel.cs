@@ -10,7 +10,6 @@
         public DateTime createdAt { get; set; } = DateTime.Now;
         public DateTime updatedAt { get; set; } = DateTime.Now;
 
-        public IEnumerable<CategoriesModel> categories { get; set; }
         public IEnumerable<ProductModel> products { get; set; }
 
     }

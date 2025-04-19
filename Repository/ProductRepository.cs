@@ -27,6 +27,16 @@ namespace ApiEstoque.Repository
             return await _db.Product.Where(x => x.categoriesId == id && x.shopId == idShop).ToListAsync();
         }
 
+        public async Task<List<ProductModel>> GetAllProductsActive()
+        {
+            var query = from product in _db.Product
+                        join stock in _db.Stock on product.id equals stock.productId
+                        where product.status == "Ativo"
+                        select product;
+
+            return await query.Distinct().ToListAsync();
+        }
+
         public async Task<List<ProductModel>> GetAllProductsByShopId(FilterGetRoutes status, int idShop)
         {
             if (status != FilterGetRoutes.All) return await _db.Product.Where(x => x.status == status.ToString() && x.shopId == idShop).ToListAsync();

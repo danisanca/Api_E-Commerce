@@ -5,7 +5,7 @@ namespace ApiEstoque.Services.Interface
 {
     public interface IEvidenceService
     {
-        Task<EvidenceDto> CreateEvidence(EvidenceCreateDto model);
+        Task<EvidenceDto> CreateEvidence(EvidenceCreateDto evidenceCreate);
         Task<EvidenceDto> GetEvidenceById(int id);
         Task<List<EvidenceDto>> GetAllEvidenceByProductId(int idProduct);
         Task<List<EvidenceDto>> GetAllEvidenceByShopId(int idShop);

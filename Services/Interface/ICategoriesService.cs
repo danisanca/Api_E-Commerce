@@ -10,7 +10,7 @@ namespace ApiEstoque.Services.Interface
         Task<bool> ActiveCategories(int idCategories);
         Task<bool> DisableCategories(int idCategories);
         Task<CategoriesDto> GetCategoriesById(int id);
-        Task<CategoriesDto> GetCategoriesByName(string name, int shopId);
-        Task<List<CategoriesDto>> GetAllCategories(int shopId, FilterGetRoutes status = FilterGetRoutes.All);
+        Task<CategoriesDto> GetCategoriesByName(string name);
+        Task<List<CategoriesDto>> GetAllCategories(FilterGetRoutes status = FilterGetRoutes.All);
     }
 }

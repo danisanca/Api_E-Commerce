@@ -3,10 +3,9 @@
     public class EvidenceDto
     {
         public int id { get; set; }
-        public int userId { get; set; }
-        public string status { get; set; }
+        public string username { get; set; }
         public string description { get; set; }
-        public int productId { get; set; }
+        public string productName { get; set; }
         public DateTime createdAt { get; set; }
     }
 }

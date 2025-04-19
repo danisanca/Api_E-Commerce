@@ -33,6 +33,7 @@ namespace ApiEstoque.Controllers
             {
                 var result = await _categoriesService.CreateCategories(categoriesCreate);
                 if (result == null) return NotFound();
+                
                 else return Ok(result);
 
             }
@@ -47,8 +48,8 @@ namespace ApiEstoque.Controllers
         }
 
         [HttpGet]
-        [Route("GetAllCategories/{shopId}")]
-        public async Task<ActionResult> GetAllCategories(int shopId)
+        [Route("GetAllCategories")]
+        public async Task<ActionResult> GetAllCategories()
         {
             if (!ModelState.IsValid)
             {
@@ -56,7 +57,7 @@ namespace ApiEstoque.Controllers
             }
             try
             {
-                var result = await _categoriesService.GetAllCategories(shopId);
+                var result = await _categoriesService.GetAllCategories();
                 if (result == null) return NotFound();
                 else return Ok(result);
             }
@@ -71,8 +72,8 @@ namespace ApiEstoque.Controllers
         }
 
         [HttpGet]
-        [Route("GetAllActiveCategories/{shopId}")]
-        public async Task<ActionResult> GetAllActiveCategories(int shopId)
+        [Route("GetAllActiveCategories")]
+        public async Task<ActionResult> GetAllActiveCategories()
         {
             if (!ModelState.IsValid)
             {
@@ -80,7 +81,7 @@ namespace ApiEstoque.Controllers
             }
             try
             {
-                var result = await _categoriesService.GetAllCategories(shopId,FilterGetRoutes.Ativo);
+                var result = await _categoriesService.GetAllCategories(FilterGetRoutes.Ativo);
                 if (result == null) return NotFound();
                 else return Ok(result);
             }
@@ -95,8 +96,8 @@ namespace ApiEstoque.Controllers
         }
 
         [HttpGet]
-        [Route("GetAllDesactiveCategories/{shopId}")]
-        public async Task<ActionResult> GetAllDesactiveCategories(int shopId)
+        [Route("GetAllDesactiveCategories")]
+        public async Task<ActionResult> GetAllDesactiveCategories()
         {
             if (!ModelState.IsValid)
             {
@@ -104,7 +105,7 @@ namespace ApiEstoque.Controllers
             }
             try
             {
-                var result = await _categoriesService.GetAllCategories(shopId, FilterGetRoutes.Desabilitado);
+                var result = await _categoriesService.GetAllCategories(FilterGetRoutes.Desabilitado);
                 if (result == null) return NotFound();
                 else return Ok(result);
             }
@@ -145,7 +146,7 @@ namespace ApiEstoque.Controllers
         
         [HttpGet]
         [Route("GetCategoryByName/{categoryName}")]
-        public async Task<ActionResult> GetCategoryByName([FromQuery] int shopId,string categoryName)
+        public async Task<ActionResult> GetCategoryByName(string categoryName)
         {
             if (!ModelState.IsValid)
             {
@@ -153,7 +154,7 @@ namespace ApiEstoque.Controllers
             }
             try
             {
-                var result = await _categoriesService.GetCategoriesByName(categoryName,shopId);
+                var result = await _categoriesService.GetCategoriesByName(categoryName);
                 if (result == null) return NotFound();
                 else return Ok(result);
             }

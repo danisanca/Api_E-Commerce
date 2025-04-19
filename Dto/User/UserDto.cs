@@ -1,4 +1,6 @@
-﻿namespace ApiEstoque.Dto.User
+﻿using ApiEstoque.Dto.Adress;
+
+namespace ApiEstoque.Dto.User
 {
     public class UserDto
     {
@@ -8,5 +10,7 @@
         public string email { get; set; }
         public string status { get; set; }
         public string typeAccount { get; set; }
+
+        
     }
 }

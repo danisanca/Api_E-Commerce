@@ -287,7 +287,85 @@ namespace ApiEstoque.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
         }
-
+        [HttpGet]
+        [Route("GetProductFullById/{idProduct}")]
+        public async Task<ActionResult> GetProductFullById(int idProduct)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                ProductFullDto produuct = await _productService.GetProductFullById(idProduct);
+                if (produuct == null)
+                {
+                    return NotFound();
+                }
+                else return Ok(produuct);
+            }
+            catch (FailureRequestException ex)
+            {
+                return StatusCode(ex.StatusCode, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+        [HttpGet]
+        [Route("GetProductFullByName/{nameProduct}")]
+        public async Task<ActionResult> GetProductFullByName(string nameProduct, int idShop)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                ProductFullDto produuct = await _productService.GetProductFullByName(nameProduct, idShop);
+                if (produuct == null)
+                {
+                    return NotFound();
+                }
+                else return Ok(produuct);
+            }
+            catch (FailureRequestException ex)
+            {
+                return StatusCode(ex.StatusCode, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+        [HttpGet]
+        [Route("GetAllProductsFullActive")]
+        public async Task<ActionResult> GetAllProductsFullActive()
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+           
+            try
+            {
+                List<ProductFullDto> product = await _productService.GetAllProductsFullActive();
+                if (product == null)
+                {
+                    return NotFound();
+                }
+                else return Ok(product);
+            }
+            catch (FailureRequestException ex)
+            {
+                return StatusCode(ex.StatusCode, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
 
     }
 }

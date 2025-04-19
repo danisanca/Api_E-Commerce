@@ -10,6 +10,9 @@ namespace ApiEstoque.Dto.HistoryPurchase
         [Required(ErrorMessage = "Quantidade é um campo obrigatório.")]
         public float amount { get; set; }
 
+        [Required(ErrorMessage = "Preço é um campo obrigatório.")]
+        public float price { get; set; }
+
         [Required(ErrorMessage = "Id do usuario é um campo obrigatório.")]
         public int userId { get; set; }
     }

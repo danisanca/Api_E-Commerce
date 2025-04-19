@@ -345,5 +345,57 @@ namespace ApiEstoque.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
         }
+        [HttpGet]
+        [Route("GetUserFullByIdUser/{idUser}")]
+        public async Task<ActionResult> GetUserFullByIdUser(int idUser)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                UserFullDto user = await _userService.GetUserFullByIdUser(idUser);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+                else return Ok(user);
+            }
+            catch (FailureRequestException ex)
+            {
+                return StatusCode(ex.StatusCode, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+        [HttpPut]
+        [Route("ChangePassword")]
+        public async Task<ActionResult> ChangePassword([FromBody] ChangePasswordDto changePassword)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                bool result = await _userService.ChangePassword(changePassword);
+                if (result == false)
+                {
+                    return NotFound();
+                }
+                else return Ok();
+            }
+            catch (FailureRequestException ex)
+            {
+                return StatusCode(ex.StatusCode, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
     }
 }

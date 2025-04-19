@@ -18,6 +18,8 @@ namespace ApiEstoque.Data
         public DbSet<ScoreProductModel> ScoreProduct { get; set; }
         public DbSet<StockModel> Stock { get; set; }
         public DbSet<UserModel> User { get; set; }
+        public DbSet<DiscountModel> Discount { get; set; }
+        public DbSet<AddressModel> Adress { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -32,6 +34,9 @@ namespace ApiEstoque.Data
             modelBuilder.ApplyConfiguration(new ScoreProductMap());
             modelBuilder.ApplyConfiguration(new StockMap());
             modelBuilder.ApplyConfiguration(new UserMap());
+            modelBuilder.ApplyConfiguration(new DiscountMap());
+            modelBuilder.ApplyConfiguration(new AddressMap());
+
             base.OnModelCreating(modelBuilder);
         }
     }

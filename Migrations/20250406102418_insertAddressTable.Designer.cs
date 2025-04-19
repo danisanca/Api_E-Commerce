@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApiEstoque.Migrations
 {
     [DbContext(typeof(ApiContext))]
-    [Migration("20241206140710_UpdateTBEvidence")]
-    partial class UpdateTBEvidence
+    [Migration("20250406102418_insertAddressTable")]
+    partial class insertAddressTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,63 @@ namespace ApiEstoque.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("ApiEstoque.Models.AddressModel", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<string>("cellPhone")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("nvarchar(11)");
+
+                    b.Property<string>("city")
+                        .IsRequired()
+                        .HasMaxLength(45)
+                        .HasColumnType("nvarchar(45)");
+
+                    b.Property<string>("complement")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("neighborhood")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("state")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("nvarchar(2)");
+
+                    b.Property<string>("street")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime>("updatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("userId")
+                        .IsUnicode(true)
+                        .HasColumnType("int");
+
+                    b.Property<string>("zipcode")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("userId");
+
+                    b.ToTable("Adress");
+                });
 
             modelBuilder.Entity("ApiEstoque.Models.CategoriesModel", b =>
                 {
@@ -36,14 +93,15 @@ namespace ApiEstoque.Migrations
                     b.Property<DateTime>("createdAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("imageUrl")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
                     b.Property<string>("name")
                         .IsRequired()
                         .HasMaxLength(45)
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(45)");
-
-                    b.Property<int>("shopId")
-                        .HasColumnType("int");
 
                     b.Property<string>("status")
                         .IsRequired()
@@ -55,9 +113,39 @@ namespace ApiEstoque.Migrations
 
                     b.HasKey("id");
 
-                    b.HasIndex("shopId");
-
                     b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("ApiEstoque.Models.DiscountModel", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<DateTime>("createdAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("description")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<float>("percentDiscount")
+                        .HasColumnType("real");
+
+                    b.Property<int>("productId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("updatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("productId");
+
+                    b.ToTable("Discount");
                 });
 
             modelBuilder.Entity("ApiEstoque.Models.EvidenceModel", b =>
@@ -173,6 +261,9 @@ namespace ApiEstoque.Migrations
                     b.Property<DateTime>("createdAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("productId")
+                        .HasColumnType("int");
+
                     b.Property<int>("shopId")
                         .HasColumnType("int");
 
@@ -219,9 +310,6 @@ namespace ApiEstoque.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<int?>("imageId")
-                        .HasColumnType("int");
-
                     b.Property<string>("name")
                         .IsRequired()
                         .HasMaxLength(45)
@@ -245,8 +333,6 @@ namespace ApiEstoque.Migrations
                     b.HasKey("id");
 
                     b.HasIndex("categoriesId");
-
-                    b.HasIndex("imageId");
 
                     b.HasIndex("shopId");
 
@@ -386,7 +472,7 @@ namespace ApiEstoque.Migrations
                         .HasMaxLength(24)
                         .HasColumnType("nvarchar(24)");
 
-                    b.Property<string>("typeAccout")
+                    b.Property<string>("typeAccount")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -404,15 +490,26 @@ namespace ApiEstoque.Migrations
                     b.ToTable("User");
                 });
 
-            modelBuilder.Entity("ApiEstoque.Models.CategoriesModel", b =>
+            modelBuilder.Entity("ApiEstoque.Models.AddressModel", b =>
                 {
-                    b.HasOne("ApiEstoque.Models.ShopModel", "Shop")
-                        .WithMany("categories")
-                        .HasForeignKey("shopId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                    b.HasOne("ApiEstoque.Models.UserModel", "user")
+                        .WithMany()
+                        .HasForeignKey("userId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Shop");
+                    b.Navigation("user");
+                });
+
+            modelBuilder.Entity("ApiEstoque.Models.DiscountModel", b =>
+                {
+                    b.HasOne("ApiEstoque.Models.ProductModel", "product")
+                        .WithMany("discounts")
+                        .HasForeignKey("productId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("product");
                 });
 
             modelBuilder.Entity("ApiEstoque.Models.EvidenceModel", b =>
@@ -491,10 +588,6 @@ namespace ApiEstoque.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ApiEstoque.Models.ImageModel", "image")
-                        .WithMany()
-                        .HasForeignKey("imageId");
-
                     b.HasOne("ApiEstoque.Models.ShopModel", "shop")
                         .WithMany("products")
                         .HasForeignKey("shopId")
@@ -502,8 +595,6 @@ namespace ApiEstoque.Migrations
                         .IsRequired();
 
                     b.Navigation("categories");
-
-                    b.Navigation("image");
 
                     b.Navigation("shop");
                 });
@@ -551,6 +642,8 @@ namespace ApiEstoque.Migrations
 
             modelBuilder.Entity("ApiEstoque.Models.ProductModel", b =>
                 {
+                    b.Navigation("discounts");
+
                     b.Navigation("evidences");
 
                     b.Navigation("scoreProducts");
@@ -560,8 +653,6 @@ namespace ApiEstoque.Migrations
 
             modelBuilder.Entity("ApiEstoque.Models.ShopModel", b =>
                 {
-                    b.Navigation("categories");
-
                     b.Navigation("products");
                 });
 

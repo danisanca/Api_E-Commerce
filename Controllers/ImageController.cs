@@ -166,6 +166,30 @@ namespace ApiEstoque.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
         }
+        
+        [HttpGet]
+        [Route("GetImageByProductId/{productId}")]
+        public async Task<ActionResult> GetImageByProductId(int productId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var result = await _imageService.GetImagesByIdProduct(productId);
+                if (result == null) return NotFound();
+                else return Ok(result);
+            }
+            catch (FailureRequestException ex)
+            {
+                return StatusCode(ex.StatusCode, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
 
         [HttpPut]
         [Route("UpdateImage")]

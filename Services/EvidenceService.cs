@@ -1,5 +1,7 @@
-﻿using ApiEstoque.Dto.Evidence;
+﻿using System.Security.Policy;
+using ApiEstoque.Dto.Evidence;
 using ApiEstoque.Dto.HistoryMoviment;
+using ApiEstoque.Dto.Product;
 using ApiEstoque.Helpers;
 using ApiEstoque.Models;
 using ApiEstoque.Repository;
@@ -28,18 +30,27 @@ namespace ApiEstoque.Services
             _userRepository = userRepository;
         }
 
-        public async Task<EvidenceDto> CreateEvidence(EvidenceCreateDto model)
+        public async Task<EvidenceDto> CreateEvidence(EvidenceCreateDto evidenceCreate)
         {
             try
             {
-                var findProduct = await _productRepository.GetProductById(model.productId);
+                var findProduct = await _productRepository.GetProductById(evidenceCreate.productId);
                 if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
-                var findUser = await _userRepository.GetUserById(model.userId);
+                var findUser = await _userRepository.GetUserById(evidenceCreate.userId);
                 if (findUser == null) throw new FailureRequestException(404, "Id do usuario nao localizado");
                 
-                var evidence = _mapper.Map<EvidenceModel>(model);
-                evidence.status = StandartStatus.Ativo.ToString();
-                return _mapper.Map<EvidenceDto>(await _evidenceRepository.addEvidence(evidence));
+                var model = _mapper.Map<EvidenceModel>(evidenceCreate);
+                model.status = StandartStatus.Ativo.ToString();
+                var result = await _evidenceRepository.addEvidence(model);
+                var evidence = new EvidenceDto
+                {
+                    id=result.id,
+                    productName = findProduct.name,
+                    description = findProduct.description,
+                    createdAt = result.createdAt,
+                    username = findUser.username
+                };
+                return evidence;
             }
             catch (FailureRequestException ex)
             {
@@ -75,9 +86,26 @@ namespace ApiEstoque.Services
             {
                 var findProduct = await _productRepository.GetProductById(idProduct);
                 if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
-                var findEvidende = await _evidenceRepository.GetAllEvidenceByProductId(idProduct);
-                if (findEvidende == null) return new List<EvidenceDto>();
-                return _mapper.Map<List<EvidenceDto>>(findEvidende);
+                var findEvidence = await _evidenceRepository.GetAllEvidenceByProductId(idProduct);
+                if (findEvidence == null) return new List<EvidenceDto>();
+
+                var evidenceList = new List<EvidenceDto>();
+
+                foreach (EvidenceModel evidence in findEvidence)
+                {
+                    var findUser = await _userRepository.GetUserById(evidence.userId);
+                    var model = new EvidenceDto
+                    {
+                        id = evidence.id,
+                        productName = findProduct.name,
+                        description = findProduct.description,
+                        createdAt = evidence.createdAt,
+                        username = findUser == null ? "Anonimo" : findUser.username,
+                    };
+                    evidenceList.Add(model);
+                }
+
+                return evidenceList;
             }
             catch (FailureRequestException ex)
             {
@@ -95,9 +123,27 @@ namespace ApiEstoque.Services
             {
                 var findShop = await _shopRepository.GetShopById(idShop);
                 if (findShop == null) throw new FailureRequestException(404, "Id do shop nao localizado");
-                var findEvidende = await _evidenceRepository.GetAllEvidenceByShopId(idShop);
-                if (findEvidende == null) return new List<EvidenceDto>();
-                return _mapper.Map<List<EvidenceDto>>(findEvidende);
+                var findEvidence = await _evidenceRepository.GetAllEvidenceByShopId(idShop);
+                if (findEvidence == null) return new List<EvidenceDto>();
+                var evidenceList = new List<EvidenceDto>();
+
+                foreach (EvidenceModel evidence in findEvidence)
+                {
+                    var findUser = await _userRepository.GetUserById(evidence.userId);
+                    var findProduct = await _productRepository.GetProductById(evidence.productId);
+                    if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
+                    var model = new EvidenceDto
+                    {
+                        id = evidence.id,
+                        productName = findProduct.name,
+                        description = findProduct.description,
+                        createdAt = evidence.createdAt,
+                        username = findUser == null ? "Anonimo" : findUser.username,
+                    };
+                    evidenceList.Add(model);
+                }
+
+                return evidenceList;
             }
             catch (FailureRequestException ex)
             {
@@ -113,9 +159,20 @@ namespace ApiEstoque.Services
         {
             try
             {
-                var evidence = await _evidenceRepository.GetEvidenceById(id);
-                if (evidence == null) throw new FailureRequestException(404, "Id do historico não localizado.");
-                return _mapper.Map<EvidenceDto>(evidence);
+                var findEvidence = await _evidenceRepository.GetEvidenceById(id);
+                if (findEvidence == null) throw new FailureRequestException(404, "Id do historico não localizado.");
+                var findProduct = await _productRepository.GetProductById(findEvidence.productId);
+                if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
+                var findUser = await _userRepository.GetUserById(findEvidence.userId);
+                var evidence = new EvidenceDto
+                {
+                    id = findEvidence.id,
+                    productName = findProduct.name,
+                    description = findProduct.description,
+                    createdAt = findEvidence.createdAt,
+                    username = findUser ==null ? "Anonimo":findUser.username,
+                };
+                return evidence;
             }
             catch (FailureRequestException ex)
             {

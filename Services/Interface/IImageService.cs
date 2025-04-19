@@ -13,5 +13,6 @@ namespace ApiEstoque.Services.Interface
         Task<List<ImageDto>> GetAllImages(FilterGetRoutes status = FilterGetRoutes.All);
         Task<ImageDto> GetImageById(int id);
         Task<ImageDto> GetImageByUrl(string url);
+        Task<List<ImageDto>> GetImagesByIdProduct(int idProduct);
     }
 }

@@ -10,7 +10,6 @@ namespace ApiEstoque.Dto.Categories
         [Required(ErrorMessage = "Nome é um campo obrigatório.")]
         public string name { get; set; }
 
-        [Required(ErrorMessage = "Id da loja é um campo obrigatório.")]
-        public int shopId { get; set; }
+        public string? imageUrl { get; set; }
     }
 }

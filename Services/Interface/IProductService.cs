@@ -15,5 +15,8 @@ namespace ApiEstoque.Services.Interface
         Task<ProductDto> GetProductById(int id);
         Task<List<ProductDto>> GetAllProductByCategoryId(int idCategory, int idShop);
         Task<ProductDto> GetProductByName(string name, int idShop);
+        Task<ProductFullDto> GetProductFullById(int id);
+        Task<ProductFullDto> GetProductFullByName(string name, int idShop);
+        Task<List<ProductFullDto>> GetAllProductsFullActive();
     }
 }

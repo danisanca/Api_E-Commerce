@@ -1,4 +1,5 @@
-﻿using ApiEstoque.Models;
+﻿using ApiEstoque.Dto.HistoryPurchase;
+using ApiEstoque.Models;
 
 namespace ApiEstoque.Repository.Interface
 {
@@ -8,5 +9,6 @@ namespace ApiEstoque.Repository.Interface
         Task<HistoryPurchaseModel> GetHistoryPurchaseById(int id);
         Task<List<HistoryPurchaseModel>> GetAllHistoryPurchaseByProductId(int idProduct);
         Task<List<HistoryPurchaseModel>> GetAllHistoryPurchaseByShopId(int idShop);
+        Task<List<HistoryPurchaseModel>> GetAllHistoryPurchaseByUserId(int idUser);
     }
 }

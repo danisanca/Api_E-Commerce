@@ -41,6 +41,11 @@ namespace ApiEstoque.Repository
                  .Select(j => j.purchase).ToListAsync();
         }
 
+        public async Task<List<HistoryPurchaseModel>> GetAllHistoryPurchaseByUserId(int idUser)
+        {
+            return await _db.HistoryPurchase.Where(x => x.userId == idUser).ToListAsync();
+        }
+
         public async Task<HistoryPurchaseModel> GetHistoryPurchaseById(int id)
         {
             return await _db.HistoryPurchase.FirstOrDefaultAsync(x => x.id == id);

@@ -48,9 +48,8 @@ namespace ApiEstoque.Services
         {
             try
             {
-                var findShop = await _shopRepository.GetShopById(categories.shopId);
-                if (findShop == null) throw new FailureRequestException(404, "Id da loja nao localizada.");
-                CategoriesModel result = await _categoriesRepository.GetCategoriesByName(categories.name,categories.shopId);
+                
+                CategoriesModel result = await _categoriesRepository.GetCategoriesByName(categories.name);
                 if (result != null) throw new FailureRequestException(409, "Categoria ja cadastrada.");
                 var model = _mapper.Map<CategoriesModel>(categories);
                 model.status = StandartStatus.Ativo.ToString();
@@ -87,13 +86,12 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<List<CategoriesDto>> GetAllCategories(int shopId,FilterGetRoutes status = FilterGetRoutes.All)
+        public async Task<List<CategoriesDto>> GetAllCategories(FilterGetRoutes status = FilterGetRoutes.All)
         {
             try
             {
-                var findShop = await _shopRepository.GetShopById(shopId);
-                if (findShop == null) throw new FailureRequestException(404, "Id da loja nao localizada.");
-                var findCategories = await _categoriesRepository.GetAllCategories(shopId, status);
+                
+                var findCategories = await _categoriesRepository.GetAllCategories(status);
                 if (findCategories == null) return new List<CategoriesDto>();
                 return _mapper.Map<List<CategoriesDto>>(findCategories); 
             }
@@ -125,13 +123,12 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<CategoriesDto> GetCategoriesByName(string name, int shopId)
+        public async Task<CategoriesDto> GetCategoriesByName(string name)
         {
             try
             {
-                var findShop = await _shopRepository.GetShopById(shopId);
-                if (findShop == null) throw new FailureRequestException(404, "Id da loja nao localizada.");
-                var findCategory = await _categoriesRepository.GetCategoriesByName(name,shopId);
+                
+                var findCategory = await _categoriesRepository.GetCategoriesByName(name);
                 if (findCategory == null) throw new FailureRequestException(404, "Nome da categoria nao localizada");
                 return _mapper.Map<CategoriesDto>(findCategory);
             }
@@ -149,11 +146,10 @@ namespace ApiEstoque.Services
         {
             try
             {
-                var findShop = await _shopRepository.GetShopById(categories.shopId);
-                if (findShop == null) throw new FailureRequestException(404, "Id da loja nao localizada.");
+                
                 CategoriesModel findCategory = await _categoriesRepository.GetCategoriesById(categories.idCategories);
                 if (findCategory == null) throw new FailureRequestException(409, "Categoria com o id nao localizada.");
-                var findName = await _categoriesRepository.GetCategoriesByName(categories.name,categories.shopId);
+                var findName = await _categoriesRepository.GetCategoriesByName(categories.name);
                 if (findName != null) throw new FailureRequestException(409, "Categoria ja cadastrada com esse nome.");
                 findCategory.name = categories.name;
                 return await _categoriesRepository.UpdateCategories(findCategory);

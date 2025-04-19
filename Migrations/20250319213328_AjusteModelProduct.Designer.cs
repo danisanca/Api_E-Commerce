@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApiEstoque.Migrations
 {
     [DbContext(typeof(ApiContext))]
-    [Migration("20241211175004_UpdateTBUser")]
-    partial class UpdateTBUser
+    [Migration("20250319213328_AjusteModelProduct")]
+    partial class AjusteModelProduct
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -173,6 +173,9 @@ namespace ApiEstoque.Migrations
                     b.Property<DateTime>("createdAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("productId")
+                        .HasColumnType("int");
+
                     b.Property<int>("shopId")
                         .HasColumnType("int");
 
@@ -219,9 +222,6 @@ namespace ApiEstoque.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<int?>("imageId")
-                        .HasColumnType("int");
-
                     b.Property<string>("name")
                         .IsRequired()
                         .HasMaxLength(45)
@@ -245,8 +245,6 @@ namespace ApiEstoque.Migrations
                     b.HasKey("id");
 
                     b.HasIndex("categoriesId");
-
-                    b.HasIndex("imageId");
 
                     b.HasIndex("shopId");
 
@@ -491,10 +489,6 @@ namespace ApiEstoque.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ApiEstoque.Models.ImageModel", "image")
-                        .WithMany()
-                        .HasForeignKey("imageId");
-
                     b.HasOne("ApiEstoque.Models.ShopModel", "shop")
                         .WithMany("products")
                         .HasForeignKey("shopId")
@@ -502,8 +496,6 @@ namespace ApiEstoque.Migrations
                         .IsRequired();
 
                     b.Navigation("categories");
-
-                    b.Navigation("image");
 
                     b.Navigation("shop");
                 });

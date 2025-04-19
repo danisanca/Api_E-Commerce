@@ -11,6 +11,7 @@ namespace ApiEstoque.Data.Mapping.Models
             builder.HasKey(x => x.id);
             builder.Property(x => x.url).IsRequired().HasMaxLength(255).IsUnicode(true);
             builder.Property(x => x.size).IsRequired();
+            builder.Property(x => x.productId).IsRequired();
             builder.Property(x => x.shopId).IsRequired();
             builder.HasOne(x => x.Shop);
             builder.Property(x => x.status).IsRequired().HasMaxLength(24);

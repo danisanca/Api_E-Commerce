@@ -10,6 +10,8 @@ using ApiEstoque.Dto.Categories;
 using ApiEstoque.Models;
 using AutoMapper;
 using ApiEstoque.Dto.Shop;
+using ApiEstoque.Dto.Discount;
+using ApiEstoque.Dto.Adress;
 
 namespace ApiEstoque.Data.Mapping.Dtos
 {
@@ -17,6 +19,14 @@ namespace ApiEstoque.Data.Mapping.Dtos
     {
         public DtoToModelProfile()
         {
+            #region Address
+            CreateMap<AddressModel, AddressCreateDto>()
+                    .ReverseMap();
+            CreateMap<AddressModel, AddressDto>()
+                    .ReverseMap();
+            CreateMap<AddressModel, AddressUpdateDto>()
+                   .ReverseMap();
+            #endregion
             #region User
             CreateMap<UserModel, UserDto>()
                     .ReverseMap();
@@ -84,8 +94,6 @@ namespace ApiEstoque.Data.Mapping.Dtos
             #endregion
 
             #region Evidence
-            CreateMap<EvidenceModel, EvidenceDto>()
-                    .ReverseMap();
             CreateMap<EvidenceModel, EvidenceCreateDto>()
                     .ReverseMap();
             #endregion
@@ -96,6 +104,15 @@ namespace ApiEstoque.Data.Mapping.Dtos
             CreateMap<CategoriesModel, CategoriesCreateDto>()
                     .ReverseMap();
             CreateMap<CategoriesModel, CategoriesUpdateDto>()
+                    .ReverseMap();
+            #endregion
+
+            #region Discount
+            CreateMap<DiscountModel, DiscountCreateDto>()
+                    .ReverseMap();
+            CreateMap<DiscountModel, DiscountDto>()
+                    .ReverseMap();
+            CreateMap<DiscountModel, DiscountUpdateDto>()
                     .ReverseMap();
             #endregion
         }

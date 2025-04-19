@@ -17,7 +17,6 @@ namespace ApiEstoque.Dto.Product
         [Required(ErrorMessage = "Id da Loja é um campo obrigatório.")]
         public int shopId { get; set; }
 
-        public int? imageId { get; set; }
 
         [StringLength(255, ErrorMessage = "Descrição deve ter no maximo {1} characters.")]
         [Required(ErrorMessage = "Descrição é um campo obrigatório.")]

@@ -17,8 +17,6 @@ namespace ApiEstoque.Data.Mapping.Models
             builder.Property(x => x.updatedAt).IsRequired();
             builder.Property(x => x.categoriesId).IsRequired();
             builder.HasOne(x => x.categories);
-            builder.Property(x => x.imageId);
-            builder.HasOne(x => x.image);
             builder.Property(x => x.shopId).IsRequired();
             builder.HasOne(x => x.shop)
             .WithMany(s => s.products)

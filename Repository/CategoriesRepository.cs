@@ -24,11 +24,11 @@ namespace ApiEstoque.Repository
             return categories;
         }
 
-        public async Task<List<CategoriesModel>> GetAllCategories(int shopId, FilterGetRoutes status)
+        public async Task<List<CategoriesModel>> GetAllCategories(FilterGetRoutes status)
         {
-            if (status == FilterGetRoutes.Ativo) return await _db.Categories.Where(g => g.status == status.ToString() && g.shopId == shopId).ToListAsync();
-            else if (status == FilterGetRoutes.Desabilitado) return await _db.Categories.Where(g => g.status == status.ToString() && g.shopId == shopId).ToListAsync();
-            else return await _db.Categories.Where(g => g.shopId == shopId).ToListAsync();
+            if (status == FilterGetRoutes.Ativo) return await _db.Categories.Where(g => g.status == status.ToString()).ToListAsync();
+            else if (status == FilterGetRoutes.Desabilitado) return await _db.Categories.Where(g => g.status == status.ToString()).ToListAsync();
+            else return await _db.Categories.ToListAsync();
         }
 
         public async Task<CategoriesModel> GetCategoriesById(int id)
@@ -36,9 +36,9 @@ namespace ApiEstoque.Repository
             return await _db.Categories.FirstOrDefaultAsync(x => x.id == id);
         }
 
-        public async Task<CategoriesModel> GetCategoriesByName(string name, int shopId)
+        public async Task<CategoriesModel> GetCategoriesByName(string name)
         {
-            return await _db.Categories.Where(x => x.name == name && x.shopId == shopId).FirstOrDefaultAsync();
+            return await _db.Categories.Where(x => x.name == name).FirstOrDefaultAsync();
         }
 
         public async Task<bool> UpdateCategories(CategoriesModel categories)
