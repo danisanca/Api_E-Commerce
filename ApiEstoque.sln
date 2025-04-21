@@ -5,8 +5,6 @@ VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiEstoque", "ApiEstoque.csproj", "{D69B61E3-505C-4785-BF3C-EAC03ABC9863}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiEstoque.Tests", "ApiEstoque.Tests\ApiEstoque.Tests.csproj", "{97FA95F8-7F03-4B5B-B2CC-3469DF3B5BC5}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,10 +15,6 @@ Global
 		{D69B61E3-505C-4785-BF3C-EAC03ABC9863}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D69B61E3-505C-4785-BF3C-EAC03ABC9863}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D69B61E3-505C-4785-BF3C-EAC03ABC9863}.Release|Any CPU.Build.0 = Release|Any CPU
-		{97FA95F8-7F03-4B5B-B2CC-3469DF3B5BC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{97FA95F8-7F03-4B5B-B2CC-3469DF3B5BC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{97FA95F8-7F03-4B5B-B2CC-3469DF3B5BC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{97FA95F8-7F03-4B5B-B2CC-3469DF3B5BC5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

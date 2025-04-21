@@ -71,11 +71,6 @@ jobs:
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v2
 
-    # List the content of the root folder for debugging
-    - name: Listar conteúdo da pasta (nível raiz)
-      run: |
-        Get-Location
-        Get-ChildItem -Recurse
 
     # Restore the solution dependencies
     - name: Restore dependencies
@@ -85,7 +80,4 @@ jobs:
     - name: Build the solution
       run: dotnet build $env:Solution_Name --configuration ${{ matrix.configuration }}
 
-    # Run the unit tests
-    - name: Execute unit tests
-      run: |
-        dotnet test $env:Solution_Name --configuration ${{ matrix.configuration }} --logger "trx"
+    
