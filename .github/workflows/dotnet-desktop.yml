@@ -54,7 +54,7 @@ jobs:
     runs-on: windows-latest  
 
     env:
-      Solution_Name: ApiEstoque/ApiEstoque.sln
+      Solution_Name: ApiEstoque.sln
     
     steps:
     - name: Checkout
@@ -79,5 +79,5 @@ jobs:
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
-      run: dotnet test ./ApiEstoque/ApiEstoque.sln
+      run: dotnet test $env:Solution_Name
 
