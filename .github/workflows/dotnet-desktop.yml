@@ -55,8 +55,7 @@ jobs:
 
     env:
       Solution_Name: ApiEstoqueTests/ApiEstoqueTests.sln
-      Test_Project_Path: ApiEstoqueTests/ApiEstoqueTests.csproj # Replace with the path to your test project, i.e. MyWpfApp.Tests\MyWpfApp.Tests.csproj.
-      
+    
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -75,6 +74,5 @@ jobs:
 
     # Execute all unit tests in the solution
     - name: Execute unit tests
-      run: ls -la
-
+      run: dotnet test $env:Solution_Name
 
