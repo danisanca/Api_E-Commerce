@@ -54,7 +54,7 @@ jobs:
     runs-on: windows-latest  
 
     env:
-      Solution_Name: ApiEstoqueTests/ApiEstoqueTests.sln
+      Solution_Name: ApiEstoque/ApiEstoque.sln
     
     steps:
     - name: Checkout
