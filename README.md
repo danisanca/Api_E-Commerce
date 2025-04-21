@@ -27,7 +27,7 @@ Os testes foram desenvolvidos para validar as principais funcionalidades da API,
 - Cadastro, edição, exclusão e consulta de produtos.
 - Autenticação com JWT.
 - Controle de estoque com movimentações de entrada e saída.
-- Organização das entidades e seus relacionamentos.
+- ORM para gerenciamento das entidades e seus relacionamentos.
 - Integração com Mercado Pago para pagamentos.
 
 ## 📂 Estrutura do Projeto
