@@ -19,10 +19,13 @@ namespace ApiEstoque.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IHistoryPurchaseService _historyPurchaseService;
 
-        public PaymentController(IUserService userService)
+        public PaymentController(IUserService userService, 
+            IHistoryPurchaseService historyPurchaseService)
         {
             _userService = userService;
+            _historyPurchaseService = historyPurchaseService;
         }
 
         [HttpPost]
@@ -37,7 +40,9 @@ namespace ApiEstoque.Controllers
              string sobrenome = index >= 0 ? user.name.Substring(index + 1) : "";
 
              var external_reference_Controll = Guid.NewGuid().ToString();
-             var preference = new PreferenceRequest
+            var createHistory = await _historyPurchaseService.CreatePendingPurchase(request, external_reference_Controll);
+            if (createHistory == null) return BadRequest("Aguarde um momente e tente denovo");
+            var preference = new PreferenceRequest
              {
                  Items = request.CartList.Select(item => new PreferenceItemRequest
                  {

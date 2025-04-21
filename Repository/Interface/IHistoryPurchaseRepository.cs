@@ -7,8 +7,10 @@ namespace ApiEstoque.Repository.Interface
     {
         Task<HistoryPurchaseModel> AddHistory(HistoryPurchaseModel model);
         Task<HistoryPurchaseModel> GetHistoryPurchaseById(int id);
-        Task<List<HistoryPurchaseModel>> GetAllHistoryPurchaseByProductId(int idProduct);
-        Task<List<HistoryPurchaseModel>> GetAllHistoryPurchaseByShopId(int idShop);
+        Task<HistoryPurchaseModel> GetHistoryPurchaseByExternalRefId(string external_ref);
+       
         Task<List<HistoryPurchaseModel>> GetAllHistoryPurchaseByUserId(int idUser);
+        Task<bool> UpdateHistoryPurchase(HistoryPurchaseModel model);
+        Task<bool> DeleteHistoryPurchase(HistoryPurchaseModel model);
     }
 }

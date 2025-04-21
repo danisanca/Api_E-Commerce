@@ -4,6 +4,7 @@ using ApiEstoque.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApiEstoque.Migrations
 {
     [DbContext(typeof(ApiContext))]
-    partial class ApiContextModelSnapshot : ModelSnapshot
+    [Migration("20250420104229_UpdateHistPurchDB")]
+    partial class UpdateHistPurchDB
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -224,19 +227,21 @@ namespace ApiEstoque.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
-                    b.Property<string>("cartProducts")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<float>("amount")
+                        .HasColumnType("real");
 
                     b.Property<DateTime>("createdAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("externalReference")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid>("externalReference")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<float>("price")
                         .HasColumnType("real");
+
+                    b.Property<int>("productId")
+                        .IsUnicode(true)
+                        .HasColumnType("int");
 
                     b.Property<string>("status")
                         .IsRequired()
@@ -246,6 +251,8 @@ namespace ApiEstoque.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("id");
+
+                    b.HasIndex("productId");
 
                     b.HasIndex("userId");
 
@@ -554,11 +561,19 @@ namespace ApiEstoque.Migrations
 
             modelBuilder.Entity("ApiEstoque.Models.HistoryPurchaseModel", b =>
                 {
+                    b.HasOne("ApiEstoque.Models.ProductModel", "product")
+                        .WithMany()
+                        .HasForeignKey("productId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ApiEstoque.Models.UserModel", "user")
                         .WithMany("historyPurchases")
                         .HasForeignKey("userId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("product");
 
                     b.Navigation("user");
                 });

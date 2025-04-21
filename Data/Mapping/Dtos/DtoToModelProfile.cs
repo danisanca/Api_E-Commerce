@@ -12,6 +12,8 @@ using AutoMapper;
 using ApiEstoque.Dto.Shop;
 using ApiEstoque.Dto.Discount;
 using ApiEstoque.Dto.Adress;
+using ApiEstoque.Dto.PaymentRequest;
+using System.Text.Json;
 
 namespace ApiEstoque.Data.Mapping.Dtos
 {
@@ -79,12 +81,7 @@ namespace ApiEstoque.Data.Mapping.Dtos
                    .ReverseMap();
             #endregion
 
-            #region HistoryPurchase
-            CreateMap<HistoryPurchaseModel, HistoryPurchaseDto>()
-                    .ReverseMap();
-            CreateMap<HistoryPurchaseModel, HistoryPurchaseCreateDto>()
-                    .ReverseMap();
-            #endregion
+            
 
             #region HistoryMoviment
             CreateMap<HistoryMovimentModel, HistoryMovimentDto>()

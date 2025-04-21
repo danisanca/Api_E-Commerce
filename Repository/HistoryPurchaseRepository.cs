@@ -1,6 +1,7 @@
 ﻿using ApiEstoque.Data;
 using ApiEstoque.Models;
 using ApiEstoque.Repository.Interface;
+using MercadoPago.Resource.User;
 using Microsoft.EntityFrameworkCore;
 
 namespace ApiEstoque.Repository
@@ -21,25 +22,12 @@ namespace ApiEstoque.Repository
             return model;
         }
 
-        public async Task<List<HistoryPurchaseModel>> GetAllHistoryPurchaseByProductId(int idProduct)
+        public async Task<HistoryPurchaseModel> GetHistoryPurchaseByExternalRefId(string external_ref)
         {
-            return await _db.HistoryPurchase.Where(x => x.productId == idProduct).ToListAsync();
+            return await _db.HistoryPurchase.FirstOrDefaultAsync(x => x.externalReference == external_ref);
         }
 
-        public async Task<List<HistoryPurchaseModel>> GetAllHistoryPurchaseByShopId(int idShop)
-        {
-            return await _db.HistoryPurchase.Join(
-                _db.Product,
-                purchase => purchase.productId,
-                product => product.id,
-                (purchase, product) => new
-                {
-                    purchase,
-                    product.shopId
-                }
-                ).Where(j => j.shopId == idShop)
-                 .Select(j => j.purchase).ToListAsync();
-        }
+      
 
         public async Task<List<HistoryPurchaseModel>> GetAllHistoryPurchaseByUserId(int idUser)
         {
@@ -49,6 +37,19 @@ namespace ApiEstoque.Repository
         public async Task<HistoryPurchaseModel> GetHistoryPurchaseById(int id)
         {
             return await _db.HistoryPurchase.FirstOrDefaultAsync(x => x.id == id);
+        }
+
+        public async Task<bool> UpdateHistoryPurchase(HistoryPurchaseModel model)
+        {
+            _db.HistoryPurchase.Update(model);
+            await _db.SaveChangesAsync();
+            return true;
+        }
+        public async Task<bool> DeleteHistoryPurchase(HistoryPurchaseModel model)
+        {
+            _db.HistoryPurchase.Remove(model);
+            await _db.SaveChangesAsync();
+            return true;
         }
     }
 }

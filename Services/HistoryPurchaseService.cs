@@ -1,5 +1,7 @@
-﻿using ApiEstoque.Dto.HistoryMoviment;
+﻿using System.Text.Json;
+using ApiEstoque.Dto.HistoryMoviment;
 using ApiEstoque.Dto.HistoryPurchase;
+using ApiEstoque.Dto.PaymentRequest;
 using ApiEstoque.Helpers;
 using ApiEstoque.Models;
 using ApiEstoque.Repository;
@@ -14,10 +16,7 @@ namespace ApiEstoque.Services
     {
         private readonly IMapper _mapper;
         private readonly IHistoryPurchaseRepository _historyPurchaseRepository;
-        private readonly IShopRepository _shopRepository;
-        private readonly IProductRepository _productRepository;
         private readonly IUserRepository _userRepository;
-        private readonly IImageRepository _imageRepository;
 
         public HistoryPurchaseService(IMapper mapper, IHistoryPurchaseRepository historyPurchaseRepository,
             IShopRepository shopRepository, IProductRepository productRepository, IUserRepository userRepository, IImageRepository imageRepository)
@@ -25,117 +24,38 @@ namespace ApiEstoque.Services
             _mapper = mapper;
             _userRepository = userRepository;
             _historyPurchaseRepository = historyPurchaseRepository;
-            _shopRepository = shopRepository;
-            _productRepository = productRepository;
-            _imageRepository = imageRepository;
         }
 
-        public async Task<HistoryPurchaseDto> CreateHistoryPurchase(HistoryPurchaseCreateDto model)
+        public async Task<HistoryPurchaseDto> CreatePendingPurchase(PaymentRequestDto model, string ext_ref)
         {
             try
             {
-                var findProduct = await _productRepository.GetProductById(model.productId);
-                if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
-                var findUser = await _userRepository.GetUserById(model.userId);
+                var findUser = await _userRepository.GetUserById(model.UserId);
                 if (findUser == null) throw new FailureRequestException(404, "Id do usuario nao localizado");
-                var history = _mapper.Map<HistoryPurchaseModel>(model);
-                
-                return _mapper.Map<HistoryPurchaseDto>(await _historyPurchaseRepository.AddHistory(history));
-            }
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
-        public async Task<List<HistoryPurchaseDto>> GetAllHistoryPurchaseByProductId(int idProduct)
-        {
-            
-            try
-            {
-                var findProduct = await _productRepository.GetProductById(idProduct);
-                if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
-                var findHistory = await _historyPurchaseRepository.GetAllHistoryPurchaseByProductId(idProduct);
-                if (findHistory == null) return new List<HistoryPurchaseDto>();
-                return _mapper.Map<List<HistoryPurchaseDto>>(findHistory);
-            }
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
-        public async Task<List<HistoryPurchaseDto>> GetAllHistoryPurchaseByShopId(int idShop)
-        {
-            
-            try
-            {
-                var findShop = await _shopRepository.GetShopById(idShop);
-                if (findShop == null) throw new FailureRequestException(404, "Id do shop nao localizado");
-                var findHistory = await _historyPurchaseRepository.GetAllHistoryPurchaseByShopId(idShop);
-                if (findHistory == null) return new List<HistoryPurchaseDto>();
-                return _mapper.Map<List<HistoryPurchaseDto>>(findHistory);
-            }
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
-        public async Task<List<HistoryPurchaseFullDto>> GetAllHistoryPurchaseByUserId(int idUser)
-        {
-            var findUser = await _userRepository.GetUserById(idUser);
-            if (findUser == null) throw new FailureRequestException(404, "Id do usuario nao localizado");
-            var findHistory = await _historyPurchaseRepository.GetAllHistoryPurchaseByUserId(idUser);
-
-            var historyList = new List<HistoryPurchaseFullDto>();
-
-            foreach (var history in findHistory)
-            {
-                var findProduct = await _productRepository.GetProductById(history.productId);
-                var findImage = await _imageRepository.GetImagesByIdProduct(findProduct.id);
-                var listUrls = findImage.Select(img => img.url).ToList();
-                var model = new HistoryPurchaseFullDto
+                if (model.CartList.Count() <=0) throw new FailureRequestException(404, "Lista de Produtos vazia");
+                var history = new HistoryPurchaseModel
                 {
-                    id = history.id,
-                    createdAt = history.createdAt,
-                    item = new ItemDto
-                    {
-                        productId = history.productId,
-                        productName = findProduct.description,
-                        amount = history.amount,
-                        imageUrl = listUrls,
-                        description = findProduct.description,
-                        priceProduct = history.price,
-                        priceTotal = (history.price * history.amount),
-                    }
+                    cartProducts = JsonSerializer.Serialize(model.CartList),
+                    price = model.finalPrice,
+                    userId = model.UserId,
+                    externalReference = ext_ref,
+                    status = "Pending",
+                    createdAt = DateTime.Now,
                 };
+                var createModel = await _historyPurchaseRepository.AddHistory(history);
+                var result = new HistoryPurchaseDto
+                {
+                    id= createModel.id,
+                    cartProducts = JsonSerializer.Deserialize<List<CartItemDTO>>(createModel.cartProducts),
+                    price = createModel.price,
+                    userId = model.UserId,
+                    externalReference = createModel.externalReference,
+                    status = createModel.status,
+                    createdAt = DateTime.Now,
+                };
+                return result;
 
-                historyList.Add(model);
-            }
-            return historyList;
-        }
 
-        public async Task<HistoryPurchaseDto> GetHistoryPurchaseById(int id)
-        {
-            
-            try
-            {
-                var history = await _historyPurchaseRepository.GetHistoryPurchaseById(id);
-                if (history == null) throw new FailureRequestException(404, "Id do historico não localizado.");
-                return _mapper.Map<HistoryPurchaseDto>(history);
             }
             catch (FailureRequestException ex)
             {
@@ -146,5 +66,134 @@ namespace ApiEstoque.Services
                 throw new Exception(e.Message);
             }
         }
+        public async Task<bool> UpdateHistoryPurchaseByExternalRef(string external_ref, string status)
+        {
+            //pending
+            try
+            {
+                var history = await _historyPurchaseRepository.GetHistoryPurchaseByExternalRefId(external_ref);
+                if (history == null) throw new FailureRequestException(404, "Id do historico não localizado.");
+                if (status == "approved")
+                {
+                    history.status = status;
+                    await _historyPurchaseRepository.UpdateHistoryPurchase(history);
+                    return true;
+                }
+                else if (status == "rejected")
+                {
+                    await _historyPurchaseRepository.DeleteHistoryPurchase(history);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+               
+            }
+            catch (FailureRequestException ex)
+            {
+                throw new FailureRequestException(ex.StatusCode, ex.Message);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+        public async Task<HistoryPurchaseDto> GetHistoryPurchaseById(int idProduct)
+        {
+            
+            try
+            {
+               
+                var findHistory = await _historyPurchaseRepository.GetHistoryPurchaseById(idProduct);
+                if (findHistory == null) return new HistoryPurchaseDto();
+                var result = new HistoryPurchaseDto
+                {
+                    id = findHistory.id,
+                    cartProducts = JsonSerializer.Deserialize<List<CartItemDTO>>(findHistory.cartProducts),
+                    price = findHistory.price,
+                    userId = findHistory.userId,
+                    externalReference = findHistory.externalReference,
+                    status = findHistory.status,
+                    createdAt = findHistory.createdAt,
+                };
+                return result;
+            }
+            catch (FailureRequestException ex)
+            {
+                throw new FailureRequestException(ex.StatusCode, ex.Message);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<HistoryPurchaseDto> GetHistoryPurchaseByExternalRefId(string external_ref)
+        {
+            try
+            {
+
+                var findHistory = await _historyPurchaseRepository.GetHistoryPurchaseByExternalRefId(external_ref);
+                if (findHistory == null) return new HistoryPurchaseDto();
+                var result = new HistoryPurchaseDto
+                {
+                    id = findHistory.id,
+                    cartProducts = JsonSerializer.Deserialize<List<CartItemDTO>>(findHistory.cartProducts),
+                    price = findHistory.price,
+                    userId = findHistory.userId,
+                    externalReference = findHistory.externalReference,
+                    status = findHistory.status,
+                    createdAt = findHistory.createdAt,
+                };
+                return result;
+            }
+            catch (FailureRequestException ex)
+            {
+                throw new FailureRequestException(ex.StatusCode, ex.Message);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<List<HistoryPurchaseDto>> GetAllHistoryPurchaseByUserId(int idUser)
+        {
+            try
+            {
+
+                var findHistory = await _historyPurchaseRepository.GetAllHistoryPurchaseByUserId(idUser);
+                if (findHistory == null) return new List<HistoryPurchaseDto>();
+                var listPurchase = new List<HistoryPurchaseDto>();
+
+                foreach (var item in findHistory)
+                {
+                    var result = new HistoryPurchaseDto
+                    {
+                        id = item.id,
+                        cartProducts = JsonSerializer.Deserialize<List<CartItemDTO>>(item.cartProducts),
+                        price = item.price,
+                        userId = item.userId,
+                        externalReference = item.externalReference,
+                        status = item.status,
+                        createdAt = item.createdAt,
+                    };
+                    listPurchase.Add(result);
+                }
+               
+                return listPurchase;
+            }
+            catch (FailureRequestException ex)
+            {
+                throw new FailureRequestException(ex.StatusCode, ex.Message);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+      
     }
 }

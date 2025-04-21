@@ -28,6 +28,7 @@ Os testes foram desenvolvidos para validar as principais funcionalidades da API,
 - Autenticação com JWT.
 - Controle de estoque com movimentações de entrada e saída.
 - Organização das entidades e seus relacionamentos.
+- Integração com Mercado Pago para pagamentos.
 
 ## 📂 Estrutura do Projeto
 O projeto segue uma arquitetura organizada, focada em **Clean Architecture**:

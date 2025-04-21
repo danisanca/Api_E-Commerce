@@ -9,12 +9,12 @@ namespace ApiEstoque.Data.Mapping.Models
         public void Configure(EntityTypeBuilder<HistoryPurchaseModel> builder)
         {
             builder.HasKey(x => x.id);
-            builder.Property(x => x.amount).IsRequired();
+            builder.Property(x => x.cartProducts).IsRequired().HasColumnType("nvarchar(max)");
             builder.Property(x => x.price).IsRequired();
-            builder.Property(x => x.productId).IsRequired().IsUnicode(true);
-            builder.HasOne(x => x.product);
             builder.Property(x => x.userId).IsRequired();
             builder.HasOne(x => x.user).WithMany(h => h.historyPurchases);
+            builder.Property(x => x.externalReference).IsRequired();
+            builder.Property(x => x.status).IsRequired();
             builder.Property(x => x.createdAt).IsRequired();
         }
     }
