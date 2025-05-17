@@ -1,40 +1,83 @@
-# API de Estoque para um Projeto E-Commerce
+# 🛒 API de Estoque para Projeto E-Commerce
+
+![CI](https://github.com/danisanca/Api_E-Commerce/actions/workflows/dotnet.yml/badge.svg)
 
 ## 📄 Descrição
-Esta API foi desenvolvida como parte de um projeto de gerenciamento de estoque para um site de e-commerce. A aplicação utiliza o framework .NET 8.0 e segue princípios de **Clean Code** para garantir legibilidade, manutenção e organização do código.
 
-A modelagem das entidades foi baseada em um esquema cuidadosamente planejado, levando em consideração os comportamentos esperados no sistema.
+Esta API foi desenvolvida como parte de um sistema de gerenciamento de estoque para um e-commerce. 
+A aplicação é construída com **.NET 8.0**, seguindo os princípios de **Clean Code** e **Clean Architecture** para garantir legibilidade, manutenção e escalabilidade do código.
+
+Inclui também um conjunto de **testes automatizados**, integrados à solução, com foco em garantir a integridade e confiabilidade da aplicação.
+
+---
 
 ## 🛠️ Tecnologias e Ferramentas
 
-### **Principais Ferramentas e Extensões**
-- **Entity Framework**: Para mapeamento objeto-relacional (ORM).
-- **AutoMapper**: Para mapeamento automático entre objetos.
-- **SQL Server**: Banco de dados relacional.
-- **JWT Bearer**: Para autenticação segura com tokens.
+### 🧩 Backend
+- **.NET 8.0**
+- **Entity Framework Core**
+- **AutoMapper**
+- **SQL Server**
+- **JWT Bearer**
+- **Mercado Pago**
 
-### **Ferramentas Utilizadas nos Testes**
-- **xUnit**: Framework de testes.
-- **AutoMapper**: Teste de mapeamentos.
-- **Faker.NetCore**: Geração de dados fictícios para testes.
-- **Moq**: Criação de mocks para simulação de dependências.
+### 🧪 Testes Automatizados
+- **xUnit**
+- **Moq**
+- **Faker.NetCore**
+- **AutoMapper**
 
-## 🧪 Testes Automatizados
-Os testes foram desenvolvidos para validar as principais funcionalidades da API, garantindo confiabilidade e estabilidade. Confira o repositório dedicado aos testes:
-[Repositório de Testes](https://github.com/danisanca/Api_E-Commerce_Tests)
+---
 
 ## 🚀 Funcionalidades Implementadas
-- Cadastro, edição, exclusão e consulta de produtos.
-- Autenticação com JWT.
-- Controle de estoque com movimentações de entrada e saída.
-- ORM para gerenciamento das entidades e seus relacionamentos.
-- Integração com Mercado Pago para pagamentos.
 
-## 📂 Estrutura do Projeto
-O projeto segue uma arquitetura organizada, focada em **Clean Architecture**:
-src/ │-- Controllers/ │-- Data/ │-- DTOs/ │-- Helpers/ │-- Migrations/ │-- Models/ │-- Repositories/ │-- Service/ 
+- Cadastro, edição, exclusão e consulta de produtos
+- Autenticação e autorização com JWT
+- Controle de estoque com movimentações de entrada e saída
+- Integração com o Mercado Pago para pagamentos
+- Testes unitários cobrindo múltiplas camadas (Controllers, Services, Repositories, AutoMapper)
+
+---
+
+## 📂 Estrutura da Solução
+Api/
+│-- Controllers/
+│-- Data/
+│-- DTOs/
+│-- Helpers/
+│-- Migrations/
+│-- Models/
+│-- Repositories/
+│-- Services/
+
+ApiTests/
+│-- Controllers/
+│-- Repositories/
+│-- Services/
+
+---
+
+## 🧪 Escopo dos Testes
+
+1. **Controllers**: Validação das entradas e respostas.
+2. **Services**: Regras de negócio com `Moq`.
+3. **Repositórios**: Persistência no banco de dados.
+4. **AutoMapper**: Validação dos mapeamentos DTO <-> Model.
+
+---
+
+## 🔁 Integração Contínua
+
+Este repositório possui integração contínua com **GitHub Actions**, que realiza:
+
+- Build do projeto
+- Execução dos testes unitários
+
+---
 
 ## 🌟 Diferenciais
-- Segue os princípios de **SOLID** para design de software.
-- Uso de boas práticas como injeção de dependência e segregação de responsabilidades.
-- Foco em extensibilidade e manutenção.
+
+- Princípios **SOLID**
+- Injeção de dependência
+- Testes integrados à solução
+- Arquitetura extensível e testável
