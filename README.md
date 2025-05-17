@@ -1,6 +1,5 @@
 # 🛒 API de Estoque para Projeto E-Commerce
 
-![CI](https://github.com/danisanca/Api_E-Commerce/actions/workflows/dotnet.yml/badge.svg)
 
 ## 📄 Descrição
 
