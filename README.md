@@ -74,7 +74,7 @@ Este repositório possui integração contínua com **GitHub Actions**, que real
 
 ---
 
-## 🌟 Conseitos Principais
+## 🌟 Conceitos Principais
 
 - Princípios **SOLID**
 - Injeção de dependência
