@@ -1,9 +1,9 @@
-# 🛒 API de Estoque para Projeto E-Commerce
+# 🛒 API de Estoque para uma plataforma de E-Commerce
 
 
 ## 📄 Descrição
 
-Esta API foi desenvolvida como parte de um sistema de gerenciamento de estoque para um e-commerce. 
+Esta API foi desenvolvida como parte de um sistema de gerenciamento de estoque para uma plataforma de e-commerce. 
 A aplicação é construída com **.NET 8.0**, seguindo os princípios de **Clean Code** e **Clean Architecture** para garantir legibilidade, manutenção e escalabilidade do código.
 
 Inclui também um conjunto de **testes automatizados**, integrados à solução, com foco em garantir a integridade e confiabilidade da aplicação.
