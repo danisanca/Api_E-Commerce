@@ -14,13 +14,6 @@ namespace ApiEstoque.Repository
             _db = db;
         }
 
-        public async Task<HistoryMovimentModel> AddHistory(HistoryMovimentModel model)
-        {
-            await _db.HistoryMoviment.AddAsync(model);
-            await _db.SaveChangesAsync();
-            return model;
-        }
-
         public async Task<List<HistoryMovimentModel>> GetAllHistoryMovimentByProductId(int idProduct)
         {
             return await _db.HistoryMoviment.Where(x => x.productId == idProduct).ToListAsync();
@@ -41,9 +34,5 @@ namespace ApiEstoque.Repository
                  .Select(j => j.stock).ToListAsync();
         }
 
-        public async Task<HistoryMovimentModel> GetHistoryMovimentById(int id)
-        {
-            return await _db.HistoryMoviment.FirstOrDefaultAsync(x => x.id == id);
-        }
     }
 }

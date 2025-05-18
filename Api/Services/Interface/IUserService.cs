@@ -7,7 +7,7 @@ namespace ApiEstoque.Services.Interface
 {
     public interface IUserService
     {
-        Task<List<UserDto>> GetAllUsers(FilterGetRoutes status = FilterGetRoutes.All);
+        Task<List<UserDto>> GetAllUsers(FilterGetRoutes status = FilterGetRoutes.Ativo);
         Task<UserDto> GetUserById(int idUser);
         Task<UserFullDto> GetUserFullByIdUser(int idUser);
         Task<UserDto> GetUserByEmail(string email);

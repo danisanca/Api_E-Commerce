@@ -14,7 +14,9 @@ namespace ApiEstoque.Data.Mapping.Models
             builder.HasOne(x => x.product).WithMany(x => x.evidences);
             builder.Property(x => x.userId).IsRequired();
             builder.HasOne(x => x.user).WithMany(x => x.evidences);
+            builder.Property(x => x.status).IsRequired().HasMaxLength(24);
             builder.Property(x => x.createdAt).IsRequired();
+            builder.Property(x => x.updatedAt).IsRequired();
         }
     }
 }

@@ -1,8 +1,9 @@
-﻿namespace ApiEstoque.Models
+﻿using ApiEstoque.Models.Base;
+
+namespace ApiEstoque.Models
 {
-    public class ProductModel
+    public class ProductModel : BaseEntity
     {
-        public int id { get; set; }
         public string name { get; set; }
         public float price { get; set; }
         public int categoriesId { get; set; }
@@ -10,9 +11,6 @@
         public int shopId { get; set; }
         public virtual ShopModel shop { get; set; }
         public string description { get; set; }
-        public string status { get; set; }
-        public DateTime createdAt { get; set; } = DateTime.Now;
-        public DateTime updatedAt { get; set; } = DateTime.Now;
 
         public IEnumerable<StockModel> stocks { get; set; }
         public IEnumerable<DiscountModel> discounts { get; set; }

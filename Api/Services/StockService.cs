@@ -2,6 +2,7 @@
 using ApiEstoque.Helpers;
 using ApiEstoque.Models;
 using ApiEstoque.Repository;
+using ApiEstoque.Repository.Base;
 using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
@@ -11,17 +12,20 @@ namespace ApiEstoque.Services
 {
     public class StockService : IStockService
     {
+        private readonly IBaseRepository<StockModel> _baseRepository;
         private readonly IStockRepository _stockRepository;
-        private readonly IProductRepository _productRepository;
-        private readonly IShopRepository _shopRepository;
+        private readonly IBaseRepository<ProductModel> _productRepository;
         private readonly IMapper _mapper;
 
-        public StockService(IStockRepository stockRepository,IProductRepository productRepository,
+        public StockService(
+            IBaseRepository<StockModel> baseRepository,
+            IStockRepository stockRepository,
+            IBaseRepository<ProductModel> productRepository,
             IShopRepository shopRepository, IMapper mapper)
         {
+            _baseRepository = baseRepository;
             _stockRepository = stockRepository;
             _productRepository = productRepository;
-            _shopRepository = shopRepository;
             _mapper = mapper;
         }
 
@@ -29,13 +33,13 @@ namespace ApiEstoque.Services
         {
             try
             {
-                ProductModel findProduct = await _productRepository.GetProductById(stockCreate.productId);
+                ProductModel findProduct = await _productRepository.SelectByIdAsync(stockCreate.productId);
                 if(findProduct == null ) throw new FailureRequestException(404, "Id da produto não localizada.");
                 StockModel findStock = await _stockRepository.GetStockByProductId(stockCreate.productId);
                 if (findStock != null) throw new FailureRequestException(409, "Produto ja cadastrado no estoque.");
                 var model = _mapper.Map<StockModel>(stockCreate);
                 model.status = StandartStatus.Ativo.ToString();
-                return _mapper.Map<StockDto>(await _stockRepository.AddStock(model));
+                return _mapper.Map<StockDto>(await _baseRepository.InsertAsync(model));
 
             }
             catch (FailureRequestException ex)
@@ -52,9 +56,9 @@ namespace ApiEstoque.Services
         {
             try
             {
-                var findStock = await _stockRepository.GetStockById(idStock);
+                var findStock = await _baseRepository.SelectByIdAsync(idStock);
                 if (findStock == null) throw new FailureRequestException(404, "Id do stock não localizado.");
-                return await _stockRepository.DeleteStock(findStock); 
+                return await _baseRepository.DeleteAsync(findStock); 
             }
             catch (FailureRequestException ex)
             {
@@ -70,7 +74,7 @@ namespace ApiEstoque.Services
         {
             try
             {
-                var findShop = await _shopRepository.GetShopById(idShop);
+                var findShop = await _baseRepository.SelectByIdAsync(idShop);
                 if (findShop == null) throw new FailureRequestException(404, "Id do shop não localizado.");
                 var findStock = await _stockRepository.GetAllStockByShopId(idShop);
                 if (findStock == null) throw new FailureRequestException(404, "Não há estoque para esse id.");
@@ -90,7 +94,7 @@ namespace ApiEstoque.Services
         {
             try
             {
-                var findStock = await _stockRepository.GetStockById(id);
+                var findStock = await _baseRepository.SelectByIdAsync(id);
                 if (findStock == null) throw new FailureRequestException(404, "Não há estoque para esse id.");
                 return _mapper.Map<StockDto>(findStock);
             }
@@ -108,7 +112,7 @@ namespace ApiEstoque.Services
         {
             try
             {
-                var findProduct = await _productRepository.GetProductById(idProduct);
+                var findProduct = await _productRepository.SelectByIdAsync(idProduct);
                 if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
                 var findStock = await _stockRepository.GetStockByProductId(idProduct);
                 if (findStock == null) throw new FailureRequestException(404, "Não há estoque para esse id.");
@@ -128,13 +132,13 @@ namespace ApiEstoque.Services
         {
             try
             {
-                var findProduct = await _productRepository.GetProductById(stockUpdate.productId);
+                var findProduct = await _productRepository.SelectByIdAsync(stockUpdate.productId);
                 if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
-                var findStock = await _stockRepository.GetStockById(stockUpdate.idStock);
+                var findStock = await _baseRepository.SelectByIdAsync(stockUpdate.idStock);
                 if (findStock == null) throw new FailureRequestException(404, "Não há estoque para esse id.");
                 if (findStock.productId != stockUpdate.productId) throw new FailureRequestException(409, "O id do produto não é o mesmo que esta cadastrado.");
                 findStock.amount = stockUpdate.amount;
-                return await _stockRepository.UpdateStock(findStock); 
+                return await _baseRepository.UpdateAsync(findStock); 
             }
             catch (FailureRequestException ex)
             {

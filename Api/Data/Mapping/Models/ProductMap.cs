@@ -12,7 +12,7 @@ namespace ApiEstoque.Data.Mapping.Models
             builder.Property(x => x.name).IsRequired().HasMaxLength(45).IsUnicode(true);
             builder.Property(x => x.price).IsRequired();
             builder.Property(x => x.description).IsRequired().HasMaxLength(255);
-            builder.Property(x => x.status).IsRequired().HasMaxLength(45);
+            builder.Property(x => x.status).IsRequired().HasMaxLength(24);
             builder.Property(x => x.createdAt).IsRequired();
             builder.Property(x => x.updatedAt).IsRequired();
             builder.Property(x => x.categoriesId).IsRequired();

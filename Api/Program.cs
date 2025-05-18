@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Net;
+using ApiEstoque.Repository.Base;
 namespace ApiEstoque
 {
     public class Program
@@ -47,6 +48,7 @@ namespace ApiEstoque
                     options => options.UseSqlServer(builder.Configuration.GetConnectionString("DataBase"))
                 );
             //-Configurando os Repositories
+            builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<ICategoriesRepository, CategoriesRepository>();

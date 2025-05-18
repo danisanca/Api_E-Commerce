@@ -14,8 +14,9 @@ namespace ApiEstoque.Data.Mapping.Models
             builder.Property(x => x.userId).IsRequired();
             builder.HasOne(x => x.user).WithMany(h => h.historyPurchases);
             builder.Property(x => x.externalReference).IsRequired();
-            builder.Property(x => x.status).IsRequired();
+            builder.Property(x => x.status).IsRequired().HasMaxLength(24);
             builder.Property(x => x.createdAt).IsRequired();
+            builder.Property(x => x.updatedAt).IsRequired();
         }
     }
 }

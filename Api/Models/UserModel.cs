@@ -1,18 +1,15 @@
 ﻿using ApiEstoque.Helpers;
+using ApiEstoque.Models.Base;
 
 namespace ApiEstoque.Models
 {
-    public class UserModel
+    public class UserModel : BaseEntity
     {
-        public int id { get; set; }
         public string name { get; set; }
         public string username { get; set; }
         public string password { get; set; }
         public string email { get; set; }
-        public string status { get; set; }
         public string typeAccount { get; set; }
-        public DateTime createdAt { get; set; } = DateTime.Now;
-        public DateTime updatedAt { get; set; } = DateTime.Now;
 
         public IEnumerable<HistoryMovimentModel> historyMoviments { get; set; }
         public IEnumerable<HistoryPurchaseModel> historyPurchases { get; set; }

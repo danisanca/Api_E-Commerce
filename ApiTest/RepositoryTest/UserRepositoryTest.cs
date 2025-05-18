@@ -2,6 +2,7 @@
 using ApiEstoque.Helpers;
 using ApiEstoque.Models;
 using ApiEstoque.Repository;
+using ApiEstoque.Repository.Base;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,8 @@ namespace ApiEstoqueTests.RepositoryTest
             using (var apiContext = _serviceProvide.GetService<ApiContext>())
             {
                 UserRepository _userRepository = new UserRepository(apiContext);
-                
+                BaseRepository<UserModel> _baseRepository = new BaseRepository<UserModel>(apiContext);
+
                 #region Entities
                 UserModel firstEntity = new UserModel
                 {
@@ -70,7 +72,7 @@ namespace ApiEstoqueTests.RepositoryTest
 
                 #region Insert_Teste
                 //Criando Primeiro usuario
-                var createdFirstUser = await _userRepository.AddUser(firstEntity);
+                var createdFirstUser = await _baseRepository.InsertAsync(firstEntity);
 
                 Assert.NotNull(createdFirstUser);
                 Assert.Equal(firstEntity.email, createdFirstUser.email);
@@ -80,7 +82,7 @@ namespace ApiEstoqueTests.RepositoryTest
                 Assert.Equal(firstEntity.typeAccount, createdFirstUser.typeAccount);
 
                 //Criando Segundo usuario
-                var createdSecoundUser = await _userRepository.AddUser(secondEntity);
+                var createdSecoundUser = await _baseRepository.InsertAsync(secondEntity);
 
                 Assert.NotNull(createdSecoundUser);
                 Assert.Equal(secondEntity.email, createdSecoundUser.email);
@@ -90,7 +92,7 @@ namespace ApiEstoqueTests.RepositoryTest
                 Assert.Equal(secondEntity.typeAccount, createdSecoundUser.typeAccount);
 
                 //Criando terceiro usuario
-                var createdThirdUser = await _userRepository.AddUser(thirdEntity);
+                var createdThirdUser = await _baseRepository.InsertAsync(thirdEntity);
 
                 Assert.NotNull(createdThirdUser);
                 Assert.Equal(thirdEntity.email, createdThirdUser.email);
@@ -101,7 +103,7 @@ namespace ApiEstoqueTests.RepositoryTest
                 #endregion
 
                 #region GetById_Teste
-                var findUser = await _userRepository.GetUserById(firstEntity.id);
+                var findUser = await _baseRepository.SelectByIdAsync(firstEntity.id);
                 Assert.NotNull(findUser);
                 Assert.Equal(firstEntity.email, findUser.email);
                 Assert.Equal(firstEntity.name, findUser.name);
@@ -113,29 +115,29 @@ namespace ApiEstoqueTests.RepositoryTest
                 #region Update_Teste
                 firstEntity.name = Faker.Name.First();
                 firstEntity.email = Faker.Internet.Email();
-                var updatedUser = await _userRepository.UpdateUser(firstEntity);
+                var updatedUser = await _baseRepository.UpdateAsync(firstEntity);
                 Assert.True(updatedUser);
                 //Confirmando Atualização
-                var findUserUpdated = await _userRepository.GetUserById(firstEntity.id);
+                var findUserUpdated = await _baseRepository.SelectByIdAsync(firstEntity.id);
                 Assert.Equal(firstEntity.email, findUserUpdated.email);
                 Assert.Equal(firstEntity.name, findUserUpdated.name);
                 #endregion
 
                 #region GetAll_Teste
-                var findUsers = await _userRepository.GetAllUsers(FilterGetRoutes.All);
+                var findUsers = await _baseRepository.SelectAllByStatusAsync(FilterGetRoutes.All);
                 Assert.NotNull(findUsers);
                 Assert.True(findUsers.Count() == 3);
                 #endregion
 
                 #region GetAllActives_Teste
-                var findActivesUsers = await _userRepository.GetAllUsers(FilterGetRoutes.Ativo);
+                var findActivesUsers = await _baseRepository.SelectAllByStatusAsync(FilterGetRoutes.Ativo);
                 Assert.NotNull(findActivesUsers);
                 Assert.True(findActivesUsers.Count() == 2);
                 Assert.All(findActivesUsers, user => Assert.Equal(FilterGetRoutes.Ativo.ToString(), user.status));
                 #endregion
 
                 #region GetAllActives_Teste
-                var findDisableUsers = await _userRepository.GetAllUsers(FilterGetRoutes.Desabilitado);
+                var findDisableUsers = await _baseRepository.SelectAllByStatusAsync(FilterGetRoutes.Desabilitado);
                 Assert.NotNull(findDisableUsers);
                 Assert.True(findDisableUsers.Count() == 1);
                 Assert.All(findDisableUsers, user => Assert.Equal(FilterGetRoutes.Desabilitado.ToString(), user.status));

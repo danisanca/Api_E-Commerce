@@ -14,6 +14,7 @@ namespace ApiEstoque.Services
 {
     public class LoginService : ILoginService
     {
+
         private readonly IUserRepository _userRepository;
         private readonly IShopRepository _shopRepository;
         private readonly IMapper _mapper;

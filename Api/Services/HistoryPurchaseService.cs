@@ -5,6 +5,7 @@ using ApiEstoque.Dto.PaymentRequest;
 using ApiEstoque.Helpers;
 using ApiEstoque.Models;
 using ApiEstoque.Repository;
+using ApiEstoque.Repository.Base;
 using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
@@ -16,21 +17,26 @@ namespace ApiEstoque.Services
     {
         private readonly IMapper _mapper;
         private readonly IHistoryPurchaseRepository _historyPurchaseRepository;
-        private readonly IUserRepository _userRepository;
+        private readonly IBaseRepository<UserModel> _userRepository;
+        private readonly IBaseRepository<HistoryPurchaseModel> _baseRepository;
 
-        public HistoryPurchaseService(IMapper mapper, IHistoryPurchaseRepository historyPurchaseRepository,
-            IShopRepository shopRepository, IProductRepository productRepository, IUserRepository userRepository, IImageRepository imageRepository)
+        public HistoryPurchaseService(IMapper mapper,
+            IHistoryPurchaseRepository historyPurchaseRepository,
+            IBaseRepository<UserModel> userRepository, 
+            IBaseRepository<HistoryPurchaseModel> baseRepository
+            )
         {
             _mapper = mapper;
             _userRepository = userRepository;
             _historyPurchaseRepository = historyPurchaseRepository;
+            _baseRepository = baseRepository;
         }
 
         public async Task<HistoryPurchaseDto> CreatePendingPurchase(PaymentRequestDto model, string ext_ref)
         {
             try
             {
-                var findUser = await _userRepository.GetUserById(model.UserId);
+                var findUser = await _userRepository.SelectByIdAsync(model.UserId);
                 if (findUser == null) throw new FailureRequestException(404, "Id do usuario nao localizado");
                 if (model.CartList.Count() <=0) throw new FailureRequestException(404, "Lista de Produtos vazia");
                 var history = new HistoryPurchaseModel
@@ -42,7 +48,7 @@ namespace ApiEstoque.Services
                     status = "Pending",
                     createdAt = DateTime.Now,
                 };
-                var createModel = await _historyPurchaseRepository.AddHistory(history);
+                var createModel = await _baseRepository.InsertAsync(history);
                 var result = new HistoryPurchaseDto
                 {
                     id= createModel.id,
@@ -76,12 +82,12 @@ namespace ApiEstoque.Services
                 if (status == "approved")
                 {
                     history.status = status;
-                    await _historyPurchaseRepository.UpdateHistoryPurchase(history);
+                    await _baseRepository.UpdateAsync(history);
                     return true;
                 }
                 else if (status == "rejected")
                 {
-                    await _historyPurchaseRepository.DeleteHistoryPurchase(history);
+                    await _baseRepository.DeleteAsync(history);
                     return true;
                 }
                 else
@@ -99,13 +105,13 @@ namespace ApiEstoque.Services
                 throw new Exception(e.Message);
             }
         }
-        public async Task<HistoryPurchaseDto> GetHistoryPurchaseById(int idProduct)
+        public async Task<HistoryPurchaseDto> GetHistoryPurchaseById(int id)
         {
             
             try
             {
                
-                var findHistory = await _historyPurchaseRepository.GetHistoryPurchaseById(idProduct);
+                var findHistory = await _baseRepository.SelectByIdAsync(id);
                 if (findHistory == null) return new HistoryPurchaseDto();
                 var result = new HistoryPurchaseDto
                 {

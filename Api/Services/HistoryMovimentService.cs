@@ -2,6 +2,7 @@
 using ApiEstoque.Helpers;
 using ApiEstoque.Models;
 using ApiEstoque.Repository;
+using ApiEstoque.Repository.Base;
 using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
@@ -13,12 +14,18 @@ namespace ApiEstoque.Services
     {
         private readonly IMapper _mapper;
         private readonly IHistoryMovimentRepository _historyMovimentRepository;
-        private readonly IShopRepository _shopRepository;
-        private readonly IProductRepository _productRepository;
-        private readonly IUserRepository _userRepository;
+        private readonly IBaseRepository<ShopModel> _shopRepository;
+        private readonly IBaseRepository<ProductModel> _productRepository;
+        private readonly IBaseRepository<UserModel> _userRepository;
+        private readonly IBaseRepository<HistoryMovimentModel> _baseRepository;
 
-        public HistoryMovimentService(IMapper mapper, IHistoryMovimentRepository historyMovimentRepository,
-            IShopRepository shopRepository, IProductRepository productRepository, IUserRepository userRepository)
+        public HistoryMovimentService (IMapper mapper, 
+            IHistoryMovimentRepository historyMovimentRepository,
+            IBaseRepository<ShopModel> shopRepository,
+            IBaseRepository<ProductModel> productRepository,
+            IBaseRepository<UserModel> userRepository,
+            IBaseRepository<HistoryMovimentModel> _baseRepository
+            )
         {
             _mapper = mapper;
             _userRepository = userRepository;
@@ -31,16 +38,16 @@ namespace ApiEstoque.Services
         {
             try
             {
-                var findProduct = await _productRepository.GetProductById(model.productId);
+                var findProduct = await _productRepository.SelectByIdAsync(model.productId);
                 if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
-                var findUser = await _userRepository.GetUserById(model.userId);
+                var findUser = await _userRepository.SelectByIdAsync(model.userId);
                 if (findUser == null) throw new FailureRequestException(404, "Id do usuario nao localizado");
                 if (model.action != MovimentAction.Entrada.ToString() && model.action != MovimentAction.Saida.ToString()
                    && model.action != MovimentAction.Acerto.ToString() && model.action != MovimentAction.Venda.ToString()) 
                     throw new FailureRequestException(404, "Tipo de Movimentação Invalida.");
                 var history = _mapper.Map<HistoryMovimentModel>(model);
                 
-                return _mapper.Map<HistoryMovimentDto>(await _historyMovimentRepository.AddHistory(history));
+                return _mapper.Map<HistoryMovimentDto>(await _baseRepository.InsertAsync(history));
             }
             catch (FailureRequestException ex)
             {
@@ -57,7 +64,7 @@ namespace ApiEstoque.Services
             
             try
             {
-                var findProduct = await _productRepository.GetProductById(idProduct);
+                var findProduct = await _productRepository.SelectByIdAsync(idProduct);
                 if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
                 var findHistory = await _historyMovimentRepository.GetAllHistoryMovimentByProductId(idProduct);
                 if (findHistory == null) return new List<HistoryMovimentDto>();
@@ -78,7 +85,7 @@ namespace ApiEstoque.Services
             
             try
             {
-                var findShop = await _shopRepository.GetShopById(idShop);
+                var findShop = await _shopRepository.SelectByIdAsync(idShop);
                 if (findShop == null) throw new FailureRequestException(404, "Id do shop nao localizado");
                 var findHistory = await _historyMovimentRepository.GetAllHistoryMovimentByShopId(idShop);
                 if (findHistory == null) return new List<HistoryMovimentDto>();
@@ -99,7 +106,7 @@ namespace ApiEstoque.Services
            
             try
             {
-                var history = await _historyMovimentRepository.GetHistoryMovimentById(id);
+                var history = await _baseRepository.SelectByIdAsync(id);
                 if (history == null) throw new FailureRequestException(404, "Id do historico não localizado.");
                 return _mapper.Map<HistoryMovimentDto>(history);
             }

@@ -3,6 +3,7 @@ using ApiEstoque.Dto.User;
 using ApiEstoque.Helpers;
 using ApiEstoque.Models;
 using ApiEstoque.Repository;
+using ApiEstoque.Repository.Base;
 using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
@@ -13,11 +14,14 @@ namespace ApiEstoque.Services
 {
     public class CategoriesService : ICategoriesService
     {
+        private readonly IBaseRepository<CategoriesModel> _baseRepository;
         private readonly ICategoriesRepository _categoriesRepository;
-        private readonly IShopRepository _shopRepository;
+        private readonly IBaseRepository<ShopModel> _shopRepository;
         private readonly IMapper _mapper;
 
-        public CategoriesService(ICategoriesRepository categoriesRepository, IMapper mapper, IShopRepository shopRepository)
+        public CategoriesService(ICategoriesRepository categoriesRepository,
+            IBaseRepository<CategoriesModel> _baseRepository,
+            IMapper mapper, IBaseRepository<ShopModel> shopRepository)
         {
             _categoriesRepository = categoriesRepository;
             _mapper = mapper;
@@ -28,11 +32,11 @@ namespace ApiEstoque.Services
         {
             try
             {
-                CategoriesModel category = await _categoriesRepository.GetCategoriesById(idCategories);
+                CategoriesModel category = await _baseRepository.SelectByIdAsync(idCategories);
                 if (category == null) throw new FailureRequestException(404, "Id da categoria não localizada.");
                 if (category.status == StandartStatus.Ativo.ToString()) throw new FailureRequestException(409, "Categoria ja está ativa.");
                 category.status = StandartStatus.Ativo.ToString();
-                return await _categoriesRepository.UpdateCategories(category);
+                return await _baseRepository.UpdateAsync(category);
             }
             catch (FailureRequestException ex)
             {
@@ -53,7 +57,7 @@ namespace ApiEstoque.Services
                 if (result != null) throw new FailureRequestException(409, "Categoria ja cadastrada.");
                 var model = _mapper.Map<CategoriesModel>(categories);
                 model.status = StandartStatus.Ativo.ToString();
-                return _mapper.Map<CategoriesDto>(await _categoriesRepository.CreateCategories(model));
+                return _mapper.Map<CategoriesDto>(await _baseRepository.InsertAsync(model));
 
             }
             catch (FailureRequestException ex)
@@ -70,11 +74,11 @@ namespace ApiEstoque.Services
         {
             try
             {
-                CategoriesModel category = await _categoriesRepository.GetCategoriesById(idCategories);
+                CategoriesModel category = await _baseRepository.SelectByIdAsync(idCategories);
                 if (category == null) throw new FailureRequestException(404, "Id da categoria não localizada.");
                 if (category.status == StandartStatus.Desabilitado.ToString()) throw new FailureRequestException(409, "Categoria ja esta desabilitada");
                 category.status = StandartStatus.Desabilitado.ToString();
-                return await _categoriesRepository.UpdateCategories(category);
+                return await _baseRepository.UpdateAsync(category);
             }
             catch (FailureRequestException ex)
             {
@@ -109,7 +113,7 @@ namespace ApiEstoque.Services
         {
             try
             {
-                var findCategory = await _categoriesRepository.GetCategoriesById(id);
+                var findCategory = await _baseRepository.SelectByIdAsync(id);
                 if (findCategory == null) throw new FailureRequestException(404, "Id da categoria nao localizada");
                 return _mapper.Map<CategoriesDto>(findCategory);
             }
@@ -147,12 +151,12 @@ namespace ApiEstoque.Services
             try
             {
                 
-                CategoriesModel findCategory = await _categoriesRepository.GetCategoriesById(categories.idCategories);
+                CategoriesModel findCategory = await _baseRepository.SelectByIdAsync(categories.idCategories);
                 if (findCategory == null) throw new FailureRequestException(409, "Categoria com o id nao localizada.");
                 var findName = await _categoriesRepository.GetCategoriesByName(categories.name);
                 if (findName != null) throw new FailureRequestException(409, "Categoria ja cadastrada com esse nome.");
                 findCategory.name = categories.name;
-                return await _categoriesRepository.UpdateCategories(findCategory);
+                return await _baseRepository.UpdateAsync(findCategory);
             }
             catch (FailureRequestException ex)
             {

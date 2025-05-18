@@ -14,20 +14,6 @@ namespace ApiEstoque.Repository
             _db = db;
         }
 
-        public async Task<EvidenceModel> addEvidence(EvidenceModel model)
-        {
-            await _db.Evidence.AddAsync(model);
-            await _db.SaveChangesAsync();
-            return model;
-        }
-
-        public async Task<bool> deleteEvidence(EvidenceModel model)
-        {
-             _db.Evidence.Remove(model);
-            await _db.SaveChangesAsync();
-            return true;
-        }
-
         public async Task<List<EvidenceModel>> GetAllEvidenceByProductId(int idProduct)
         {
             return await _db.Evidence.Where(x => x.productId == idProduct).ToListAsync();
@@ -48,9 +34,5 @@ namespace ApiEstoque.Repository
                  .Select(j => j.stock).ToListAsync();
         }
 
-        public async Task<EvidenceModel> GetEvidenceById(int id)
-        {
-            return await _db.Evidence.FirstOrDefaultAsync(x => x.id == id);
-        }
     }
 }

@@ -10,7 +10,7 @@ namespace ApiEstoque.Services.Interface
         Task<bool> UpdateImage(ImageUpdateDto image);
         Task<bool> ActiveImage(int id);
         Task<bool> DisableImage(int id);
-        Task<List<ImageDto>> GetAllImages(FilterGetRoutes status = FilterGetRoutes.All);
+        Task<List<ImageDto>> GetAllImages(FilterGetRoutes status = FilterGetRoutes.Ativo);
         Task<ImageDto> GetImageById(int id);
         Task<ImageDto> GetImageByUrl(string url);
         Task<List<ImageDto>> GetImagesByIdProduct(int idProduct);

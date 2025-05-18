@@ -7,22 +7,29 @@ using ApiEstoque.Services.Interface;
 using AutoMapper;
 using ApiEstoque.Helpers;
 using ApiEstoque.Dto.Adress;
+using ApiEstoque.Repository.Base;
 
 namespace ApiEstoque.Services
 {
     public class UserService : IUserService
     {
+        private readonly IBaseRepository<UserModel> _baseRepository;
         private readonly IUserRepository _userRepository;
         private readonly IAddressRepository _addressRepository;
         private readonly IMapper _mapper;
         private readonly string _tokenAdmin;
-        public UserService(IUserRepository userRepository, IMapper mapper, IConfiguration configuration, IAddressRepository addressRepository)
+        public UserService(
+            IUserRepository userRepository,
+            IBaseRepository<UserModel> baseRepository,
+            IMapper mapper, IConfiguration configuration, IAddressRepository addressRepository)
         {
+            _baseRepository = baseRepository;
             _userRepository = userRepository;
             _mapper = mapper;
             _tokenAdmin = configuration["Tokens:TokenAdmin"]; ;
             _addressRepository = addressRepository;
         }
+       
 
         public async Task<UserDto> CreateUser(UserCreateDto userCreate, TypeUserEnum typeUser, string? TokenAdmin = null)
         {
@@ -42,7 +49,7 @@ namespace ApiEstoque.Services
                 if (typeUser == TypeUserEnum.Admin) model.typeAccount = TypeUserEnum.Admin.ToString();
                 if (typeUser == TypeUserEnum.Owner) model.typeAccount = TypeUserEnum.Owner.ToString();
                 
-                return _mapper.Map<UserDto>(await _userRepository.AddUser(model));
+                return _mapper.Map<UserDto>(await _baseRepository.InsertAsync(model));
             }
             catch (FailureRequestException ex)
             {
@@ -54,11 +61,11 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<List<UserDto>> GetAllUsers(FilterGetRoutes status = FilterGetRoutes.All)
+        public async Task<List<UserDto>> GetAllUsers(FilterGetRoutes status = FilterGetRoutes.Ativo)
         {
             try
             {
-                var findUsers = await _userRepository.GetAllUsers(status);
+                var findUsers = await _baseRepository.SelectAllByStatusAsync(status);
                 if (findUsers == null) return new List<UserDto>();
                 return _mapper.Map<List<UserDto>>(findUsers);
             }
@@ -94,7 +101,7 @@ namespace ApiEstoque.Services
         {
             try
             {
-                UserModel findUser = await _userRepository.GetUserById(idUser);
+                UserModel findUser = await _baseRepository.SelectByIdAsync(idUser);
                 if (findUser == null) throw new FailureRequestException(404, "Id do usuario não localizado");
                 return _mapper.Map<UserDto>(findUser);
             }
@@ -131,7 +138,7 @@ namespace ApiEstoque.Services
         {
             try
             {
-                UserModel findUser = await _userRepository.GetUserById(userUpdate.id);
+                UserModel findUser = await _baseRepository.SelectByIdAsync(userUpdate.id);
                 if (findUser == null) throw new FailureRequestException(404, "Id do usuario não localizado");
                 if (findUser.email != userUpdate.email)
                 {
@@ -141,7 +148,7 @@ namespace ApiEstoque.Services
                 }
                 findUser.name = userUpdate.name;
                 
-                return await _userRepository.UpdateUser(findUser);
+                return await _baseRepository.UpdateAsync(findUser);
             }
             catch (FailureRequestException ex)
             {
@@ -157,11 +164,11 @@ namespace ApiEstoque.Services
         {
             try
             {
-                UserModel findUser = await _userRepository.GetUserById(idUser);
+                UserModel findUser = await _baseRepository.SelectByIdAsync(idUser);
                 if (findUser == null) throw new FailureRequestException(404, "Id do usuario não localizado");
                 if (findUser.status == StandartStatus.Ativo.ToString()) throw new FailureRequestException(409, "Usuario ja esta ativo");
                 findUser.status = StandartStatus.Ativo.ToString();
-                return await _userRepository.UpdateUser(findUser);
+                return await _baseRepository.UpdateAsync(findUser);
             }
             catch (FailureRequestException ex)
             {
@@ -177,11 +184,11 @@ namespace ApiEstoque.Services
         {
             try
             {
-                UserModel findUser = await _userRepository.GetUserById(idUser);
+                UserModel findUser = await _baseRepository.SelectByIdAsync(idUser);
                 if (findUser == null) throw new FailureRequestException(404, "Id do usuario não localizado");
                 if (findUser.status == StandartStatus.Desabilitado.ToString()) throw new FailureRequestException(409, "Usuario ja esta Desabilitado");
                 findUser.status = StandartStatus.Desabilitado.ToString();
-                return await _userRepository.UpdateUser(findUser);
+                return await _baseRepository.UpdateAsync(findUser);
             }
             catch (FailureRequestException ex)
             {
@@ -197,7 +204,7 @@ namespace ApiEstoque.Services
         {
             try
             {
-                UserModel findUser = await _userRepository.GetUserById(idUser);
+                UserModel findUser = await _baseRepository.SelectByIdAsync(idUser);
                 if (findUser == null) throw new FailureRequestException(404, "Id do usuario não localizado");
                 AddressModel findAddress = await _addressRepository.GetAddressByUserId(idUser);
                 if (findAddress == null) throw new FailureRequestException(404, "Endereço para o id do usuario não foi localizado");
@@ -228,14 +235,14 @@ namespace ApiEstoque.Services
         {
             try
             {
-                UserModel findUser = await _userRepository.GetUserById(modelPassword.idUser);
+                UserModel findUser = await _baseRepository.SelectByIdAsync(modelPassword.idUser);
                 if (findUser == null) throw new FailureRequestException(404, "Id do usuario não localizado");
                 var currentPassword = modelPassword.CurrentPassword.CreateHash();
                 if (currentPassword != findUser.password) throw new FailureRequestException(404, "Senha Atual Incorreta");
                 if (modelPassword.NewPassword != modelPassword.ConfirmNewPassword) throw new FailureRequestException(404, "Você digitou senhas diferentes na confirmação.");
                 findUser.password = modelPassword.NewPassword.CreateHash();
 
-                return await _userRepository.UpdateUser(findUser);
+                return await _baseRepository.UpdateAsync(findUser);
             }
             catch (FailureRequestException ex)
             {
