@@ -2,9 +2,9 @@
 {
     public class ScoreProductDto
     {
-        public int id { get; set; }
+        public Guid id { get; set; }
         public float amountStars { get; set; }
-        public int productId { get; set; }
+        public Guid productId { get; set; }
         public DateTime updatedAt { get; set; }
     }
 }

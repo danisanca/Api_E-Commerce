@@ -4,6 +4,6 @@ namespace ApiEstoque.Repository.Interface
 {
     public interface IAddressRepository
     {
-        Task<AddressModel> GetAddressByUserId(int userId);
+        Task<AddressModel> GetByUserId(string userId);
     }
 }

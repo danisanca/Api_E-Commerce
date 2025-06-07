@@ -8,13 +8,13 @@ namespace ApiEstoque.Repository
     public class AddressRepository : IAddressRepository
     {
         private readonly ApiContext _db;
-
+        
         public AddressRepository(ApiContext dbContext)
         {
             _db = dbContext;
         }
 
-        public async Task<AddressModel> GetAddressByUserId(int userId)
+        public async Task<AddressModel> GetByUserId(string userId)
         {
             return await _db.Adress.FirstOrDefaultAsync(x => x.userId == userId);
         }

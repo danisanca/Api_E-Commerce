@@ -6,7 +6,7 @@ namespace ApiEstoque.Models
     {
         public float percentDiscount { get; set; }
         public string description { get; set; }
-        public int productId { get; set; }
+        public Guid productId { get; set; }
         public virtual ProductModel product { get; set; }
     }
 }

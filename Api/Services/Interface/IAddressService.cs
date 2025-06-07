@@ -5,9 +5,11 @@ namespace ApiEstoque.Services.Interface
 {
     public interface IAddressService
     {
-        Task<AddressDto> CreateAddress(AddressCreateDto addressCreate);
-        Task<bool> UpdateAddressById(AddressUpdateDto addressUpdate);
-        Task<AddressDto> GetAddressByUserId(int userId);
-        Task<AddressDto> GetAddressById(int id);
+        Task<AddressDto> Create(AddressCreateDto addressCreate);
+        Task<bool> Update(AddressUpdateDto addressUpdate);
+        Task<AddressDto> GetByUserId(string userId);
+
+        //Somente em Serviços
+        Task<AddressDto> GetById(Guid id);
     }
 }

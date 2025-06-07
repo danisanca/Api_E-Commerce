@@ -1,7 +1,7 @@
-﻿using ApiEstoque.Dto.Product;
+﻿using ApiEstoque.Constants;
+using ApiEstoque.Dto.Product;
 using ApiEstoque.Dto.ScoreProduct;
 using ApiEstoque.Dto.Stock;
-using ApiEstoque.Helpers;
 using ApiEstoque.Models;
 using ApiEstoque.Repository;
 using ApiEstoque.Repository.Base;
@@ -17,61 +17,49 @@ namespace ApiEstoque.Services
     {
         private readonly IBaseRepository<ProductModel> _baseRepository;
         private readonly IProductRepository _productRepository;
-        private readonly IBaseRepository<ShopModel> _shopRepository;
-        private readonly IBaseRepository<CategoriesModel> _categoriesRepository;
-        private readonly IImageRepository _imageRepository;
-        private readonly IDiscountRepository _discountRepository;
+        private readonly IShopService _shopService;
+        private readonly ICategoriesService _categoriesService;
         private readonly IScoreProductService _scoreProductService;
-        private readonly IStockRepository _stockRepository;
+        private readonly IImageService _imageService;
+
+        private readonly IDiscountService _discountService;
+        
+        private readonly IStockService _stockService;
         private readonly IMapper _mapper;
 
-        public ProductService(IBaseRepository<ProductModel> baseRepository, IProductRepository productRepository, IBaseRepository<ShopModel> shopRepository,
-            IBaseRepository<CategoriesModel> categoriesRepository, IImageRepository imageRepository, IDiscountRepository discountRepository,
-            IScoreProductService scoreProductService, IStockRepository stockRepository, IMapper mapper)
+        public ProductService(IBaseRepository<ProductModel> baseRepository, 
+            IProductRepository productRepository, IShopService shopService,
+            ICategoriesService categoriesService, IImageService imageService,
+            IDiscountService discountService,
+            IScoreProductService scoreProductService, IStockService stockService,
+            IMapper mapper)
         {
             _baseRepository = baseRepository;
             _productRepository = productRepository;
-            _shopRepository = shopRepository;
-            _categoriesRepository = categoriesRepository;
-            _imageRepository = imageRepository;
-            _discountRepository = discountRepository;
+            _shopService = shopService;
+            _categoriesService = categoriesService;
+            _imageService = imageService;
+            _discountService = discountService;
             _scoreProductService = scoreProductService;
-            _stockRepository = stockRepository;
+            _stockService = stockService;
             _mapper = mapper;
         }
 
-        public async Task<bool> ActiveProduct(int idProduct)
+      
+        public async Task<ProductDto> Create(ProductCreateDto productModel)
         {
             try
             {
-                var result = await _baseRepository.SelectByIdAsync(idProduct);
-                if (result == null) throw new FailureRequestException(404, "Id do produto não localizado");
-                if (result.status == StandartStatus.Ativo.ToString()) throw new FailureRequestException(409, "Produto ja esta ativo");
-                result.status = StandartStatus.Ativo.ToString();
-                return await _baseRepository.UpdateAsync(result);
-            }
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
-        public async Task<ProductDto> CreateProduct(ProductCreateDto productModel)
-        {
-            try
-            {
-                var findShop = await _shopRepository.SelectByIdAsync( productModel.shopId);
+                var findShop = await _shopService.GetById( productModel.shopId);
                 if (findShop == null) throw new FailureRequestException(404, "Id da loja nao localizada.");
-                var findCategory = await _categoriesRepository.SelectByIdAsync(productModel.categoriesId);
+
+                var findCategory = await _categoriesService.GetById(productModel.categoriesId);
                 if (findCategory == null) throw new FailureRequestException(404, "Categoria nao localizada.");
-                var result = await _productRepository.GetProductByName(productModel.name, productModel.shopId);
+
+                var result = await _productRepository.GetByNameAndIdShop(productModel.name, productModel.shopId);
                 if(result != null) throw new FailureRequestException(409, "Produto ja cadastrado.");
+
                 ProductModel product = _mapper.Map<ProductModel>(productModel);
-                product.status = StandartStatus.Ativo.ToString();
                 return _mapper.Map<ProductDto>(await _baseRepository.InsertAsync(product));
 
             }
@@ -85,118 +73,17 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<bool> DisableProduct(int idProduct)
-        {
-            try
-            {
-                var result = await _baseRepository.SelectByIdAsync(idProduct);
-                if (result == null) throw new FailureRequestException(404, "Id do produto não localizado");
-                if (result.status == StandartStatus.Desabilitado.ToString()) throw new FailureRequestException(409, "Produto ja esta ativo");
-                result.status = StandartStatus.Desabilitado.ToString();
-                return await _baseRepository.UpdateAsync(result);
-            }
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
-        public async Task<List<ProductDto>> GetAllProductByCategoryId(int idCategory, int idShop)
-        {
-            try
-            {
-                var findShop = await _shopRepository.SelectByIdAsync(idShop);
-                if (findShop == null) throw new FailureRequestException(404, "Id da loja nao localizada.");
-                var findCategory = await _categoriesRepository.SelectByIdAsync(idCategory);
-                if (findCategory == null) throw new FailureRequestException(404, "Categoria nao localizada.");
-                var findProduct = await _productRepository.GetAllProductByCategoryId(idCategory, idShop);
-                if (findProduct == null) return new List<ProductDto>();
-                return _mapper.Map<List<ProductDto>>(findProduct);
-            }
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
-        public async Task<List<ProductDto>> GetAllProductsByShopId(int idShop,FilterGetRoutes status = FilterGetRoutes.All)
-        {
-            try
-            {
-                var findShop = await _shopRepository.SelectByIdAsync(idShop);
-                if (findShop == null) throw new FailureRequestException(404, "Id da loja nao localizada.");
-                var findProduct = await _productRepository.GetAllProductsByShopId(status, idShop);
-                if (findProduct == null) return new List<ProductDto>();
-                return _mapper.Map<List<ProductDto>>(findProduct);
-            }
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
-       
-        public async Task<ProductDto> GetProductById(int id)
-        {
-            try
-            {
-                var findProduct = await _baseRepository.SelectByIdAsync(id);
-                if (findProduct == null) throw new FailureRequestException(404, "Nenhum produto localizado.");
-                return _mapper.Map<ProductDto>(findProduct);
-            }
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
-        public async Task<ProductDto> GetProductByName(string name, int idShop)
-        {
-            try
-            {
-                var findShop = await _shopRepository.SelectByIdAsync(idShop);
-                if (findShop == null) throw new FailureRequestException(404, "Id da loja nao localizada.");
-                var findProduct = await _productRepository.GetProductByName(name, idShop);
-                if (findProduct == null) throw new FailureRequestException(404, "Nenhum produto localizado.");
-                return _mapper.Map<ProductDto>(findProduct);
-            }
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-       
-        public async Task<bool> UpdateProduct(ProductUpdateDto productModel)
+        public async Task<bool> Update(ProductUpdateDto productModel)
         {
             try
             {
                 var result = await _baseRepository.SelectByIdAsync(productModel.idProduct);
                 if (result == null) throw new FailureRequestException(409, "id do Produto nao localizado");
-                var findCategory = await _categoriesRepository.SelectByIdAsync(productModel.categoriesId);
+
+                var findCategory = await _categoriesService.GetById(productModel.categoriesId);
                 if (findCategory == null) throw new FailureRequestException(404, "Categoria nao localizada.");
-                var findNameProdutc = await _productRepository.GetProductByName(productModel.name, result.shopId);
-                if (findNameProdutc != null) throw new FailureRequestException(409, "Produto com esse nome ja cadastrado");
-              
+
+          
                 result.name = productModel.name;
                 result.price = productModel.price;
                 result.categoriesId = productModel.categoriesId;
@@ -214,46 +101,27 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<List<ProductFullDto>> GetAllProductsFullActive()
+        public async Task<bool> ChangeStatus(Guid idProduct, bool isActive)
         {
             try
             {
-                var products = await _productRepository.GetAllProductsOnStock();
-                if (products == null || !products.Any()) throw new FailureRequestException(409, "Nenhum produto encontrado para essa loja.");
+                var result = await _baseRepository.SelectByIdAsync(idProduct);
+                if (result == null) throw new FailureRequestException(404, "Id do produto não localizado");
 
-                var productList = new List<ProductFullDto>();
 
-                foreach (var product in products)
+                if (isActive == true)
                 {
-                    var findCategory = await _categoriesRepository.SelectByIdAsync(product.categoriesId);
-                    if (findCategory == null) throw new FailureRequestException(409, "id da categoria nao localizada.");
-
-                    var findImage = await _imageRepository.GetImagesByIdProduct(product.id);
-                    var findScore = await _scoreProductService.GetScoreProductByProductId(product.id);
-                    var findDiscount = await _discountRepository.GetDiscountByProductId(product.id);
-                    var findShop = await _shopRepository.SelectByIdAsync(product.shopId);
-                    var stockProduct = await _stockRepository.GetStockByProductId(product.id);
-                    var listUrls = findImage.Select(img => img.url).ToList();
-                    var model = new ProductFullDto
-                    {
-                        Id = product.id,
-                        ShopId = product.shopId,
-                        NameShop = findShop.name,
-                        Name = product.name,
-                        Price = product.price,
-                        Categoria = findCategory.name,
-                        ImageUrl = listUrls,
-                        Description = product.description,
-                        IsNew = (DateTime.UtcNow - product.createdAt).TotalDays <= 30,
-                        Stock = stockProduct == null ? null : (stockProduct.amount <= 0 ? null : _mapper.Map<StockDto>(stockProduct)),
-                        Rating = findScore != null ? findScore.First().Value : 0,
-                        Discount = findDiscount != null ? new PercentDiscountDto { Value = findDiscount.percentDiscount } : null
-                    };
-                    
-                    productList.Add(model);
+                   if (result.status == StandartStatus.Ativo.ToString()) throw new FailureRequestException(404, "Produto já esta ativo.");
+                    result.status = StandartStatus.Ativo.ToString();
+                    return await _baseRepository.UpdateAsync(result);
+                }
+                else
+                {
+                    if (result.status == StandartStatus.Desabilitado.ToString()) throw new FailureRequestException(404, "Produto já esta desativado.");
+                    result.status = StandartStatus.Desabilitado.ToString();
+                    return await _baseRepository.UpdateAsync(result);
                 }
 
-                return productList;
             }
             catch (FailureRequestException ex)
             {
@@ -265,87 +133,185 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<ProductFullDto> GetProductFullById(int id)
+
+        public async Task<List<ProductDetailsDto>> GetAllWithDetails()
+        {
+            try
+            {
+                var products = await _baseRepository.SelectAllByStatusAsync();
+                if (products == null || !products.Any())
+                    return new List<ProductDetailsDto>();
+
+                // Coleta IDs para busca em lote
+                var categoryIds = products.Select(p => p.categoriesId).Distinct().ToList();
+                var shopIds = products.Select(p => p.shopId).Distinct().ToList();
+                var productIds = products.Select(p => p.id).ToList();
+
+                // Buscas em lote
+                var categories = await _categoriesService.GetAllByIds(categoryIds);
+                var shops = await _shopService.GetAllByIds(shopIds);
+                var images = await _imageService.GetAllByProductsIds(productIds);
+                var stocks = await _stockService.GetAllByProductsIds(productIds);
+                var discounts = await _discountService.GetAllByProductsIds(productIds);
+
+                // Conversões para dicionário para acesso rápido
+                var categoryDict = categories.ToDictionary(c => c.id, c => c.name);
+                var shopDict = shops.ToDictionary(s => s.id, s => s.name);
+                var imageDict = images.GroupBy(i => i.productId).ToDictionary(g => g.Key, g => g.Select(i => i.url).ToList());
+                var stockDict = stocks.ToDictionary(s => s.productId);
+                var discountDict = discounts.ToDictionary(d => d.productId);
+
+                var result = products.Select(product => new ProductDetailsDto
+                {
+                    Id = product.id,
+                    ShopId = product.shopId,
+                    NameShop = shopDict.TryGetValue(product.shopId, out var shopName) ? shopName : "Loja Desconhecida",
+                    Name = product.name,
+                    Price = product.price,
+                    Categoria = categoryDict.TryGetValue(product.categoriesId, out var categoryName) ? categoryName : "Não Categorizado",
+                    UrlImages = imageDict.TryGetValue(product.id, out var urls) ? urls : new List<string>(),
+                    Description = product.description,
+                    IsNew = (DateTime.UtcNow - product.createdAt).TotalDays <= 7,
+                    Stock = stockDict.TryGetValue(product.id, out var stock) && stock.amount > 0
+                        ? _mapper.Map<StockDto>(stock)
+                        : null,
+                    Discount = discountDict.TryGetValue(product.id, out var discount)
+                        ? new PercentDiscountDto { Value = discount.percentDiscount }
+                        : null
+                }).ToList();
+
+                return result;
+            }
+            catch (FailureRequestException ex)
+            {
+                throw new FailureRequestException(ex.StatusCode, ex.Message);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<List<ProductDetailsDto>> GetAllWithDetailsByIdShop(Guid idShop)
+        {
+            try
+            {
+                var shop = await _shopService.GetById(idShop);
+                if (shop == null) throw new FailureRequestException(404, "Nenhum shop localizado.");
+
+                var products = await _productRepository.GetAllByIdShop(idShop);
+                if (products == null || !products.Any()) throw new FailureRequestException(404, "Nenhum produto localizado.");
+
+                // Coleta IDs em lote
+                var categoryIds = products.Select(p => p.categoriesId).Distinct().ToList();
+                var productIds = products.Select(p => p.id).ToList();
+
+                // Busca em lote
+                var categories = await _categoriesService.GetAllByIds(categoryIds);
+                var images = await _imageService.GetAllByProductsIds(productIds);
+                var stocks = await _stockService.GetAllByProductsIds(productIds);
+                var discounts = await _discountService.GetAllByProductsIds(productIds);
+
+                // Indexação para lookup rápido
+                var categoryDict = categories.ToDictionary(c => c.id, c => c.name);
+                var imagesDict = images.GroupBy(i => i.productId).ToDictionary(g => g.Key, g => g.Select(i => i.url).ToList());
+                var stockDict = stocks.ToDictionary(s => s.productId);
+                var discountDict = discounts.ToDictionary(d => d.productId);
+
+                var result = products.Select(product => new ProductDetailsDto
+                {
+                    Id = product.id,
+                    ShopId = product.shopId,
+                    NameShop = shop.name,
+                    Name = product.name,
+                    Price = product.price,
+                    Categoria = categoryDict.TryGetValue(product.categoriesId, out var catName) ? catName : "Não Categorizado",
+                    UrlImages = imagesDict.TryGetValue(product.id, out var urls) ? urls : new List<string>(),
+                    Description = product.description,
+                    IsNew = (DateTime.UtcNow - product.createdAt).TotalDays <= 7,
+                    Stock = stockDict.TryGetValue(product.id, out var stock) && stock.amount > 0
+                        ? _mapper.Map<StockDto>(stock)
+                        : null,
+                    Discount = discountDict.TryGetValue(product.id, out var discount)
+                        ? new PercentDiscountDto { Value = discount.percentDiscount }
+                        : null
+                }).ToList();
+
+                return result;
+            }
+            catch (FailureRequestException ex)
+            {
+                throw new FailureRequestException(ex.StatusCode, ex.Message);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<List<ProductDetailsDto>> GetAllWithDetailsLikeName(string name)
+        {
+            try
+            {
+                var products = await _productRepository.GetAllLikeName(name);
+
+                if (products == null || !products.Any())
+                    throw new FailureRequestException(404, "Nenhum produto localizado.");
+
+                var categoryIds = products.Select(p => p.categoriesId).Distinct().ToList();
+                var shopIds = products.Select(p => p.shopId).Distinct().ToList();
+                var productIds = products.Select(p => p.id).ToList();
+
+                var shops = await _shopService.GetAllByIds(shopIds);
+                var categories = await _categoriesService.GetAllByIds(categoryIds);
+                var images = await _imageService.GetAllByProductsIds(productIds);
+                var stocks = await _stockService.GetAllByProductsIds(productIds);
+                var discounts = await _discountService.GetAllByProductsIds(productIds);
+
+                var categoryDict = categories.ToDictionary(c => c.id, c => c.name);
+                var shopDict = shops.ToDictionary(s => s.id, s => s.name);
+                var imageDict = images.GroupBy(i => i.productId).ToDictionary(g => g.Key, g => g.Select(i => i.url).ToList());
+                var stockDict = stocks.ToDictionary(s => s.productId);
+                var discountDict = discounts.ToDictionary(d => d.productId);
+
+                var result = products.Select(product => new ProductDetailsDto
+                {
+                    Id = product.id,
+                    ShopId = product.shopId,
+                    NameShop = shopDict.TryGetValue(product.shopId, out var shopName) ? shopName : "Loja Desconhecida",
+                    Name = product.name,
+                    Price = product.price,
+                    Categoria = categoryDict.TryGetValue(product.categoriesId, out var categoryName) ? categoryName : "Não Categorizado",
+                    UrlImages = imageDict.TryGetValue(product.id, out var urls) ? urls : new List<string>(),
+                    Description = product.description,
+                    IsNew = (DateTime.UtcNow - product.createdAt).TotalDays <= 7,
+                    Stock = stockDict.TryGetValue(product.id, out var stock) && stock.amount > 0
+                        ? _mapper.Map<StockDto>(stock)
+                        : null,
+                    Discount = discountDict.TryGetValue(product.id, out var discount)
+                        ? new PercentDiscountDto { Value = discount.percentDiscount }
+                        : null
+                }).ToList();
+
+                return result;
+            }
+            catch (FailureRequestException ex)
+            {
+                throw new FailureRequestException(ex.StatusCode, ex.Message);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<ProductDto> GetById(Guid id)
         {
             try
             {
                 var findProduct = await _baseRepository.SelectByIdAsync(id);
-                if (findProduct == null) throw new FailureRequestException(409, "id do Produto nao localizado.");
-                var findCategory = await _categoriesRepository.SelectByIdAsync(findProduct.categoriesId);
-                if (findCategory == null) throw new FailureRequestException(409, "id da categoria nao localizada.");
-                var findImage = await _imageRepository.GetImagesByIdProduct(findProduct.id);
-                var findScore = await _scoreProductService.GetScoreProductByProductId(findProduct.id);
-                var findDiscount = await _discountRepository.GetDiscountByProductId(findProduct.id);
-                var stockProduct = await _stockRepository.GetStockByProductId(findProduct.id);
-                var findShop = await _shopRepository.SelectByIdAsync(findProduct.shopId);
-                var listUrls = new List<string>();
-                foreach (ImageModel image in findImage)
-                {
-                    listUrls.Add(image.url);
-                }
-                var model = new ProductFullDto
-                {
-                    Id = findProduct.id,
-                    ShopId = findProduct.shopId,
-                    NameShop = findShop.name,
-                    Name = findProduct.name,
-                    Price = findProduct.price,
-                    Categoria = findCategory.name,
-                    ImageUrl = listUrls, // Pegando a primeira imagem
-                    Description = findProduct.description,
-                    Stock = stockProduct == null ? new StockDto() : (stockProduct.amount <= 0 ? new StockDto() : _mapper.Map<StockDto>(stockProduct)),
-                    IsNew = (DateTime.UtcNow - findProduct.createdAt).TotalDays <= 30, 
-                    Rating = findScore != null ? findScore.First().Value : 0, // Média das avaliações
-                    Discount = findDiscount !=null ? new PercentDiscountDto { Value = findDiscount.percentDiscount } : new PercentDiscountDto()
-                };
-                return model;
-            }
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
-        public async Task<ProductFullDto> GetProductFullByName(string name, int idShop)
-        {
-            try
-            {
-                var findProduct = await _productRepository.GetProductByName(name, idShop);
-                if (findProduct == null) throw new FailureRequestException(409, "id do Produto nao localizado.");
-                var findCategory = await _categoriesRepository.SelectByIdAsync(findProduct.categoriesId);
-                if (findCategory == null) throw new FailureRequestException(409, "id da categoria nao localizada.");
-                var findImage = await _imageRepository.GetImagesByIdProduct(findProduct.id);
-                var findScore = await _scoreProductService.GetScoreProductByProductId(findProduct.id);
-                var findDiscount = await _discountRepository.GetDiscountByProductId(findProduct.id);
-                var stockProduct = await _stockRepository.GetStockByProductId(findProduct.id);
-                var findShop = await _shopRepository.SelectByIdAsync(findProduct.shopId);
-                
-
-                var listUrls = new List<string>();
-                foreach (ImageModel image in findImage)
-                {
-                    listUrls.Add(image.url);
-                }
-                var model = new ProductFullDto
-                {
-                    Id = findProduct.id,
-                    ShopId = findProduct.shopId,
-                    NameShop = findShop.name,
-                    Name = findProduct.name,
-                    Price = findProduct.price,
-                    Categoria = findCategory.name,
-                    ImageUrl = listUrls, // Pegando a primeira imagem
-                    Description = findProduct.description,
-                    IsNew = (DateTime.UtcNow - findProduct.createdAt).TotalDays <= 30,
-                    Stock = stockProduct == null ? null : (stockProduct.amount <= 0 ? null : _mapper.Map<StockDto>(stockProduct)),
-                    Rating = findScore != null ? findScore.First().Value : 0, // Média das avaliações
-                    Discount = findDiscount != null ? new PercentDiscountDto { Value = findDiscount.percentDiscount } : null
-                };
-                return model;
+                if (findProduct == null) throw new FailureRequestException(404, "Nenhum produto localizado.");
+                return _mapper.Map<ProductDto>(findProduct);
             }
             catch (FailureRequestException ex)
             {

@@ -20,7 +20,7 @@ namespace ApiEstoque.Controllers
         {
             _productService = productService;
         }
-
+        /*
         [HttpPost]
         [Route("CreateProduct")]
         public async Task<ActionResult> CreateProduct([FromBody] ProductCreateDto productCreateDto)
@@ -77,7 +77,7 @@ namespace ApiEstoque.Controllers
 
         [HttpPut]
         [Route("ActiveProductById")]
-        public async Task<ActionResult> ActiveProductById(int idProduct)
+        public async Task<ActionResult> ActiveProductById(Guid idProduct)
         {
             if (!ModelState.IsValid)
             {
@@ -104,7 +104,7 @@ namespace ApiEstoque.Controllers
 
         [HttpPut]
         [Route("DisableProductById")]
-        public async Task<ActionResult> DisableProductById(int idProduct)
+        public async Task<ActionResult> DisableProductById(Guid idProduct)
         {
             if (!ModelState.IsValid)
             {
@@ -131,7 +131,7 @@ namespace ApiEstoque.Controllers
 
         [HttpGet]
         [Route("GetProductById/{idProduct}")]
-        public async Task<ActionResult> GetProductById(int idProduct)
+        public async Task<ActionResult> GetProductById(Guid idProduct)
         {
             if (!ModelState.IsValid)
             {
@@ -158,7 +158,7 @@ namespace ApiEstoque.Controllers
 
         [HttpGet]
         [Route("GetProductByName/{name}")]
-        public async Task<ActionResult> GetProductByName(string name,[FromQuery] int shopId)
+        public async Task<ActionResult> GetProductByName(string name,[FromQuery] Guid shopId)
         {
             if (!ModelState.IsValid)
             {
@@ -184,7 +184,7 @@ namespace ApiEstoque.Controllers
         }
         [HttpGet]
         [Route("GetAllProductByCategoryId/{idCategory}")]
-        public async Task<ActionResult> GetAllProductByCategoryId(int idCategory, [FromQuery] int shopId)
+        public async Task<ActionResult> GetAllProductByCategoryId(Guid idCategory, [FromQuery] Guid shopId)
         {
             if (!ModelState.IsValid)
             {
@@ -211,7 +211,7 @@ namespace ApiEstoque.Controllers
 
         [HttpGet]
         [Route("GetAllProductActivesByShopId/{idShop}")]
-        public async Task<ActionResult> GetAllProductActives(int idShop)
+        public async Task<ActionResult> GetAllProductActives(Guid idShop)
         {
             if (!ModelState.IsValid)
             {
@@ -237,7 +237,7 @@ namespace ApiEstoque.Controllers
         }
         [HttpGet]
         [Route("GetAllProductDisableByShopId/{idShop}")]
-        public async Task<ActionResult> GetAllProductDisable(int idShop)
+        public async Task<ActionResult> GetAllProductDisable(Guid idShop)
         {
             if (!ModelState.IsValid)
             {
@@ -263,7 +263,7 @@ namespace ApiEstoque.Controllers
         }
         [HttpGet]
         [Route("GetAllProductByShopId/{idShop}")]
-        public async Task<ActionResult> GetAllProduct(int idShop)
+        public async Task<ActionResult> GetAllProduct(Guid idShop)
         {
             if (!ModelState.IsValid)
             {
@@ -289,7 +289,7 @@ namespace ApiEstoque.Controllers
         }
         [HttpGet]
         [Route("GetProductFullById/{idProduct}")]
-        public async Task<ActionResult> GetProductFullById(int idProduct)
+        public async Task<ActionResult> GetProductFullById(Guid idProduct)
         {
             if (!ModelState.IsValid)
             {
@@ -315,7 +315,7 @@ namespace ApiEstoque.Controllers
         }
         [HttpGet]
         [Route("GetProductFullByName/{nameProduct}")]
-        public async Task<ActionResult> GetProductFullByName(string nameProduct, int idShop)
+        public async Task<ActionResult> GetProductFullByName(string nameProduct, Guid idShop)
         {
             if (!ModelState.IsValid)
             {
@@ -366,6 +366,6 @@ namespace ApiEstoque.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
         }
-
+        */
     }
 }

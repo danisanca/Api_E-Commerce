@@ -4,7 +4,7 @@ namespace ApiEstoque.Repository.Interface
 {
     public interface IEvidenceRepository
     {
-        Task<List<EvidenceModel>> GetAllEvidenceByProductId(int idProduct);
-        Task<List<EvidenceModel>> GetAllEvidenceByShopId(int idShop);
+        Task<List<EvidenceModel>> GetAllEvidenceByProductId(Guid idProduct);
+        Task<List<EvidenceModel>> GetAllEvidenceByShopId(Guid idShop);
     }
 }

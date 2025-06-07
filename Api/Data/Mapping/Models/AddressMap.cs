@@ -17,8 +17,8 @@ namespace ApiEstoque.Data.Mapping.Models
             builder.Property(x => x.state).IsRequired().HasMaxLength(2);
             builder.Property(x => x.zipcode).IsRequired().HasMaxLength(8);
             builder.Property(x => x.cellPhone).IsRequired().HasMaxLength(11);
-            builder.Property(x => x.userId).IsUnicode(true);
-            builder.HasOne(x => x.user);
+            builder.Property(x => x.userId).IsRequired();
+            builder.HasOne(x => x.user).WithOne().HasForeignKey<AddressModel>(x => x.userId) ;
             builder.Property(x => x.status).IsRequired().HasMaxLength(24);
             builder.Property(x => x.createdAt).IsRequired();
             builder.Property(x => x.updatedAt).IsRequired();

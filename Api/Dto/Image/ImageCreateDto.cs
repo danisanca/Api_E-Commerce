@@ -12,10 +12,10 @@ namespace ApiEstoque.Dto.Image
         public float size { get; set; }
 
         [Required(ErrorMessage = "ShopId é um campo obrigátorio.")]
-        public int shopId { get; set; }
+        public Guid shopId { get; set; }
 
         [Required(ErrorMessage = "ProductId é um campo obrigátorio.")]
-        public int productId { get; set; }
+        public Guid productId { get; set; }
 
     }
 }

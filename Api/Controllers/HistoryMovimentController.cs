@@ -19,7 +19,7 @@ namespace ApiEstoque.Controllers
         {
             _historyMovimentService = historyMovimentService;
         }
-
+        /*
         [HttpPost]
         [Route("CreateHistoryMoviment")]
         public async Task<ActionResult> CreateHistoryMoviment([FromBody] HistoryMovimentCreateDto historyMovimentCreate)
@@ -47,7 +47,7 @@ namespace ApiEstoque.Controllers
 
         [HttpGet]
         [Route("GetHistoryMovimentById/{idHistoryMoviment}")]
-        public async Task<ActionResult> GetHistoryMovimentById(int idHistoryMoviment)
+        public async Task<ActionResult> GetHistoryMovimentById(Guid idHistoryMoviment)
         {
             if (!ModelState.IsValid)
             {
@@ -71,7 +71,7 @@ namespace ApiEstoque.Controllers
 
         [HttpGet]
         [Route("GetAllHistoryMovimentByProductId/{idProduct}")]
-        public async Task<ActionResult> GetAllHistoryMovimentByProductId(int idProduct)
+        public async Task<ActionResult> GetAllHistoryMovimentByProductId(Guid idProduct)
         {
             if (!ModelState.IsValid)
             {
@@ -94,7 +94,7 @@ namespace ApiEstoque.Controllers
         }
         [HttpGet]
         [Route("GetAllHistoryMovimentByShopId/{idShop}")]
-        public async Task<ActionResult> GetAllHistoryMovimentByShopId(int idShop)
+        public async Task<ActionResult> GetAllHistoryMovimentByShopId(Guid idShop)
         {
             if (!ModelState.IsValid)
             {
@@ -115,6 +115,6 @@ namespace ApiEstoque.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
         }
-
+        */
     }
 }

@@ -5,7 +5,7 @@ namespace ApiEstoque.Dto.Adress
     public class AddressUpdateDto
     {
         [Required(ErrorMessage = "Id do endereço é um campo obrigatório.")]
-        public int id { get; set; }
+        public Guid id { get; set; }
 
         [Required(ErrorMessage = "Endereço é um campo obrigatório.")]
         public string street { get; set; }

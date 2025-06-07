@@ -8,6 +8,6 @@ namespace ApiEstoque.Dto.Stock
         public float amount { get; set; }
 
         [Required(ErrorMessage = "Id do produto é um campo obrigatório.")]
-        public int productId { get; set; }
+        public Guid productId { get; set; }
     }
 }

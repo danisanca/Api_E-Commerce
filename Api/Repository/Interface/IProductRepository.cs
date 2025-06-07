@@ -5,9 +5,8 @@ namespace ApiEstoque.Repository.Interface
 {
     public interface IProductRepository
     {
-        Task<List<ProductModel>> GetAllProductsByShopId(FilterGetRoutes status,int idShop);
-        Task<List<ProductModel>> GetAllProductsOnStock();
-        Task<List<ProductModel>> GetAllProductByCategoryId(int id,int idShop);
-        Task<ProductModel> GetProductByName(string name, int idShop);
+        Task<List<ProductModel>> GetAllLikeName(string name);//Barra de pesquisa
+        Task<List<ProductModel>> GetAllByIdShop(Guid idShop);
+        Task<ProductModel> GetByNameAndIdShop(string name,Guid idShop);
     }
 }

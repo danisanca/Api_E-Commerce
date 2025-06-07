@@ -1,5 +1,6 @@
 ﻿using ApiEstoque.Dto.PaymentRequest;
 using ApiEstoque.Dto.User;
+using ApiEstoque.Models;
 using ApiEstoque.Services.Interface;
 using MercadoPago;
 using MercadoPago.Client.Common;
@@ -9,6 +10,7 @@ using MercadoPago.Config;
 using MercadoPago.Resource.Preference;
 using MercadoPago.Resource.User;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using static System.Net.WebRequestMethods;
 
@@ -19,29 +21,33 @@ namespace ApiEstoque.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly IUserService _userService;
-        private readonly IHistoryPurchaseService _historyPurchaseService;
+        private readonly UserManager<UserModel> _userManager;
 
-        public PaymentController(IUserService userService, 
-            IHistoryPurchaseService historyPurchaseService)
+        public PaymentController(
+            IUserService userService, 
+            UserManager<UserModel> _userManager
+            )
         {
             _userService = userService;
-            _historyPurchaseService = historyPurchaseService;
         }
-
+        /*
         [HttpPost]
         [Route("MercadoPago")]
         public async Task<IActionResult> MercadoPago([FromBody] PaymentRequestDto request)
         {
-            UserFullDto user = await _userService.GetUserFullByIdUser(request.UserId);
-             int index = user.name.IndexOf(" ");
+            var user = await _userManager.FindByIdAsync(request.UserId.ToString());
+            if (user == null)
+            {
+                return NotFound("Usuario não localizado.");
+            }
+            
 
              // Separa o primeiro nome e o restante
-             string primeiroNome = index >= 0 ? user.name.Substring(0, index) : user.name;
-             string sobrenome = index >= 0 ? user.name.Substring(index + 1) : "";
+             string primeiroNome = user.FirstName;
+             string sobrenome = user.LastName;
 
              var external_reference_Controll = Guid.NewGuid().ToString();
-            var createHistory = await _historyPurchaseService.CreatePendingPurchase(request, external_reference_Controll);
-            if (createHistory == null) return BadRequest("Aguarde um momente e tente denovo");
+           
             var preference = new PreferenceRequest
              {
                  Items = request.CartList.Select(item => new PreferenceItemRequest
@@ -52,8 +58,8 @@ namespace ApiEstoque.Controllers
                  }).ToList(),
                  Payer = new PreferencePayerRequest
                  {//Dados do Vendedor
-                     Email = user.email,
-                     Name = user.name,//Conta Vendedo
+                     Email = "EmailVendedor@hotmail.com",
+                     Name = "Nome Vendedor",//Conta Vendedo
                      Identification = new IdentificationRequest
                      {
                          Type = request.TypeDocument!.ToUpper(),
@@ -85,8 +91,8 @@ namespace ApiEstoque.Controllers
 
              return Ok(new { apiUrl = createdPreference.SandboxInitPoint });
         }
+        */
 
-        
     }
 
 }

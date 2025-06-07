@@ -14,12 +14,12 @@ namespace ApiEstoque.Repository
             _db = db;
         }
 
-        public async Task<List<EvidenceModel>> GetAllEvidenceByProductId(int idProduct)
+        public async Task<List<EvidenceModel>> GetAllEvidenceByProductId(Guid idProduct)
         {
             return await _db.Evidence.Where(x => x.productId == idProduct).ToListAsync();
         }
 
-        public async Task<List<EvidenceModel>> GetAllEvidenceByShopId(int idShop)
+        public async Task<List<EvidenceModel>> GetAllEvidenceByShopId(Guid idShop)
         {
             return await _db.Evidence.Join(
                 _db.Product,

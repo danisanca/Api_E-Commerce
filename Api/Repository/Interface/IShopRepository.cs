@@ -5,7 +5,7 @@ namespace ApiEstoque.Repository.Interface
 {
     public interface IShopRepository
     {
-        Task<ShopModel> GetShopByName(string name);
-        Task<ShopModel> GetShopByUserId(int userId);
+        Task<ShopModel> GetByUserId(string userId);
+        Task<List<ShopModel>> GetAllByIds(List<Guid> ids);
     }
 }

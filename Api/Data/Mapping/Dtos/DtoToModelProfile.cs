@@ -3,7 +3,6 @@ using ApiEstoque.Dto.User;
 using ApiEstoque.Dto.ScoreProduct;
 using ApiEstoque.Dto.Product;
 using ApiEstoque.Dto.Image;
-using ApiEstoque.Dto.HistoryPurchase;
 using ApiEstoque.Dto.HistoryMoviment;
 using ApiEstoque.Dto.Evidence;
 using ApiEstoque.Dto.Categories;
@@ -29,9 +28,9 @@ namespace ApiEstoque.Data.Mapping.Dtos
             CreateMap<AddressModel, AddressUpdateDto>()
                    .ReverseMap();
             #endregion
+            
             #region User
-            CreateMap<UserModel, UserDto>()
-                    .ReverseMap();
+           
             CreateMap<UserModel, UserCreateDto>()
                     .ReverseMap();
             CreateMap<UserModel, UserUpdateDto>()
@@ -80,8 +79,6 @@ namespace ApiEstoque.Data.Mapping.Dtos
             CreateMap<ImageModel, ImageUpdateDto>()
                    .ReverseMap();
             #endregion
-
-            
 
             #region HistoryMoviment
             CreateMap<HistoryMovimentModel, HistoryMovimentDto>()

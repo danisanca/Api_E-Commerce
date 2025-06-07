@@ -1,8 +1,8 @@
 ﻿using System.Security.Policy;
+using ApiEstoque.Constants;
 using ApiEstoque.Dto.Evidence;
 using ApiEstoque.Dto.HistoryMoviment;
 using ApiEstoque.Dto.Product;
-using ApiEstoque.Helpers;
 using ApiEstoque.Models;
 using ApiEstoque.Repository;
 using ApiEstoque.Repository.Base;
@@ -10,6 +10,7 @@ using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 
 namespace ApiEstoque.Services
 {
@@ -19,19 +20,19 @@ namespace ApiEstoque.Services
         private readonly IEvidenceRepository _evidenceRepository;
         private readonly IBaseRepository<ShopModel> _shopRepository;
         private readonly IBaseRepository<ProductModel> _productRepository;
-        private readonly IBaseRepository<UserModel> _userRepository;
+        private readonly UserManager<UserModel> _userManager;
         private readonly IBaseRepository<EvidenceModel> _baseRepository;
 
         public EvidenceService(IMapper mapper, 
             IEvidenceRepository evidenceRepository, IBaseRepository<ShopModel> shopRepository,
-            IBaseRepository<ProductModel> productRepository, IBaseRepository<UserModel> userRepository, 
+            IBaseRepository<ProductModel> productRepository, UserManager<UserModel> userManager, 
             IBaseRepository<EvidenceModel> baseRepository)
         {
             _mapper = mapper;
             _evidenceRepository = evidenceRepository;
             _shopRepository = shopRepository;
             _productRepository = productRepository;
-            _userRepository = userRepository;
+            _userManager = userManager;
             _baseRepository = baseRepository;
         }
 
@@ -41,7 +42,7 @@ namespace ApiEstoque.Services
             {
                 var findProduct = await _productRepository.SelectByIdAsync(evidenceCreate.productId);
                 if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
-                var findUser = await _userRepository.SelectByIdAsync(evidenceCreate.userId);
+                var findUser = await _userManager.FindByIdAsync(evidenceCreate.userId.ToString());
                 if (findUser == null) throw new FailureRequestException(404, "Id do usuario nao localizado");
                 
                 var model = _mapper.Map<EvidenceModel>(evidenceCreate);
@@ -53,7 +54,7 @@ namespace ApiEstoque.Services
                     productName = findProduct.name,
                     description = findProduct.description,
                     createdAt = result.createdAt,
-                    username = findUser.username
+                    username = findUser.UserName
                 };
                 return evidence;
             }
@@ -67,13 +68,13 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<bool> DeleteEvidenceById(int idEvidence)
+        public async Task<bool> DeleteEvidenceById(Guid idEvidence)
         {
             try
             {
                 var result = await _baseRepository.SelectByIdAsync(idEvidence);
                 if(result == null) throw new FailureRequestException(404, "Id da evidencia nao localizada");
-                return await _baseRepository.DeleteAsync(result);
+                return await _baseRepository.DeleteAsync(result.id);
             }
             catch (FailureRequestException ex)
             {
@@ -85,7 +86,7 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<List<EvidenceDto>> GetAllEvidenceByProductId(int idProduct)
+        public async Task<List<EvidenceDto>> GetAllEvidenceByProductId(Guid idProduct)
         {
             try
             {
@@ -98,14 +99,14 @@ namespace ApiEstoque.Services
 
                 foreach (EvidenceModel evidence in findEvidence)
                 {
-                    var findUser = await _userRepository.SelectByIdAsync(evidence.userId);
+                    var findUser = await _userManager.FindByIdAsync(evidence.userId.ToString());
                     var model = new EvidenceDto
                     {
                         id = evidence.id,
                         productName = findProduct.name,
                         description = findProduct.description,
                         createdAt = evidence.createdAt,
-                        username = findUser == null ? "Anonimo" : findUser.username,
+                        username = findUser == null ? "Anonimo" : findUser.UserName,
                     };
                     evidenceList.Add(model);
                 }
@@ -122,7 +123,7 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<List<EvidenceDto>> GetAllEvidenceByShopId(int idShop)
+        public async Task<List<EvidenceDto>> GetAllEvidenceByShopId(Guid idShop)
         {
             try
             {
@@ -134,7 +135,7 @@ namespace ApiEstoque.Services
 
                 foreach (EvidenceModel evidence in findEvidence)
                 {
-                    var findUser = await _userRepository.SelectByIdAsync(evidence.userId);
+                    var findUser = await _userManager.FindByIdAsync(evidence.userId.ToString());
                     var findProduct = await _productRepository.SelectByIdAsync(evidence.productId);
                     if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
                     var model = new EvidenceDto
@@ -143,7 +144,7 @@ namespace ApiEstoque.Services
                         productName = findProduct.name,
                         description = findProduct.description,
                         createdAt = evidence.createdAt,
-                        username = findUser == null ? "Anonimo" : findUser.username,
+                        username = findUser == null ? "Anonimo" : findUser.UserName,
                     };
                     evidenceList.Add(model);
                 }
@@ -160,7 +161,7 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<EvidenceDto> GetEvidenceById(int id)
+        public async Task<EvidenceDto> GetEvidenceById(Guid id)
         {
             try
             {
@@ -168,14 +169,14 @@ namespace ApiEstoque.Services
                 if (findEvidence == null) throw new FailureRequestException(404, "Id do historico não localizado.");
                 var findProduct = await _productRepository.SelectByIdAsync(findEvidence.productId);
                 if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
-                var findUser = await _userRepository.SelectByIdAsync(findEvidence.userId);
+                var findUser = await _userManager.FindByIdAsync(findEvidence.userId.ToString());
                 var evidence = new EvidenceDto
                 {
                     id = findEvidence.id,
                     productName = findProduct.name,
                     description = findProduct.description,
                     createdAt = findEvidence.createdAt,
-                    username = findUser ==null ? "Anonimo":findUser.username,
+                    username = findUser ==null ? "Anonimo":findUser.UserName,
                 };
                 return evidence;
             }

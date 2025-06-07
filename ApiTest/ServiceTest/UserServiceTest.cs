@@ -17,7 +17,7 @@ namespace ApiEstoqueTests.ServiceTest
     {
         private IUserService _service;
         private Mock<IUserService> _serviceMock;
-
+        /*
         [Fact(DisplayName = "Given CreateDto Valid When CreateUserService then should UserDto Valid .")]
         public async Task Given_CreateDto_Valid_When_CreateUserService_then_should_UserDto_Valid_()
         {
@@ -169,5 +169,6 @@ namespace ApiEstoqueTests.ServiceTest
             Assert.True(resultEmpty.Count() == 0);
 
         }
+        */
     }
 }

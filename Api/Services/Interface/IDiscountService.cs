@@ -5,10 +5,13 @@ namespace ApiEstoque.Services.Interface
 {
     public interface IDiscountService
     {
-        Task<DiscountDto> CreateDiscount(DiscountCreateDto discountCreate);
-        Task<DiscountDto> GetDiscountByProductId(int idProduct);
-        Task<bool> UpdateDiscountByProductId(DiscountUpdateDto discountUpdate);
-        Task<bool> DeleteDiscountByProductId(int idProduct);
-        Task<List<DiscountDto>> GetAllDiscountsByShopId(int idShop);
+        Task<DiscountDto> Create(DiscountCreateDto discountCreate);
+        Task<bool> Update(DiscountUpdateDto discountUpdate);
+        Task<bool> Delete(Guid id);
+        Task<DiscountDto> GetByProductId(Guid idProduct);
+
+        //Somente em Serviços
+        Task<DiscountDto> GetById(Guid id);
+        Task<List<DiscountDto>> GetAllByProductsIds(List<Guid> ids);
     }
 }

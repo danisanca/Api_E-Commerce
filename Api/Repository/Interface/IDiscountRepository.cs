@@ -4,7 +4,7 @@ namespace ApiEstoque.Repository.Interface
 {
     public interface IDiscountRepository
     {
-        Task<DiscountModel> GetDiscountByProductId(int productId);
-        Task<List<DiscountModel>> GetAllDiscountsByShopId(int idShop);
+        Task<DiscountModel> GetByProductId(Guid productId);
+        Task<List<DiscountModel>> GetAllByProductsIds(List<Guid> ids);
     }
 }

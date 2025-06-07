@@ -19,7 +19,7 @@ namespace ApiEstoque.Controllers
         {
             _discountService = discountService;
         }
-
+        /*
         [HttpPost]
         [Route("CreateDiscount")]
         public async Task<ActionResult> CreateDiscount([FromBody] DiscountCreateDto discountCreate)
@@ -46,7 +46,7 @@ namespace ApiEstoque.Controllers
         }
         [HttpGet]
         [Route("GetAllDiscountByIdShop/{idshop}")]
-        public async Task<ActionResult> GetAllDiscountsByShopId(int idshop)
+        public async Task<ActionResult> GetAllDiscountsByShopId(Guid idshop)
         {
             if (!ModelState.IsValid)
             {
@@ -95,7 +95,7 @@ namespace ApiEstoque.Controllers
         }
         [HttpDelete]
         [Route("DeleteDiscountByProductId/{idProduct}")]
-        public async Task<ActionResult> DeleteDiscountByProductId(int idProduct)
+        public async Task<ActionResult> DeleteDiscountByProductId(Guid idProduct)
         {
             if (!ModelState.IsValid)
             {
@@ -118,6 +118,6 @@ namespace ApiEstoque.Controllers
             {
                 return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
-        }
+        }*/
     }
 }

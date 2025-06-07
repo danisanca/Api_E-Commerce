@@ -15,12 +15,12 @@ namespace ApiEstoque.Repository
         }
 
 
-        public async Task<List<ScoreProductModel>> GetAllScoreProductByProductId(int idProduct)
+        public async Task<List<ScoreProductModel>> GetAllScoreProductByProductId(Guid idProduct)
         {
             return await _db.ScoreProduct.Where(x => x.productId == idProduct).ToListAsync();
         }
 
-        public async Task<List<ScoreProductModel>> GetAllScoreProductByShopId(int idShop)
+        public async Task<List<ScoreProductModel>> GetAllScoreProductByShopId(Guid idShop)
         {
             return await _db.ScoreProduct.Join(
                 _db.Product,

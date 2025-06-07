@@ -11,10 +11,10 @@ namespace ApiEstoque.Data.Mapping.Models
             builder.HasKey(x => x.id);
             builder.Property(x => x.amount).IsRequired().HasMaxLength(45);
             builder.Property(x => x.action).IsRequired().HasMaxLength(24);
-            builder.Property(x => x.productId).IsRequired().IsUnicode(true);
+            builder.Property(x => x.productId).IsRequired();
             builder.HasOne(x => x.product);
             builder.Property(x => x.userId).IsRequired();
-            builder.HasOne(x => x.user).WithMany(h => h.historyMoviments);
+            builder.HasOne(x => x.user).WithMany(h => h.historyMoviments).HasForeignKey(x => x.userId);
             builder.Property(x => x.status).IsRequired().HasMaxLength(24);
             builder.Property(x => x.createdAt).IsRequired();
             builder.Property(x => x.updatedAt).IsRequired();

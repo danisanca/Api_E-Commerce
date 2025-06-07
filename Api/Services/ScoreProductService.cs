@@ -1,4 +1,5 @@
-﻿using ApiEstoque.Dto.HistoryMoviment;
+﻿using System.Security.Policy;
+using ApiEstoque.Dto.HistoryMoviment;
 using ApiEstoque.Dto.ScoreProduct;
 using ApiEstoque.Models;
 using ApiEstoque.Repository;
@@ -7,6 +8,7 @@ using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ApiEstoque.Services
@@ -16,20 +18,20 @@ namespace ApiEstoque.Services
         private readonly IMapper _mapper;
         private readonly IScoreProductRepository _scoreProductRepository;
         private readonly IBaseRepository<ProductModel> _productRepository;
-        private readonly IBaseRepository<UserModel> _userRepository;
+        private readonly UserManager<UserModel> _userManager;
         private readonly IBaseRepository<ScoreProductModel> _baseRepository;
         public ScoreProductService(IMapper mapper, IScoreProductRepository scoreProductRepository,
-            IBaseRepository<ProductModel> productRepository, IBaseRepository<UserModel> userRepository, IBaseRepository<ScoreProductModel> baseRepository)
+            IBaseRepository<ProductModel> productRepository, UserManager<UserModel> userManager, IBaseRepository<ScoreProductModel> baseRepository)
         {
             _mapper = mapper;
             _scoreProductRepository = scoreProductRepository;
             _productRepository = productRepository;
-            _userRepository = userRepository;
+            _userManager = userManager;
             _baseRepository = baseRepository;
         }
 
         
-        public async Task<Dictionary<string,float>> GetScoreProductByProductId(int idProduct)
+        public async Task<Dictionary<string,float>> GetScoreProductByProductId(Guid idProduct)
         {
             try
             {
@@ -64,7 +66,7 @@ namespace ApiEstoque.Services
         {
             try
             {
-                var findUser = await _userRepository.SelectByIdAsync(model.userId);
+                var findUser = await _userManager.FindByIdAsync(model.userId.ToString());
                 if (findUser == null) throw new FailureRequestException(404, "Id do usuario nao localizado");
                 var findProduct = await _productRepository.SelectByIdAsync(model.productId);
                 if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
@@ -77,7 +79,7 @@ namespace ApiEstoque.Services
 
                     foreach (ScoreProductModel score in listScores)
                     {
-                        if (score.userId == model.userId)
+                        if (score.userId == model.userId.ToString())
                         {
                             score.amountStars = model.amountStars;
                             await _baseRepository.UpdateAsync(score);

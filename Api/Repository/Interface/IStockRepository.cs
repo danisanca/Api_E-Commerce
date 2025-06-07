@@ -4,7 +4,7 @@ namespace ApiEstoque.Repository.Interface
 {
     public interface IStockRepository
     {
-        Task<StockModel> GetStockByProductId(int idProduct);
-        Task<List<StockModel>> GetAllStockByShopId(int idShop);
+        Task<StockModel> GetByProductId(Guid idProduct);
+        Task<List<StockModel>> GetAllByProductsIds(List<Guid> ids);
     }
 }

@@ -19,7 +19,7 @@ namespace ApiEstoque.Controllers
         {
             _evidenceService = evidenceService;
         }
-
+        /*
         [HttpPost]
         [Route("CreateEvidence")]
         public async Task<ActionResult> CreateEvidence([FromBody] EvidenceCreateDto evidenceCreateDto)
@@ -47,7 +47,7 @@ namespace ApiEstoque.Controllers
 
         [HttpGet]
         [Route("GetEvidenceById/{idEvidence}")]
-        public async Task<ActionResult> GetEvidenceById(int idEvidence)
+        public async Task<ActionResult> GetEvidenceById(Guid idEvidence)
         {
             if (!ModelState.IsValid)
             {
@@ -71,7 +71,7 @@ namespace ApiEstoque.Controllers
 
         [HttpGet]
         [Route("GetAllEvidenceByProductId/{idProduct}")]
-        public async Task<ActionResult> GetAllEvidenceByProductId(int idProduct)
+        public async Task<ActionResult> GetAllEvidenceByProductId(Guid idProduct)
         {
             if (!ModelState.IsValid)
             {
@@ -94,7 +94,7 @@ namespace ApiEstoque.Controllers
         }
         [HttpGet]
         [Route("GetAllEvidenceByShopId/{idShop}")]
-        public async Task<ActionResult> GetAllEvidenceByShopId(int idShop)
+        public async Task<ActionResult> GetAllEvidenceByShopId(Guid idShop)
         {
             if (!ModelState.IsValid)
             {
@@ -118,7 +118,7 @@ namespace ApiEstoque.Controllers
 
         [HttpDelete]
         [Route("DeleteEvidenceById/{idEvidence}")]
-        public async Task<ActionResult> DeleteEvidenceById(int idEvidence)
+        public async Task<ActionResult> DeleteEvidenceById(Guid idEvidence)
         {
             if (!ModelState.IsValid)
             {
@@ -138,6 +138,6 @@ namespace ApiEstoque.Controllers
             {
                 return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
-        }
+        }*/
     }
 }

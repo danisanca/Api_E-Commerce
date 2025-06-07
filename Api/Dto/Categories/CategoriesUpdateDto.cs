@@ -5,7 +5,7 @@ namespace ApiEstoque.Dto.Categories
     public class CategoriesUpdateDto
     {
         [Required(ErrorMessage = "id da categoria é um campo obrigatório.")]
-        public int idCategories { get; set; }
+        public Guid idCategories { get; set; }
 
         [Required(ErrorMessage = "Nome é um campo obrigatório.")]
         public string name { get; set; }

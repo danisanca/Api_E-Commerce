@@ -14,24 +14,15 @@ namespace ApiEstoque.Repository
             _db = db;
         }
 
-        public async Task<StockModel> GetStockByProductId(int idProduct)
+        public async Task<StockModel> GetByProductId(Guid idProduct)
         {
             return await _db.Stock.FirstOrDefaultAsync(x => x.productId == idProduct);
         }
 
-        public async Task<List<StockModel>> GetAllStockByShopId(int idShop)
+        public async Task<List<StockModel>> GetAllByProductsIds(List<Guid> ids)
         {
-            return await _db.Stock.Join(
-                    _db.Product,
-                    stock => stock.productId,
-                    product => product.id,
-                    (stock, product) => new
-                    {
-                        stock,
-                        product.shopId
-                    }
-                ).Where(joined => joined.shopId == idShop)
-                .Select(joined => joined.stock).ToListAsync();
+            return await _db.Stock.Where(c => ids.Contains(c.productId))
+                        .ToListAsync();
         }
     }
 }

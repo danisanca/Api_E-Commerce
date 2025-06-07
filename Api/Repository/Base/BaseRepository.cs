@@ -1,5 +1,5 @@
-﻿using ApiEstoque.Data;
-using ApiEstoque.Helpers;
+﻿using ApiEstoque.Constants;
+using ApiEstoque.Data;
 using ApiEstoque.Models.Base;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +20,10 @@ namespace ApiEstoque.Repository.Base
         {
             try
             {
+                if (item.id == Guid.Empty)
+                {
+                    item.id = Guid.NewGuid();
+                }
                 _dataset.Add(item);
                 await _context.SaveChangesAsync();
             }
@@ -47,13 +51,14 @@ namespace ApiEstoque.Repository.Base
             }
         }
 
-        public async Task<bool> DeleteAsync(T item)
+        public async Task<bool> DeleteAsync(Guid id)
         {
             try
             {
-                if (item == null)
+                var result = await _dataset.SingleOrDefaultAsync(p => p.id.Equals(id));
+                if (result == null)
                     return false;
-                _dataset.Remove(item);
+                _dataset.Remove(result);
                 await _context.SaveChangesAsync();
                 return true;
             }
@@ -63,7 +68,7 @@ namespace ApiEstoque.Repository.Base
             }
         }
 
-        public async Task<T> SelectByIdAsync(int id)
+        public async Task<T> SelectByIdAsync(Guid id)
         {
             try
             {

@@ -19,7 +19,7 @@ namespace ApiEstoque.Controllers
         {
             _scoreProductService = scoreProductService;
         }
-
+        /*
         [HttpPut]
         [Route("UpdateScoreProduct")]
         public async Task<ActionResult> UpdateScoreProduct([FromBody] ScoreProductCreateDto scoreProductCreateDto)
@@ -47,7 +47,7 @@ namespace ApiEstoque.Controllers
 
         [HttpGet]
         [Route("GetScoreProductByProductId/{idProduct}")]
-        public async Task<ActionResult> GetScoreProductByProductId(int idProduct)
+        public async Task<ActionResult> GetScoreProductByProductId(Guid idProduct)
         {
             if (!ModelState.IsValid)
             {
@@ -67,6 +67,6 @@ namespace ApiEstoque.Controllers
             {
                 return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
-        }
+        }*/
     }
 }

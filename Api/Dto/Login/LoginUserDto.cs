@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ApiEstoque.Dto.Login
 {
-    public class LoginDto
+    public class LoginUserDto
     {
         [Required(ErrorMessage = "Necessário informar um email.")]
         [EmailAddress(ErrorMessage = "Formato do email invalido.")]
@@ -12,9 +12,6 @@ namespace ApiEstoque.Dto.Login
         [Required(ErrorMessage = "Senha é um campo obrigatório.")]
         public string password { get; set; }
 
-        public void SetPasswordHash()
-        {
-            password = password.CreateHash();
-        }
+       
     }
 }

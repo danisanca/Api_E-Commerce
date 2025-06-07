@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ApiEstoque.Dto.Adress;
 using ApiEstoque.Services;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using ApiEstoque.Constants;
+using Microsoft.AspNetCore.Identity;
 
 namespace ApiEstoque.Controllers
 {
@@ -14,39 +18,16 @@ namespace ApiEstoque.Controllers
     public class AddressController : ControllerBase
     {
         private readonly IAddressService _addressService;
-
         public AddressController(IAddressService addressService)
         {
             _addressService = addressService;
         }
 
-        [HttpPost]
-        [Route("CreateAddress")]
-        public async Task<ActionResult> CreateAddress([FromBody] AddressCreateDto addressCreate)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            try
-            {
-                var result = await _addressService.CreateAddress(addressCreate);
-                if (result == null) return NotFound();
-                else return Ok(result);
-
-            }
-            catch (FailureRequestException ex)
-            {
-                return StatusCode(ex.StatusCode, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
+        
         [HttpPut]
-        [Route("UpdateAddress")]
-        public async Task<ActionResult> UpdateAddress([FromBody] AddressUpdateDto addressUpdate)
+        [Authorize]
+        [Route("Update")]
+        public async Task<ActionResult> Update([FromBody] AddressUpdateDto addressUpdate)
         {
             if (!ModelState.IsValid)
             {
@@ -54,9 +35,26 @@ namespace ApiEstoque.Controllers
             }
             try
             {
-                var result = await _addressService.UpdateAddressById(addressUpdate);
-                if (result == false) return NotFound();
-                else return Ok(result);
+                
+                var userId = User.FindFirst(ClaimTypeCustom.Id)?.Value;
+                 if (string.IsNullOrEmpty(userId))
+                    return Unauthorized("Usuário não autenticado.");
+
+                
+                var address = await _addressService.GetById(addressUpdate.id);
+                if (address == null)
+                    return NotFound("Endereço não encontrado.");
+
+                if (address.userId != userId)
+                    return StatusCode(401,"Você não tem permissão para alterar este endereço.");
+
+                
+                var result = await _addressService.Update(addressUpdate);
+
+                if (!result)
+                    return NotFound();
+
+                return Ok(result);
             }
             catch (FailureRequestException ex)
             {
@@ -68,33 +66,12 @@ namespace ApiEstoque.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("GetAddressById/{idAddress}")]
-        public async Task<ActionResult> GetAddressById(int idAddress)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            try
-            {
-                var result = await _addressService.GetAddressById(idAddress);
-                if (result == null) return NotFound();
-                else return Ok(result);
-            }
-            catch (FailureRequestException ex)
-            {
-                return StatusCode(ex.StatusCode, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
+        
 
         [HttpGet]
-        [Route("GetAddressByUserId/{idUser}")]
-        public async Task<ActionResult> GetAddressByUserId(int idUser)
+        [Authorize]
+        [Route("GetByUserId/{idUser}")]
+        public async Task<ActionResult> GetByUserId(string idUser)
         {
             if (!ModelState.IsValid)
             {
@@ -102,7 +79,7 @@ namespace ApiEstoque.Controllers
             }
             try
             {
-                var result = await _addressService.GetAddressByUserId(idUser);
+                var result = await _addressService.GetByUserId(idUser);
                 if (result == null) return NotFound();
                 else return Ok(result);
             }

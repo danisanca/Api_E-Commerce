@@ -11,6 +11,6 @@ namespace ApiEstoque.Dto.Discount
         public float percentDiscount { get; set; }
 
         [Required(ErrorMessage = "Id do produto é um campo obrigatório.")]
-        public int productId { get; set; }
+        public Guid productId { get; set; }
     }
 }

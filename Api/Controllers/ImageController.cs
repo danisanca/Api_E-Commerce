@@ -20,7 +20,7 @@ namespace ApiEstoque.Controllers
         {
             _imageService = imageService;
         }
-
+        /*
         [HttpPost]
         [Route("CreateImage")]
         public async Task<ActionResult> CreateImage([FromBody] ImageCreateDto imageCreate)
@@ -120,7 +120,7 @@ namespace ApiEstoque.Controllers
 
         [HttpGet]
         [Route("GetImageById/{IdCategory}")]
-        public async Task<ActionResult> GetImageById(int IdCategory)
+        public async Task<ActionResult> GetImageById(Guid IdCategory)
         {
             if (!ModelState.IsValid)
             {
@@ -169,7 +169,7 @@ namespace ApiEstoque.Controllers
         
         [HttpGet]
         [Route("GetImageByProductId/{productId}")]
-        public async Task<ActionResult> GetImageByProductId(int productId)
+        public async Task<ActionResult> GetImageByProductId(Guid productId)
         {
             if (!ModelState.IsValid)
             {
@@ -217,7 +217,7 @@ namespace ApiEstoque.Controllers
 
         [HttpPut]
         [Route("ActiveImageById/{idImage}")]
-        public async Task<ActionResult> ActiveImageById(int idImage)
+        public async Task<ActionResult> ActiveImageById(Guid idImage)
         {
             if (!ModelState.IsValid)
             {
@@ -241,7 +241,7 @@ namespace ApiEstoque.Controllers
 
         [HttpPut]
         [Route("DisableCategoriesById/{idImage}")]
-        public async Task<ActionResult> DisableCategoriesById(int idImage)
+        public async Task<ActionResult> DisableCategoriesById(Guid idImage)
         {
             if (!ModelState.IsValid)
             {
@@ -261,6 +261,6 @@ namespace ApiEstoque.Controllers
             {
                 return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
-        }
+        }*/
     }
 }

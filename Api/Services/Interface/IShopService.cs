@@ -8,11 +8,11 @@ namespace ApiEstoque.Services.Interface
     {
         Task<ShopDto> CreateShop(ShopCreateDto shopCreateDto);
         Task<bool> UpdateShop(ShopUpdateDto shopUpdateDto);
-        Task<bool> ActiveShop(int shopId);
-        Task<bool> DisableShop(int shopId);
-        Task<List<ShopDto>> GetAllShops(FilterGetRoutes status = FilterGetRoutes.Ativo);
-        Task<ShopDto> GetShopById(int id);
-        Task<ShopDto> GetShopByUserId(int userId);
-        Task<ShopDto> GetShopByName(string name);
+        Task<bool> ChangeStatusById(Guid shopId,bool isActive);
+        Task<ShopDto> GetByUserId(string userId);
+
+        //Somente em Serviços
+        Task<ShopDto> GetById(Guid id);
+        Task<List<ShopDto>> GetAllByIds(List<Guid> ids);
     }
 }

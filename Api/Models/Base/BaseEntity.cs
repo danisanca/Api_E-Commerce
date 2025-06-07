@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using ApiEstoque.Helpers;
+using ApiEstoque.Constants;
 
 namespace ApiEstoque.Models.Base
 {
@@ -8,7 +8,7 @@ namespace ApiEstoque.Models.Base
     {
         [Key]
         [Column("id")]
-        public int id { get; set; }
+        public Guid id { get; set; }
         public string status { get; set; } = FilterGetRoutes.Ativo.ToString();
         public DateTime createdAt { get; set; } = DateTime.Now;
 

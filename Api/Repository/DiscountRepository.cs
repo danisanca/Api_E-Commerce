@@ -15,15 +15,13 @@ namespace ApiEstoque.Repository
             _db = db;
         }
 
-        public async Task<List<DiscountModel>> GetAllDiscountsByShopId(int idShop)
+        public async Task<List<DiscountModel>> GetAllByProductsIds(List<Guid> ids)
         {
-            return await _db.Discount
-            .Where(d => _db.Product
-                .Any(p => p.id == d.productId && p.shopId == idShop))
-            .ToListAsync();
+            return await _db.Discount.Where(c => ids.Contains(c.productId))
+                        .ToListAsync();
         }
 
-        public async Task<DiscountModel> GetDiscountByProductId(int productId)
+        public async Task<DiscountModel> GetByProductId(Guid productId)
         {
             return await _db.Discount.FirstOrDefaultAsync(x => x.productId == productId);
         }

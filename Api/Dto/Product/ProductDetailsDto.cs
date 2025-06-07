@@ -4,16 +4,15 @@ using ApiEstoque.Dto.Stock;
 
 namespace ApiEstoque.Dto.Product
 {
-    public class ProductFullDto
+    public class ProductDetailsDto
     {
-        public int Id { get; set; }
-        public int ShopId { get; set; }
+        public Guid Id { get; set; }
+        public Guid ShopId { get; set; }
         public string NameShop { get; set; }
         public string Name { get; set; }
         public float Price { get; set; }
-        public float Rating { get; set; }
         public string Categoria { get; set; }
-        public List<string> ImageUrl { get; set; }
+        public List<string> UrlImages { get; set; }
         public string Description { get; set; }
         public bool IsNew { get; set; }
         public StockDto? Stock { get; set; }

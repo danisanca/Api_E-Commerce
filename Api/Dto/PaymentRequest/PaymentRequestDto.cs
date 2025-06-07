@@ -3,7 +3,7 @@ namespace ApiEstoque.Dto.PaymentRequest
 {
     public class PaymentRequestDto
     {
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public List<CartItemDTO> CartList { get; set; }
         public float finalPrice { get; set; }
         public string TypePayment { get; set; } // "credit_card", "pix", "boleto"

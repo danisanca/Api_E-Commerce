@@ -19,7 +19,7 @@ namespace ApiEstoque.Controllers
         {
             _stockService = stockService;
         }
-
+        /*
         [HttpPost]
         [Route("CreateStock")]
         public async Task<ActionResult> CreateStock([FromBody] StockCreateDto stockCreateDto)
@@ -69,7 +69,7 @@ namespace ApiEstoque.Controllers
         }
         [HttpDelete]
         [Route("DeleteStock/{idStock}")]
-        public async Task<ActionResult> DeleteStock(int idStock)
+        public async Task<ActionResult> DeleteStock(Guid idStock)
         {
             if (!ModelState.IsValid)
             {
@@ -92,7 +92,7 @@ namespace ApiEstoque.Controllers
         }
         [HttpGet]
         [Route("GetAllStockByShopId/{idShop}")]
-        public async Task<ActionResult> GetAllStockByShopId(int idShop)
+        public async Task<ActionResult> GetAllStockByShopId(Guid idShop)
         {
             if (!ModelState.IsValid)
             {
@@ -116,7 +116,7 @@ namespace ApiEstoque.Controllers
 
         [HttpGet]
         [Route("GetStockById/{idStock}")]
-        public async Task<ActionResult> GetStockById(int idStock)
+        public async Task<ActionResult> GetStockById(Guid idStock)
         {
             if (!ModelState.IsValid)
             {
@@ -139,7 +139,7 @@ namespace ApiEstoque.Controllers
         }
         [HttpGet]
         [Route("GetStockByProductId/{idProduct}")]
-        public async Task<ActionResult> GetStockByProductId(int idProduct)
+        public async Task<ActionResult> GetStockByProductId(Guid idProduct)
         {
             if (!ModelState.IsValid)
             {
@@ -159,6 +159,6 @@ namespace ApiEstoque.Controllers
             {
                 return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
-        }
+        }*/
     }
 }

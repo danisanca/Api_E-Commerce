@@ -1,4 +1,5 @@
-﻿using ApiEstoque.Data;
+﻿using System.Data;
+using ApiEstoque.Data;
 using ApiEstoque.Helpers;
 using ApiEstoque.Models;
 using ApiEstoque.Repository.Interface;
@@ -15,32 +16,23 @@ namespace ApiEstoque.Repository
             _db = db;
         }
 
-
-        public async Task<List<ProductModel>> GetAllProductByCategoryId(int id, int idShop)
+        public async Task<List<ProductModel>> GetAllByIdShop(Guid idShop)
         {
-            return await _db.Product.Where(x => x.categoriesId == id && x.shopId == idShop).ToListAsync();
+            return await _db.Product
+         .Where(x => x.shopId == idShop)
+         .ToListAsync();
         }
 
-        public async Task<List<ProductModel>> GetAllProductsOnStock()
+        public async Task<List<ProductModel>> GetAllLikeName(string name)
         {
-            var query = from product in _db.Product
-                        join stock in _db.Stock on product.id equals stock.productId
-                        where product.status == "Ativo"
-                        select product;
-
-            return await query.Distinct().ToListAsync();
+            return await _db.Product
+         .Where(x => x.name.Contains(name))
+         .ToListAsync();
         }
 
-        public async Task<List<ProductModel>> GetAllProductsByShopId(FilterGetRoutes status, int idShop)
+        public async Task<ProductModel> GetByNameAndIdShop(string name, Guid idShop)
         {
-            if (status != FilterGetRoutes.All) return await _db.Product.Where(x => x.status == status.ToString() && x.shopId == idShop).ToListAsync();
-            else return await _db.Product.Where(x => x.shopId == idShop).ToListAsync();
+            return await _db.Product.SingleOrDefaultAsync(p => p.name == name && p.shopId == idShop);
         }
-
-        public async Task<ProductModel> GetProductByName(string name, int idShop)
-        {
-            return await _db.Product.Where(x => x.name == name && x.shopId == idShop).FirstOrDefaultAsync();
-        }
-
     }
 }

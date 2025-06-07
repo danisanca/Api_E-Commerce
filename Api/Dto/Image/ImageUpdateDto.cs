@@ -5,7 +5,7 @@ namespace ApiEstoque.Dto.Image
     public class ImageUpdateDto
     {
         [Required(ErrorMessage = "Url é um campo obrigatório.")]
-        public int idImage { get; set; }
+        public Guid idImage { get; set; }
 
         [Required(ErrorMessage = "Url é um campo obrigatório.")]
         public string url { get; set; }

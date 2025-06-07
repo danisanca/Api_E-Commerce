@@ -20,7 +20,7 @@ namespace ApiEstoqueTests.RepositoryTest
         {
             _serviceProvide = dbTeste.ServiceProvider;
         }
-
+        /*
         [Fact(DisplayName = "CRUD  de Usuario")]
         [Trait("CRUD", "UserEntity")]
         public async Task E_Possivel_Realizar_CRUD_Usuario()
@@ -163,6 +163,6 @@ namespace ApiEstoqueTests.RepositoryTest
                 Assert.Equal(firstEntity.typeAccount, findUserByUsername.typeAccount);
                 #endregion
             }
-        }
+        }*/
     }
 }

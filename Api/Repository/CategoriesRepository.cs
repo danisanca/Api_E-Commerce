@@ -1,10 +1,7 @@
 ﻿using ApiEstoque.Data;
-using ApiEstoque.Helpers;
 using ApiEstoque.Models;
 using ApiEstoque.Repository.Interface;
 using Microsoft.EntityFrameworkCore;
-using ApiEstoque.Helpers;
-using System.Net.NetworkInformation;
 
 namespace ApiEstoque.Repository
 {
@@ -17,15 +14,13 @@ namespace ApiEstoque.Repository
             _db = db;
         }
 
-        public async Task<List<CategoriesModel>> GetAllCategories(FilterGetRoutes status)
+        public async Task<List<CategoriesModel>> GetAllByIds(List<Guid> ids)
         {
-            if (status == FilterGetRoutes.Ativo) return await _db.Categories.Where(g => g.status == status.ToString()).ToListAsync();
-            else if (status == FilterGetRoutes.Desabilitado) return await _db.Categories.Where(g => g.status == status.ToString()).ToListAsync();
-            else return await _db.Categories.ToListAsync();
+            return await _db.Categories.Where(c => ids.Contains(c.id))
+                         .ToListAsync();
         }
 
-
-        public async Task<CategoriesModel> GetCategoriesByName(string name)
+        public async Task<CategoriesModel> GetByName(string name)
         {
             return await _db.Categories.Where(x => x.name == name).FirstOrDefaultAsync();
         }

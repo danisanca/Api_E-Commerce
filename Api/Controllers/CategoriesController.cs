@@ -20,7 +20,7 @@ namespace ApiEstoque.Controllers
         {
             _categoriesService = categoriesService;
         }
-
+        /*
         [HttpPost]
         [Route("CreateCategories")]
         public async Task<ActionResult> CreateCategories([FromBody] CategoriesCreateDto categoriesCreate)
@@ -121,7 +121,7 @@ namespace ApiEstoque.Controllers
         
         [HttpGet]
         [Route("GetCategoryById/{IdCategory}")]
-        public async Task<ActionResult> GetCategoryById(int IdCategory)
+        public async Task<ActionResult> GetCategoryById(Guid IdCategory)
         {
             if (!ModelState.IsValid)
             {
@@ -194,7 +194,7 @@ namespace ApiEstoque.Controllers
        
         [HttpPut]
         [Route("ActiveCategoriesById/{idCategory}")]
-        public async Task<ActionResult> ActiveCategoriesById(int idCategory)
+        public async Task<ActionResult> ActiveCategoriesById(Guid idCategory)
         {
             if (!ModelState.IsValid)
             {
@@ -218,7 +218,7 @@ namespace ApiEstoque.Controllers
 
         [HttpPut]
         [Route("DisableCategoriesById/{idCategory}")]
-        public async Task<ActionResult> DisableCategoriesById(int idCategory)
+        public async Task<ActionResult> DisableCategoriesById(Guid idCategory)
         {
             if (!ModelState.IsValid)
             {
@@ -238,6 +238,6 @@ namespace ApiEstoque.Controllers
             {
                 return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
-        }
+        }*/
     }
 }
