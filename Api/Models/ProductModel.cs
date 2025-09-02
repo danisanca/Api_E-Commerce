@@ -15,9 +15,5 @@ namespace ApiEstoque.Models
         public virtual CategoriesModel categories { get; set; }
         public IEnumerable<StockModel> stocks { get; set; }
         public IEnumerable<DiscountModel> discounts { get; set; }
-        public IEnumerable<ScoreProductModel> scoreProducts { get; set; }
-        public IEnumerable<EvidenceModel> evidences { get; set; }
-
-        public  IEnumerable<OrderDetailModel> orderDetails { get; set; }
     }
 }

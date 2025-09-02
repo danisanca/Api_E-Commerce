@@ -130,11 +130,6 @@ namespace ApiEstoque.Migrations
                     b.Property<DateTime>("createdAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("description")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
                     b.Property<float>("percentDiscount")
                         .HasColumnType("real");
 
@@ -154,45 +149,6 @@ namespace ApiEstoque.Migrations
                     b.HasIndex("productId");
 
                     b.ToTable("Discount");
-                });
-
-            modelBuilder.Entity("ApiEstoque.Models.EvidenceModel", b =>
-                {
-                    b.Property<Guid>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("createdAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("description")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<Guid>("productId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("status")
-                        .IsRequired()
-                        .HasMaxLength(24)
-                        .HasColumnType("nvarchar(24)");
-
-                    b.Property<DateTime>("updatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("userId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("id");
-
-                    b.HasIndex("productId");
-
-                    b.HasIndex("userId");
-
-                    b.ToTable("Evidence");
                 });
 
             modelBuilder.Entity("ApiEstoque.Models.HistoryMovimentModel", b =>
@@ -273,104 +229,11 @@ namespace ApiEstoque.Migrations
 
                     b.HasKey("id");
 
+                    b.HasIndex("productId");
+
                     b.HasIndex("shopId");
 
                     b.ToTable("Image");
-                });
-
-            modelBuilder.Entity("ApiEstoque.Models.OrderDetailModel", b =>
-                {
-                    b.Property<Guid>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("id");
-
-                    b.Property<int>("amount")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("createdAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("orderHeaderId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<float>("price")
-                        .HasColumnType("real");
-
-                    b.Property<Guid>("productId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("updatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("id");
-
-                    b.HasIndex("orderHeaderId");
-
-                    b.HasIndex("productId");
-
-                    b.ToTable("OrderDetail");
-                });
-
-            modelBuilder.Entity("ApiEstoque.Models.OrderHeaderModel", b =>
-                {
-                    b.Property<Guid>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("id");
-
-                    b.Property<string>("InitPoint")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("addressId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("createdAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("document")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("documentTpe")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<float>("finalPrice")
-                        .HasColumnType("real");
-
-                    b.Property<string>("preferenceID")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("quantityItem")
-                        .HasColumnType("int");
-
-                    b.Property<string>("status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("updatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("userId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("id");
-
-                    b.HasIndex("addressId")
-                        .IsUnique();
-
-                    b.HasIndex("userId")
-                        .IsUnique();
-
-                    b.ToTable("OrderHeader");
                 });
 
             modelBuilder.Entity("ApiEstoque.Models.ProductModel", b =>
@@ -418,44 +281,6 @@ namespace ApiEstoque.Migrations
                     b.HasIndex("shopId");
 
                     b.ToTable("Product");
-                });
-
-            modelBuilder.Entity("ApiEstoque.Models.ScoreProductModel", b =>
-                {
-                    b.Property<Guid>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("id");
-
-                    b.Property<float>("amountStars")
-                        .HasMaxLength(45)
-                        .HasColumnType("real");
-
-                    b.Property<DateTime>("createdAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("productId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("status")
-                        .IsRequired()
-                        .HasMaxLength(24)
-                        .HasColumnType("nvarchar(24)");
-
-                    b.Property<DateTime>("updatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("userId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("id");
-
-                    b.HasIndex("productId");
-
-                    b.HasIndex("userId");
-
-                    b.ToTable("ScoreProduct");
                 });
 
             modelBuilder.Entity("ApiEstoque.Models.ShopModel", b =>
@@ -511,6 +336,9 @@ namespace ApiEstoque.Migrations
                         .IsUnicode(true)
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("shopId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("status")
                         .IsRequired()
                         .HasMaxLength(24)
@@ -522,6 +350,8 @@ namespace ApiEstoque.Migrations
                     b.HasKey("id");
 
                     b.HasIndex("productId");
+
+                    b.HasIndex("shopId");
 
                     b.ToTable("Stock");
                 });
@@ -786,25 +616,6 @@ namespace ApiEstoque.Migrations
                     b.Navigation("product");
                 });
 
-            modelBuilder.Entity("ApiEstoque.Models.EvidenceModel", b =>
-                {
-                    b.HasOne("ApiEstoque.Models.ProductModel", "product")
-                        .WithMany("evidences")
-                        .HasForeignKey("productId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ApiEstoque.Models.UserModel", "user")
-                        .WithMany("evidences")
-                        .HasForeignKey("userId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("product");
-
-                    b.Navigation("user");
-                });
-
             modelBuilder.Entity("ApiEstoque.Models.HistoryMovimentModel", b =>
                 {
                     b.HasOne("ApiEstoque.Models.ProductModel", "product")
@@ -826,51 +637,21 @@ namespace ApiEstoque.Migrations
 
             modelBuilder.Entity("ApiEstoque.Models.ImageModel", b =>
                 {
+                    b.HasOne("ApiEstoque.Models.ProductModel", "Product")
+                        .WithMany()
+                        .HasForeignKey("productId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ApiEstoque.Models.ShopModel", "Shop")
                         .WithMany()
                         .HasForeignKey("shopId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Product");
+
                     b.Navigation("Shop");
-                });
-
-            modelBuilder.Entity("ApiEstoque.Models.OrderDetailModel", b =>
-                {
-                    b.HasOne("ApiEstoque.Models.OrderHeaderModel", "orderHeader")
-                        .WithMany("orderDetails")
-                        .HasForeignKey("orderHeaderId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ApiEstoque.Models.ProductModel", "products")
-                        .WithMany("orderDetails")
-                        .HasForeignKey("productId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("orderHeader");
-
-                    b.Navigation("products");
-                });
-
-            modelBuilder.Entity("ApiEstoque.Models.OrderHeaderModel", b =>
-                {
-                    b.HasOne("ApiEstoque.Models.AddressModel", "address")
-                        .WithOne()
-                        .HasForeignKey("ApiEstoque.Models.OrderHeaderModel", "addressId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ApiEstoque.Models.UserModel", "user")
-                        .WithOne()
-                        .HasForeignKey("ApiEstoque.Models.OrderHeaderModel", "userId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("address");
-
-                    b.Navigation("user");
                 });
 
             modelBuilder.Entity("ApiEstoque.Models.ProductModel", b =>
@@ -892,25 +673,6 @@ namespace ApiEstoque.Migrations
                     b.Navigation("shop");
                 });
 
-            modelBuilder.Entity("ApiEstoque.Models.ScoreProductModel", b =>
-                {
-                    b.HasOne("ApiEstoque.Models.ProductModel", "product")
-                        .WithMany("scoreProducts")
-                        .HasForeignKey("productId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ApiEstoque.Models.UserModel", "user")
-                        .WithMany("scoreProducts")
-                        .HasForeignKey("userId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("product");
-
-                    b.Navigation("user");
-                });
-
             modelBuilder.Entity("ApiEstoque.Models.ShopModel", b =>
                 {
                     b.HasOne("ApiEstoque.Models.UserModel", "user")
@@ -930,7 +692,15 @@ namespace ApiEstoque.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ApiEstoque.Models.ShopModel", "shop")
+                        .WithMany("stock")
+                        .HasForeignKey("shopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("product");
+
+                    b.Navigation("shop");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -984,20 +754,9 @@ namespace ApiEstoque.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ApiEstoque.Models.OrderHeaderModel", b =>
-                {
-                    b.Navigation("orderDetails");
-                });
-
             modelBuilder.Entity("ApiEstoque.Models.ProductModel", b =>
                 {
                     b.Navigation("discounts");
-
-                    b.Navigation("evidences");
-
-                    b.Navigation("orderDetails");
-
-                    b.Navigation("scoreProducts");
 
                     b.Navigation("stocks");
                 });
@@ -1005,15 +764,13 @@ namespace ApiEstoque.Migrations
             modelBuilder.Entity("ApiEstoque.Models.ShopModel", b =>
                 {
                     b.Navigation("products");
+
+                    b.Navigation("stock");
                 });
 
             modelBuilder.Entity("ApiEstoque.Models.UserModel", b =>
                 {
-                    b.Navigation("evidences");
-
                     b.Navigation("historyMoviments");
-
-                    b.Navigation("scoreProducts");
                 });
 #pragma warning restore 612, 618
         }

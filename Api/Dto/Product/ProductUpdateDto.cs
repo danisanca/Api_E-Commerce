@@ -21,5 +21,8 @@ namespace ApiEstoque.Dto.Product
         [StringLength(255, ErrorMessage = "Descrição deve ter no maximo {1} characters.")]
         [Required(ErrorMessage = "Descrição é um campo obrigatório.")]
         public string description { get; set; }
+
+        public List<IFormFile>? NewImages { get; set; }
+        public List<string>? removedUrls { get; set; }
     }
 }

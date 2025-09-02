@@ -15,7 +15,7 @@ namespace ApiEstoque.Dto.User
 
         [StringLength(45, ErrorMessage = "Username deve ter no maximo {1} characters.")]
         [Required(ErrorMessage = "Username é um campo obrigatório.")]
-        public string Username { get; set; }
+        public string UserName { get; set; }
 
         [MinLength(4, ErrorMessage = "Senha deve ter no minimo {1} characters.")]
         [StringLength(24, ErrorMessage = "Senha deve ter no maximo {1} characters.")]

@@ -15,17 +15,15 @@ namespace ApiEstoque.Services
     {
         private readonly IMapper _mapper;
         private readonly IDiscountRepository _discountRepository;
-        private readonly IProductService _productService;
         private readonly IShopService _shopService;
         private readonly IBaseRepository<DiscountModel> _baseRepository;
 
         public DiscountService(IMapper mapper, IDiscountRepository discountRepository,
-            IProductService productService,
+            
            IShopService shopService, IBaseRepository<DiscountModel> baseRepository)
         {
             _mapper = mapper;
             _discountRepository = discountRepository;
-            _productService = productService;
             _shopService = shopService;
             _baseRepository = baseRepository;
         }
@@ -34,9 +32,7 @@ namespace ApiEstoque.Services
         {
             try
             {
-                var findProduct = await _productService.GetById(discountCreate.productId);
-                if (findProduct == null) throw new FailureRequestException(404, "Id da produto não localizada.");
-                DiscountModel findDiscount = await _discountRepository.GetByProductId(findProduct.id);
+                DiscountModel findDiscount = await _discountRepository.GetByProductId(discountCreate.productId);
                 if (findDiscount != null) throw new FailureRequestException(404, "Ja existe um desconto para esse produto.");
                 var model = _mapper.Map<DiscountModel>(discountCreate);
                 return _mapper.Map<DiscountDto>(await _baseRepository.InsertAsync(model));
@@ -51,12 +47,12 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<bool> Delete(Guid idProduct)
+        public async Task<bool> DeleteById(Guid id)
         {
             try
             {
-                DiscountModel findDiscount = await _discountRepository.GetByProductId(idProduct);
-                if (findDiscount == null) throw new FailureRequestException(404, "Não existe um desconto para esse produto.");
+                DiscountModel findDiscount = await _baseRepository.SelectByIdAsync(id);
+                if (findDiscount == null) throw new FailureRequestException(404, "Não existe um desconto com esse id.");
                 return await _baseRepository.DeleteAsync(findDiscount.id);
             }
             catch (FailureRequestException ex)
@@ -75,19 +71,13 @@ namespace ApiEstoque.Services
         {
             try
             {
-
-                var findProduct = await _productService.GetById(discountUpdate.productId);
-                if (findProduct == null) throw new FailureRequestException(404, "Id da produto não localizada.");
-                DiscountModel findDiscount = await _discountRepository.GetByProductId(findProduct.id);
+                DiscountModel findDiscount = await _baseRepository.SelectByIdAsync(discountUpdate.id);
                 if (findDiscount == null) throw new FailureRequestException(404, "Não existe um desconto para esse produto.");
                 if (discountUpdate.percentDiscount != null)
                 {
                     findDiscount.percentDiscount = (float)discountUpdate.percentDiscount;
                 }
-                if (discountUpdate.description != null)
-                {
-                    findDiscount.description = discountUpdate.description;
-                }
+                findDiscount.updatedAt = DateTime.Now;
                 return await _baseRepository.UpdateAsync(findDiscount);
             }
             catch (FailureRequestException ex)
@@ -103,9 +93,7 @@ namespace ApiEstoque.Services
         {
             try
             {
-                var findProduct = await _productService.GetById(idProduct);
-                if (findProduct == null) throw new FailureRequestException(404, "Id da produto não localizada.");
-                DiscountModel findDiscount = await _discountRepository.GetByProductId(findProduct.id);
+                DiscountModel findDiscount = await _discountRepository.GetByProductId(idProduct);
                 if (findDiscount == null) throw new FailureRequestException(404, "Não existe um desconto para esse produto.");
                 return _mapper.Map<DiscountDto>(findDiscount);
             }

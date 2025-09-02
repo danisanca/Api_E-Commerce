@@ -20,6 +20,8 @@ namespace ApiEstoque.Dto.Product
     }
     public class PercentDiscountDto
     {
-        public float Value { get; set; }
+        public Guid id { get; set; }
+        public float percentDiscount { get; set; }
+        public DateTime updatedAt { get; set; }
     }
 }

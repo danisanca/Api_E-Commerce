@@ -18,7 +18,9 @@
         Saida,
         Venda,
         Devolução,
-        Acerto
+        Acerto,
+        Bloqueio,
+        Desbloqueio
     }
 
 }

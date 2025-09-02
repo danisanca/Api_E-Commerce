@@ -7,7 +7,6 @@ namespace ApiEstoque.Services.Interface
     public interface IImageService
     {
         Task<ImageDto> Create(ImageCreateDto image);
-        Task<bool> Update(ImageUpdateDto image);
         Task<bool> Delete(Guid id);
         Task<ImageDto> GetById(Guid id);
 
@@ -15,5 +14,6 @@ namespace ApiEstoque.Services.Interface
         Task<ImageDto> GetByUrl(string url);
         Task<List<string>> GetAllByIdProduct(Guid idProduct);
         Task<List<ImageDto>> GetAllByProductsIds(List<Guid> ids);
+        Task<bool> DeleteByUrl(string url);
     }
 }

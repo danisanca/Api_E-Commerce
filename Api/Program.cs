@@ -17,6 +17,8 @@ using Microsoft.AspNetCore.Identity;
 using ApiEstoque.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using ApiEstoque.Initializer;
+using System.Reflection;
 namespace ApiEstoque
 {
     public class Program
@@ -99,15 +101,12 @@ namespace ApiEstoque
             builder.Services.AddScoped<IStockService, StockService>();
             builder.Services.AddScoped<IHistoryMovimentRepository, HistoryMovimentRepository>();
             builder.Services.AddScoped<IHistoryMovimentService, HistoryMovimentService>();
-            builder.Services.AddScoped<IEvidenceRepository, EvidenceRepository>();
-            builder.Services.AddScoped<IEvidenceService, EvidenceService>();
-            builder.Services.AddScoped<IScoreProductRepository, ScoreProductRepository>();
-            builder.Services.AddScoped<IScoreProductService, ScoreProductService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IDiscountRepository, DiscountRepository>();
             builder.Services.AddScoped<IDiscountService, DiscountService>();
             builder.Services.AddScoped<IAddressRepository, AddressRepository>();
             builder.Services.AddScoped<IAddressService, AddressService>();
+            builder.Services.AddScoped<IDbInitializer, DbInitializer>();
             //-
             // Add services to the container.
             builder.Services.AddControllers();
@@ -116,6 +115,10 @@ namespace ApiEstoque
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "GeekShopping.ProductAPI", Version = "v1" });
+                c.EnableAnnotations(); // para [SwaggerOperation]
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Description = @"Enter 'Bearer' [space] and your token!",
@@ -144,7 +147,7 @@ namespace ApiEstoque
             });
 
             var app = builder.Build();
-
+            var initializer = app.Services.CreateScope().ServiceProvider.GetService<IDbInitializer>();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -156,7 +159,7 @@ namespace ApiEstoque
 
             app.UseAuthentication();
             app.UseAuthorization();
-
+            initializer.Initialize();
             app.MapControllers();
             app.Run();
         }

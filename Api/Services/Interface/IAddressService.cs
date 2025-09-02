@@ -1,4 +1,5 @@
-﻿using ApiEstoque.Dto.Adress;
+﻿using ApiEstoque.Dto.Address;
+using ApiEstoque.Dto.Adress;
 using ApiEstoque.Models;
 
 namespace ApiEstoque.Services.Interface
@@ -7,9 +8,9 @@ namespace ApiEstoque.Services.Interface
     {
         Task<AddressDto> Create(AddressCreateDto addressCreate);
         Task<bool> Update(AddressUpdateDto addressUpdate);
-        Task<AddressDto> GetByUserId(string userId);
 
         //Somente em Serviços
         Task<AddressDto> GetById(Guid id);
+        Task<AddressViewDto> GetByUserId(string idUser);
     }
 }

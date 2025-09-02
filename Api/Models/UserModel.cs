@@ -15,8 +15,6 @@ namespace ApiEstoque.Models
         public DateTime RefreshTokenExpiry { get; set; }
 
         public IEnumerable<HistoryMovimentModel> historyMoviments { get; set; }
-        public IEnumerable<ScoreProductModel> scoreProducts { get; set; }
-        public IEnumerable<EvidenceModel> evidences { get; set; }
 
     }
 }

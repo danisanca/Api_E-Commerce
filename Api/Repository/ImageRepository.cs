@@ -1,4 +1,5 @@
-﻿using ApiEstoque.Data;
+﻿using System.Data;
+using ApiEstoque.Data;
 using ApiEstoque.Helpers;
 using ApiEstoque.Models;
 using ApiEstoque.Repository.Interface;
@@ -30,6 +31,6 @@ namespace ApiEstoque.Repository
         {
             return await _db.Image.FirstOrDefaultAsync(x => x.url == url);
         }
-
+        
     }
 }

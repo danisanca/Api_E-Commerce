@@ -9,6 +9,7 @@ using MercadoPago.Resource.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 
 namespace ApiEstoque.Controllers
@@ -25,6 +26,12 @@ namespace ApiEstoque.Controllers
             _userService = userService;
         }
 
+        [SwaggerOperation(
+        Summary = "Criação de Usuario",
+        Description = "Cria o usuario caso as informações estam validas e retorna um true."
+         )]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Usuário não autorizado / Sem Permissão ao Registro")]
+        [SwaggerResponse(StatusCodes.Status200OK,"Usuario Criado")]
         [HttpPost]
         [Route( "Create")]
         public async Task<ActionResult> Create([FromBody] UserCreateDto userCreateDto)
@@ -52,6 +59,13 @@ namespace ApiEstoque.Controllers
             }
         }
 
+        [SwaggerOperation(
+        Summary = "Busca o usuário pelo id",
+        Description = "Retorna os dados completos do usuário e o endereço caso o id informado seja o mesmo que está authenticado."
+         )]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Usuário não autorizado / Sem Permissão ao Registro")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Usuário não encontrado")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Usuário encontrado", typeof(UserDto))]
         [HttpGet]
         [Authorize]
         [Route("GetById/{idUser}")]
@@ -84,6 +98,14 @@ namespace ApiEstoque.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
         }
+
+        [SwaggerOperation(
+        Summary = "Atualiza o usuario a partir do id do usuario.",
+        Description = "Atualiza os dados do usuario caso nao haja conflito de informações"
+         )]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Usuário não autorizado / Sem Permissão ao Registro")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Usuário não encontrado")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Usuário Atualizado")]
         [HttpPut]
         [Authorize]
         [Route("Update")]
@@ -121,6 +143,13 @@ namespace ApiEstoque.Controllers
             }
         }
 
+        [SwaggerOperation(
+        Summary = "Atualiza a senha do usuario.",
+        Description = "Atualiza a senha do usuario a partir do informe da senha e confirmação da senha para validação. Caso as senhas estam corretas atualiza a senha."
+         )]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Usuário não autorizado / Sem Permissão ao Registro")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Usuário não encontrado")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Senha Atualizado")]
         [HttpPost]
         [Authorize]
         [Route("ChangePassword")]

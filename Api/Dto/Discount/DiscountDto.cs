@@ -3,7 +3,6 @@
     public class DiscountDto
     {
         public Guid id { get; set; }
-        public string description { get; set; }
         public float percentDiscount { get; set; }
         public Guid productId { get; set; }
         public DateTime createdAt { get; set; }

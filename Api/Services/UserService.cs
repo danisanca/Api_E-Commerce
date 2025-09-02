@@ -54,7 +54,7 @@ namespace ApiEstoque.Services
             {
                 var identityUser = new UserModel
                 {
-                    UserName = userCreateDto.Username,
+                    UserName = userCreateDto.UserName,
                     Email = userCreateDto.Email,
                     FirstName = userCreateDto.FirstName,
                     LastName = userCreateDto.LastName,

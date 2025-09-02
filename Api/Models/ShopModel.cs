@@ -9,6 +9,7 @@ namespace ApiEstoque.Models
         public virtual UserModel user { get; set; }
 
         public IEnumerable<ProductModel> products { get; set; }
+        public IEnumerable<StockModel> stock { get; set; }
 
     }
 }

@@ -1,4 +1,5 @@
-﻿using ApiEstoque.Dto.Adress;
+﻿using ApiEstoque.Dto.Address;
+using ApiEstoque.Dto.Adress;
 using ApiEstoque.Models;
 using ApiEstoque.Repository.Base;
 using ApiEstoque.Repository.Interface;
@@ -66,13 +67,13 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<AddressDto> GetByUserId(string userId)
+        public async Task<AddressViewDto> GetByUserId(string idUser)
         {
             try
             {
-                var findUser = await _userManager.FindByIdAsync(userId);
-                if (findUser == null) throw new FailureRequestException(404, "Não existe usuario com esse id");
-                return _mapper.Map<AddressDto>(await _addressRepository.GetByUserId(findUser.Id));
+                var result = await _addressRepository.GetByUserId(idUser);
+                if (result == null) throw new FailureRequestException(404, "Não existe endereço com esse id");
+                return _mapper.Map<AddressViewDto>(result);
             }
             catch (FailureRequestException ex)
             {

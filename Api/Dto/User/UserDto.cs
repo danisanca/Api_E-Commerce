@@ -1,4 +1,5 @@
-﻿using ApiEstoque.Dto.Adress;
+﻿using ApiEstoque.Dto.Address;
+using ApiEstoque.Dto.Adress;
 
 namespace ApiEstoque.Dto.User
 {
@@ -9,7 +10,7 @@ namespace ApiEstoque.Dto.User
         public string email { get; set; }
         public string status { get; set; }
 
-        public AddressDto address { get; set; }
+        public AddressViewDto address { get; set; }
 
     }
 }

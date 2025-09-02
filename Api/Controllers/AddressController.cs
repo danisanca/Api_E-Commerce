@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using ApiEstoque.Constants;
 using Microsoft.AspNetCore.Identity;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ApiEstoque.Controllers
 {
@@ -23,7 +24,13 @@ namespace ApiEstoque.Controllers
             _addressService = addressService;
         }
 
-        
+        [SwaggerOperation(
+        Summary = "Atualiza o endereço do usuario.",
+        Description = "Atualiza o endereço do usuario conforme os dados informados."
+         )]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Usuário não autorizado / Sem Permissão ao Registro")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Endereço não encontrado")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Endereço Atualizado")]
         [HttpPut]
         [Authorize]
         [Route("Update")]
@@ -66,31 +73,5 @@ namespace ApiEstoque.Controllers
             }
         }
 
-        
-
-        [HttpGet]
-        [Authorize]
-        [Route("GetByUserId/{idUser}")]
-        public async Task<ActionResult> GetByUserId(string idUser)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            try
-            {
-                var result = await _addressService.GetByUserId(idUser);
-                if (result == null) return NotFound();
-                else return Ok(result);
-            }
-            catch (FailureRequestException ex)
-            {
-                return StatusCode(ex.StatusCode, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
     }
 }

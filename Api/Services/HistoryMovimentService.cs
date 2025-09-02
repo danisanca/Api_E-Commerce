@@ -16,33 +16,34 @@ namespace ApiEstoque.Services
     {
         private readonly IMapper _mapper;
         private readonly IHistoryMovimentRepository _historyMovimentRepository;
-        private readonly IProductService _productService;
         private readonly UserManager<UserModel> _userManager;
         private readonly IBaseRepository<HistoryMovimentModel> _baseRepository;
 
         public HistoryMovimentService (IMapper mapper, 
             IHistoryMovimentRepository historyMovimentRepository,
             UserManager<UserModel> userManager,
-            IProductService productService,
-            IBaseRepository<HistoryMovimentModel> _baseRepository
+            IBaseRepository<HistoryMovimentModel> baseRepository
             )
         {
             _mapper = mapper;
             _userManager = userManager;
+            _baseRepository = baseRepository;
             _historyMovimentRepository = historyMovimentRepository;
-            _productService = productService;
         }
 
-        public async Task<HistoryMovimentDto> CreateHistoryMoviment(HistoryMovimentCreateDto model)
+        public async Task<HistoryMovimentDto> Create(HistoryMovimentCreateDto model)
         {
             try
             {
-                var findProduct = await _productService.GetById(model.productId);
-                if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
                 var findUser = await _userManager.FindByIdAsync(model.userId.ToString());
                 if (findUser == null) throw new FailureRequestException(404, "Id do usuario nao localizado");
-                if (model.action != MovimentAction.Entrada.ToString() && model.action != MovimentAction.Saida.ToString()
-                   && model.action != MovimentAction.Acerto.ToString() && model.action != MovimentAction.Venda.ToString()) 
+                if (model.action != MovimentAction.Entrada.ToString() &&
+                    model.action != MovimentAction.Saida.ToString() && 
+                    model.action != MovimentAction.Venda.ToString() && 
+                    model.action != MovimentAction.Devolução.ToString() &&
+                    model.action != MovimentAction.Acerto.ToString() &&
+                    model.action != MovimentAction.Bloqueio.ToString() &&
+                    model.action != MovimentAction.Desbloqueio.ToString()) 
                     throw new FailureRequestException(404, "Tipo de Movimentação Invalida.");
                 var history = _mapper.Map<HistoryMovimentModel>(model);
                 
@@ -58,14 +59,12 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<List<HistoryMovimentDto>> GetAllHistoryMovimentByProductId(Guid idProduct)
+        public async Task<List<HistoryMovimentDto>> GetAllByProductId(Guid idProduct)
         {
             
             try
             {
-                var findProduct = await _productService.GetById(idProduct);
-                if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
-                var findHistory = await _historyMovimentRepository.GetAllHistoryMovimentByProductId(idProduct);
+               var findHistory = await _historyMovimentRepository.GetAllHistoryMovimentByProductId(idProduct);
                 if (findHistory == null) return new List<HistoryMovimentDto>();
                 return _mapper.Map<List<HistoryMovimentDto>>(findHistory);
             }
@@ -79,7 +78,7 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<HistoryMovimentDto> GetHistoryMovimentById(Guid id)
+        public async Task<HistoryMovimentDto> GetById(Guid id)
         {
            
             try

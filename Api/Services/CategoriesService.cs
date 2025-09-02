@@ -16,17 +16,18 @@ namespace ApiEstoque.Services
     {
         private readonly IBaseRepository<CategoriesModel> _baseRepository;
         private readonly ICategoriesRepository _categoriesRepository;
-        private readonly IShopService _shopService;
+       
         private readonly IMapper _mapper;
 
         public CategoriesService(
             ICategoriesRepository categoriesRepository,
-            IBaseRepository<CategoriesModel> _baseRepository,
-            IMapper mapper, IShopService shopService)
+            IBaseRepository<CategoriesModel> baseRepository,
+            IMapper mapper)
         {
+
+            _baseRepository = baseRepository;
             _categoriesRepository = categoriesRepository;
             _mapper = mapper;
-            _shopService = shopService;
         }
 
 

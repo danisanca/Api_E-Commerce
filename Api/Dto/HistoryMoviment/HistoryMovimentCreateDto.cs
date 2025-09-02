@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using ApiEstoque.Constants;
 
 namespace ApiEstoque.Dto.HistoryMoviment
 {

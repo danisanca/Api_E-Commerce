@@ -22,6 +22,12 @@ namespace ApiEstoque.Controllers
             _authService = authService;
         }
 
+        [SwaggerOperation(
+        Summary = "Login",
+        Description = "Realiza o login na aplicação"
+         )]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Usuário não autorizado")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Logado com sucesso", typeof(LoginResponse))]
         [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginUserDto user)
         {
@@ -37,6 +43,12 @@ namespace ApiEstoque.Controllers
             return Unauthorized();
         }
 
+
+        [SwaggerOperation(
+        Summary = "RefreshToken",
+        Description = "Realiza a atualização do token ao informar o token antigo e o refresh token")]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Usuário não autorizado")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Token atualizado", typeof(LoginResponse))]
         [HttpPost("RefreshToken")]
         public async Task<IActionResult> RefreshToken(RefreshTokenDto model)
         {

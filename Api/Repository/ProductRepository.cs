@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using ApiEstoque.Constants;
 using ApiEstoque.Data;
 using ApiEstoque.Helpers;
 using ApiEstoque.Models;
@@ -16,11 +17,22 @@ namespace ApiEstoque.Repository
             _db = db;
         }
 
-        public async Task<List<ProductModel>> GetAllByIdShop(Guid idShop)
+        public async Task<List<ProductModel>> GetAllByIdShop(Guid idShop, FilterGetRoutes status = FilterGetRoutes.All)
         {
-            return await _db.Product
-         .Where(x => x.shopId == idShop)
-         .ToListAsync();
+            if (status == FilterGetRoutes.All)
+            {
+                return await _db.Product
+             .Where(x => x.shopId == idShop)
+             .ToListAsync();
+            }
+            else
+            {
+                return await _db.Product
+             .Where(x => x.shopId == idShop && x.status == status.ToString())
+             .ToListAsync();
+
+            }
+            
         }
 
         public async Task<List<ProductModel>> GetAllLikeName(string name)

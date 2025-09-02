@@ -1,4 +1,5 @@
-﻿using ApiEstoque.Helpers;
+﻿using ApiEstoque.Constants;
+using ApiEstoque.Helpers;
 using ApiEstoque.Models;
 
 namespace ApiEstoque.Repository.Interface
@@ -6,7 +7,7 @@ namespace ApiEstoque.Repository.Interface
     public interface IProductRepository
     {
         Task<List<ProductModel>> GetAllLikeName(string name);//Barra de pesquisa
-        Task<List<ProductModel>> GetAllByIdShop(Guid idShop);
+        Task<List<ProductModel>> GetAllByIdShop(Guid idShop, FilterGetRoutes status = FilterGetRoutes.All);
         Task<ProductModel> GetByNameAndIdShop(string name,Guid idShop);
     }
 }

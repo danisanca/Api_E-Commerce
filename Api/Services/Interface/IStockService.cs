@@ -6,10 +6,8 @@ namespace ApiEstoque.Services.Interface
 {
     public interface IStockService
     {
-        Task<StockDto> Create(StockCreateDto stockCreate);
         Task<bool> Update(StockUpdateDto stockUpdate);
-        Task<bool> Delete(Guid idStock);
-        Task<bool> ChangeStatusById(Guid idStock,bool isActive);
+        Task<bool> ChangeStatusById(StockChangeStatusDto model);
 
 
         //Somente em Serviços

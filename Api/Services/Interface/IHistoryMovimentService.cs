@@ -5,10 +5,10 @@ namespace ApiEstoque.Services.Interface
 {
     public interface IHistoryMovimentService
     {
-        Task<HistoryMovimentDto> CreateHistoryMoviment(HistoryMovimentCreateDto model);
-        Task<List<HistoryMovimentDto>> GetAllHistoryMovimentByProductId(Guid idProduct);
+        Task<HistoryMovimentDto> Create(HistoryMovimentCreateDto model);
+        Task<List<HistoryMovimentDto>> GetAllByProductId(Guid idProduct);
 
         //Somente em Serviços
-        Task<HistoryMovimentDto> GetHistoryMovimentById(Guid id);
+        Task<HistoryMovimentDto> GetById(Guid id);
     }
 }

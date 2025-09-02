@@ -7,7 +7,7 @@ namespace ApiEstoque.Services.Interface
     {
         Task<DiscountDto> Create(DiscountCreateDto discountCreate);
         Task<bool> Update(DiscountUpdateDto discountUpdate);
-        Task<bool> Delete(Guid id);
+        Task<bool> DeleteById(Guid id);
         Task<DiscountDto> GetByProductId(Guid idProduct);
 
         //Somente em Serviços

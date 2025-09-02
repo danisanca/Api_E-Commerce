@@ -7,8 +7,6 @@ using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
 using AutoMapper;
-using MercadoPago.Resource.User;
-using Microsoft.AspNetCore.Identity;
 
 namespace ApiEstoque.Services
 {
@@ -16,38 +14,33 @@ namespace ApiEstoque.Services
     {
         private readonly IMapper _mapper;
         private readonly IShopRepository _shopRepository;
-        private readonly UserManager<UserModel> _userManager;
         private readonly IBaseRepository<ShopModel> _baseRepository;
         private readonly IUserService _userService;
 
         public ShopService(IMapper mapper, 
-            IShopRepository shopRepository, 
-            UserManager<UserModel> userManager, 
+            IShopRepository shopRepository,
             IBaseRepository<ShopModel> baseRepository, 
             IUserService userService)
         {
             _mapper = mapper;
             _shopRepository = shopRepository;
-            _userManager = userManager;
             _baseRepository = baseRepository;
             _userService = userService;
 
         }
-        //TODO: Implementar logica do ModelUserSeller
         public async Task<ShopDto> CreateShop(ShopCreateDto shopCreateDto)
         {
             try
             {
-                var findUser = await _userManager.FindByIdAsync(shopCreateDto.userId.ToString());
-                if (findUser == null) throw new FailureRequestException(404, "Usuario não localizado.");
+                
 
                 var userHasShop = await _shopRepository.GetByUserId(shopCreateDto.userId.ToString());
-                if(userHasShop != null) throw new FailureRequestException(404, "Usuario ja possui uma loja");
+                if(userHasShop != null) throw new FailureRequestException(409, "Usuario ja possui uma loja");
 
                 ShopModel shop = _mapper.Map<ShopModel>(shopCreateDto);
                 await _baseRepository.InsertAsync(shop);
 
-                var setRole = await _userService.SetSellerRole(findUser.Id);
+                var setRole = await _userService.SetSellerRole(shopCreateDto.userId);
                 if (setRole != true) throw new FailureRequestException(404, "Falha ao configurar usuario");
 
                 return _mapper.Map<ShopDto>(shop);
@@ -116,9 +109,6 @@ namespace ApiEstoque.Services
         {
             try
             {
-                var findUser = await _userManager.FindByIdAsync(userId.ToString());
-                if (findUser == null) throw new FailureRequestException(404, "Usuario não localizado.");
-
                 var findShop = await _shopRepository.GetByUserId(userId);
                 if (findShop == null) throw new FailureRequestException(404, "Nenhuma loja encontrar para o id do usuario");
                 return _mapper.Map<ShopDto>(findShop);

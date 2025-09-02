@@ -8,10 +8,6 @@ using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
 using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Security.Policy;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ApiEstoque.Services
 {
@@ -19,58 +15,33 @@ namespace ApiEstoque.Services
     {
         private readonly IMapper _mapper;
         private readonly IImageRepository _imageRepository;
-        private readonly IProductService _productService;
-        private readonly IShopService _shopService;
         private readonly IBaseRepository<ImageModel> _baseRepository;
 
         public ImageService(IMapper mapper, IImageRepository imageRepository,
-           IProductService productService, IBaseRepository<ImageModel> baseRepository, IShopService shopService)
+           IBaseRepository<ImageModel> baseRepository)
         {
             _mapper = mapper;
             _imageRepository = imageRepository;
-            _productService = productService;
             _baseRepository = baseRepository;
-            _shopService = shopService;
         }
 
-
+        
         public async Task<ImageDto> Create(ImageCreateDto image)
-        {
+        {// Todo: Implementar depois logica de salvamento da imagem no bucket
             try
             {
-                var findProduct = await _productService.GetById(image.productId);
-                if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado.");
+                //ImageModel getByUrl = await _imageRepository.GetByUrl(image.url);
+                //if (getByUrl != null) throw new FailureRequestException(409, "Url da imagem ja cadastrada.");
 
-                var findShop = await _shopService.GetById(image.shopId);
-                if (findShop == null) throw new FailureRequestException(404, "Id da loja nao localizada.");
+                var model = new ImageModel()
+                {
+                    url = image.productId.ToString(), // ajustar Posteriormente
+                    size = 1f,
+                    shopId = image.shopId,
+                    productId = image.productId
 
-                ImageModel getByUrl = await _imageRepository.GetByUrl(image.url);
-                if (getByUrl != null) throw new FailureRequestException(409, "Url da imagem ja cadastrada.");
-
-                var model = _mapper.Map<ImageModel>(image);
-                model.status = StandartStatus.Ativo.ToString();
+                };
                 return _mapper.Map<ImageDto>(await _baseRepository.InsertAsync(model));
-            }
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-        public async Task<bool> Update(ImageUpdateDto image)
-        {
-            try
-            {
-                var findImage = await _baseRepository.SelectByIdAsync(image.idImage);
-                if (findImage == null) throw new FailureRequestException(404, "Id da imagem nao localizada");
-                var findUrl = await _imageRepository.GetByUrl(image.url);
-                if (findUrl != null) throw new FailureRequestException(404, "Url ja cadastrada");
-                var model = _mapper.Map<ImageModel>(findImage);
-                model.url = image.url;
-                return await _baseRepository.UpdateAsync(model);
             }
             catch (FailureRequestException ex)
             {
@@ -121,8 +92,6 @@ namespace ApiEstoque.Services
         {
             try
             {
-                var findProduct = await _productService.GetById(idProduct);
-                if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizada");
                 var findImages = await _imageRepository.GetAllByIdProduct(idProduct);
                 var listUrl = new List<string>();
                 foreach (var image in findImages)
@@ -166,6 +135,24 @@ namespace ApiEstoque.Services
                 var findImage = await _imageRepository.GetAllByProductsIds(ids);
                 if (findImage == null) throw new FailureRequestException(404, "nenhuma imagen encontrada para a lista de ids");
                 return _mapper.Map<List<ImageDto>>(findImage);
+            }
+            catch (FailureRequestException ex)
+            {
+                throw new FailureRequestException(ex.StatusCode, ex.Message);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<bool> DeleteByUrl(string url)
+        {
+            try
+            {
+                var result = await _imageRepository.GetByUrl(url);
+                if (result == null) throw new FailureRequestException(404, "Id da imagem não localizado.");
+                return await _baseRepository.DeleteAsync(result.id);
             }
             catch (FailureRequestException ex)
             {
