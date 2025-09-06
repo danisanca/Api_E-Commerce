@@ -62,6 +62,7 @@ namespace ApiEstoque
             }).AddEntityFrameworkStores<ApiContext>()
             .AddDefaultTokenProviders();
             //-
+
             //Configurando Authenticação
             builder.Services.AddAuthentication(options =>
             {
