@@ -10,7 +10,7 @@ namespace CartAPI.Data.Mapping
         {
             builder.HasKey(x => x.Id);
             builder.Property(x => x.CartHeaderId).IsRequired();
-            builder.HasOne(x => x.CartHeader).WithOne().HasForeignKey<CartDetail>(x => x.CartHeaderId);
+            builder.HasOne(x => x.CartHeader).WithMany(h => h.CartDetails).HasForeignKey(x => x.CartHeaderId).OnDelete(DeleteBehavior.Cascade);
             builder.Property(x => x.Count).IsRequired();
             builder.Property(x => x.ProductId).IsRequired();
         }

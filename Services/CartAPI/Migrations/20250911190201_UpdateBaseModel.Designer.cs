@@ -4,6 +4,7 @@ using CartAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CartAPI.Migrations
 {
     [DbContext(typeof(ApiContext))]
-    partial class ApiContextModelSnapshot : ModelSnapshot
+    [Migration("20250911190201_UpdateBaseModel")]
+    partial class UpdateBaseModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,10 +27,10 @@ namespace CartAPI.Migrations
 
             modelBuilder.Entity("CartAPI.Models.CartDetail", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
+                        .HasColumnName("id");
 
                     b.Property<Guid>("CartHeaderId")
                         .HasColumnType("uniqueidentifier");
@@ -38,31 +41,32 @@ namespace CartAPI.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime>("updatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                    b.HasKey("id");
 
-                    b.HasIndex("CartHeaderId");
+                    b.HasIndex("CartHeaderId")
+                        .IsUnique();
 
                     b.ToTable("CartDetail");
                 });
 
             modelBuilder.Entity("CartAPI.Models.CartHeader", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
-                        .HasColumnName("Id");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnName("id");
 
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.Property<DateTime>("updatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("id");
 
                     b.ToTable("CartHeader");
                 });
@@ -70,17 +74,12 @@ namespace CartAPI.Migrations
             modelBuilder.Entity("CartAPI.Models.CartDetail", b =>
                 {
                     b.HasOne("CartAPI.Models.CartHeader", "CartHeader")
-                        .WithMany("CartDetails")
-                        .HasForeignKey("CartHeaderId")
+                        .WithOne()
+                        .HasForeignKey("CartAPI.Models.CartDetail", "CartHeaderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("CartHeader");
-                });
-
-            modelBuilder.Entity("CartAPI.Models.CartHeader", b =>
-                {
-                    b.Navigation("CartDetails");
                 });
 #pragma warning restore 612, 618
         }

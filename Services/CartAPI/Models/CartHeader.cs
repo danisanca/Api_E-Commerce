@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using CartAPI.Models.Base;
 
 namespace CartAPI.Models
 {
-    public class CartHeader
+    public class CartHeader : BaseEntity
     {
-        public Guid Id { get; set; }
         public string UserId { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public IEnumerable<CartDetail> CartDetails { get; set; } = new List<CartDetail>();
     }
 }

@@ -1,0 +1,45 @@
+﻿using AutoMapper;
+using CartAPI.Data;
+using CartAPI.Dto;
+using CartAPI.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace CartAPI.Repositories
+{
+    public class CartRepository : ICartRepository
+    {
+        private readonly ApiContext _db;
+        private readonly IMapper _mapper;
+
+        public CartRepository(ApiContext dbContext, IMapper mapper)
+        {
+            _db = dbContext;
+            _mapper = mapper;
+        }
+
+        public async Task<int> CountCartDetailByCartHeaderId(Guid cartHeaderId)
+        {
+            return _db.CartDetail.Where(x => x.CartHeaderId == cartHeaderId).Count();
+           
+        }
+
+        public async Task<List<CartDetail>> GetAllCartDetailsByCartHeaderId(Guid cartHeaderId)
+        {
+            return await _db.CartDetail.Where(x => x.CartHeaderId == cartHeaderId).ToListAsync();
+        }
+
+        public async Task<CartDto> GetByUserId(string userId)
+        {
+            CartDto cart = new();
+            cart.CartHeader = _mapper.Map<CartHeaderDto>(await _db.CartHeader.FirstOrDefaultAsync(x => x.UserId == userId));
+            cart.CartDetail = _mapper.Map<List<CartDetailDto>>(await _db.CartDetail.Where(c => c.CartHeaderId == cart.CartHeader.Id).ToListAsync());
+            
+            return cart;
+        }
+
+        public async Task<CartDetail> GetCartDetailByProductIdAndCartHeaderId(Guid productId, Guid cartHeaderId)
+        {
+            return _db.CartDetail.FirstOrDefault(x => x.ProductId == productId && x.CartHeaderId == cartHeaderId);
+        }
+    }
+}

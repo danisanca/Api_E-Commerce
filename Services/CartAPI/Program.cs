@@ -1,10 +1,17 @@
+using ApiEstoque.Repository.Base;
 using AutoMapper;
 using CartAPI.Data;
 using CartAPI.Data.Mapping.Dtos;
+using CartAPI.Repositories;
+using CartAPI.Repositories.Base;
+using CartAPI.Services;
+using CartAPI.Services.Interface;
 using Microsoft.EntityFrameworkCore;
 using System;
 
 var builder = WebApplication.CreateBuilder(args);
+
+//Confirgurando variavel base appsettings.json
 var configuration = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json")
             .Build();
@@ -21,10 +28,14 @@ var config = new AutoMapper.MapperConfiguration(cfg =>
 {
     cfg.AddProfile(new DtoToModel());
 });
+
 IMapper mapper = config.CreateMapper();
 builder.Services.AddSingleton(mapper);
 //-
-
+//Configurando repositorio
+builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<ICartService, CartService>();
 // Add services to the container.
 
 builder.Services.AddControllers();
