@@ -234,11 +234,11 @@ namespace CartAPI.Controllers
             if (string.IsNullOrEmpty(finduserId))
                 return Unauthorized("Usuário não autenticado.");
 
-            if (finduserId != checkOut.UserId)
-                return StatusCode(401, "Você não tem permissão para manipular este registro.");
-
-            var cart = await _cartService.GetByUserId(checkOut.UserId);
+            var cart = await _cartService.GetByUserId(finduserId);
             if (cart == null) return StatusCode(404, "Nenhum Registro Localizado");
+
+            if (finduserId != cart.CartHeader.UserId)
+                return StatusCode(401, "Você não tem permissão para manipular este registro.");
 
             checkOut.CartDetail = cart.CartDetail;
             checkOut.DateTime = DateTime.Now;
