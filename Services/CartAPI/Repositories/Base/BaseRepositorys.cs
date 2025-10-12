@@ -6,12 +6,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ApiEstoque.Repository.Base
 {
-    public class BaseRepository<T> : IBaseRepository<T> where T : BaseEntity
+    public class BaseRepositorys<T> : IBaseRepositorys<T> where T : BaseEntity
     {
         protected readonly ApiContext _context;
         private DbSet<T> _dataset;
 
-        public BaseRepository(ApiContext context)
+        public BaseRepositorys(ApiContext context)
         {
             _context = context;
             _dataset = _context.Set<T>();

@@ -1,15 +1,16 @@
-﻿using ApiEstoque.Dto.Categories;
-using ApiEstoque.Services.Exceptions;
-using ApiEstoque.Services;
-using ApiEstoque.Services.Interface;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.Net;
-using ApiEstoque.Dto.Stock;
-using Microsoft.AspNetCore.Authorization;
+﻿using System.Net;
+using System.Security.Claims;
 using ApiEstoque.Constants;
+using ApiEstoque.Dto.Categories;
 using ApiEstoque.Dto.Product;
 using ApiEstoque.Dto.Shop;
+using ApiEstoque.Dto.Stock;
+using ApiEstoque.Services;
+using ApiEstoque.Services.Exceptions;
+using ApiEstoque.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace ApiEstoque.Controllers
@@ -59,7 +60,7 @@ namespace ApiEstoque.Controllers
             try
             {
                 //Validação
-                var userId = User.FindFirst(ClaimTypeCustom.Id)?.Value;
+                var userId = User.FindFirst(ClaimTypes.Name)?.Value;
                 if (string.IsNullOrEmpty(userId))
                     return Unauthorized("Usuário não autenticado.");
 
@@ -111,7 +112,7 @@ namespace ApiEstoque.Controllers
             try
             {
                 //Validação
-                var userId = User.FindFirst(ClaimTypeCustom.Id)?.Value;
+                var userId = User.FindFirst(ClaimTypes.Name)?.Value;
                 if (string.IsNullOrEmpty(userId))
                     return Unauthorized("Usuário não autenticado.");
 
@@ -161,7 +162,7 @@ namespace ApiEstoque.Controllers
             try
             {
                 //Validação
-                var userId = User.FindFirst(ClaimTypeCustom.Id)?.Value;
+                var userId = User.FindFirst(ClaimTypes.Name)?.Value;
                 if (string.IsNullOrEmpty(userId))
                     return Unauthorized("Usuário não autenticado.");
 

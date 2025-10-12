@@ -1,14 +1,15 @@
-﻿using ApiEstoque.Dto.User;
+﻿using System.Security.Claims;
+using ApiEstoque.Constants;
+using ApiEstoque.Dto.User;
 using ApiEstoque.Helpers;
 using ApiEstoque.Models;
+using ApiEstoque.Repository.Base;
 using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
-using ApiEstoque.Constants;
+using MercadoPago.Resource.User;
 using Microsoft.AspNetCore.Identity;
 using static ApiEstoque.Constants.Roles;
-using System.Security.Claims;
-using ApiEstoque.Repository.Base;
 
 namespace ApiEstoque.Services
 {
@@ -79,8 +80,9 @@ namespace ApiEstoque.Services
                     //Cria a claim e vincula ao usuario
                     await _userManager.AddClaimsAsync(identityUser, new Claim[]
                     {
-                        new Claim(ClaimTypeCustom.Email, identityUser.Email),
-                        new Claim(ClaimTypeCustom.PreferredUserName, identityUser.UserName)
+                        new Claim(ClaimTypes.Name, identityUser.Id),
+                        new Claim(ClaimTypes.Email, identityUser.Email),
+                        new Claim(ClaimTypes.GivenName, identityUser.UserName)
                     });
                     //Cria o endereço
                     var model = userCreateDto.AddressCreateDto;

@@ -30,6 +30,7 @@ namespace ApiEstoque
             var configuration = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json")
             .Build();
+            var jwtSettings = builder.Configuration.GetSection("Jwt");
 
             //Mercardo Pago
             MercadoPago.Config.MercadoPagoConfig.AccessToken = builder.Configuration.GetValue<string>("MercadoPago:AccessToken");
@@ -62,25 +63,26 @@ namespace ApiEstoque
             }).AddEntityFrameworkStores<ApiContext>()
             .AddDefaultTokenProviders();
             //-
-
+            
             //Configurando Authenticação
             builder.Services.AddAuthentication(options =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
+                options.DefaultAuthenticateScheme = "Jwt";
+                options.DefaultChallengeScheme = "Jwt";
+            }).AddJwtBearer("Jwt", options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters()
                 {
-                    ValidateActor = false,
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
                     RequireExpirationTime = true,
                     ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings["Issuer"],
+                    ValidAudience = jwtSettings["Audience"],
                     ClockSkew = TimeSpan.Zero,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("Jwt:Key").Value)),
                 };
-            });
+            }).AddCookie("Cookies");
             //-
 
         
@@ -102,7 +104,6 @@ namespace ApiEstoque
             builder.Services.AddScoped<IStockService, StockService>();
             builder.Services.AddScoped<IHistoryMovimentRepository, HistoryMovimentRepository>();
             builder.Services.AddScoped<IHistoryMovimentService, HistoryMovimentService>();
-            builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IDiscountRepository, DiscountRepository>();
             builder.Services.AddScoped<IDiscountService, DiscountService>();
             builder.Services.AddScoped<IAddressRepository, AddressRepository>();
@@ -115,7 +116,7 @@ namespace ApiEstoque
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "GeekShopping.ProductAPI", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "E-Commerce.MainApi", Version = "v1" });
                 c.EnableAnnotations(); // para [SwaggerOperation]
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -130,21 +131,21 @@ namespace ApiEstoque
                 });
 
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                },
-                Scheme = "oauth2",
-                Name = "Bearer",
-                In= ParameterLocation.Header
-            },
-            new List<string> ()
-        }
-    });
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        },
+                        Scheme = "oauth2",
+                        Name = "Bearer",
+                        In= ParameterLocation.Header
+                    },
+                    new List<string> ()
+                }
+                });
             });
 
             var app = builder.Build();
@@ -157,11 +158,11 @@ namespace ApiEstoque
                 app.UseSwaggerUI();
             }
             app.UseHttpsRedirection();
-
             app.UseAuthentication();
             app.UseAuthorization();
-            initializer.Initialize();
             app.MapControllers();
+
+            initializer.Initialize();
             app.Run();
         }
     }

@@ -43,7 +43,7 @@ namespace ApiEstoque.Controllers
             try
             {
                 
-                var userId = User.FindFirst(ClaimTypeCustom.Id)?.Value;
+                var userId = User.FindFirst(ClaimTypes.Name)?.Value;
                  if (string.IsNullOrEmpty(userId))
                     return Unauthorized("Usuário não autenticado.");
 

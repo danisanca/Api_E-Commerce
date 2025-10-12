@@ -1,13 +1,18 @@
-using ApiEstoque.Repository.Base;
+using System;
+using System.Reflection;
+using System.Text;
 using AutoMapper;
 using CartAPI.Data;
 using CartAPI.Data.Mapping.Dtos;
+using CartAPI.Models;
 using CartAPI.Repositories;
-using CartAPI.Repositories.Base;
 using CartAPI.Services;
 using CartAPI.Services.Interface;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using System;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using SharedBase.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,8 +26,34 @@ builder.Services.AddEntityFrameworkSqlServer()
     .AddDbContext<ApiContext>(
         options => options.UseSqlServer(builder.Configuration.GetConnectionString("DataBase"))
     );
-
 //-
+// Configurar o Bearer Token para autenticar no Identity Server
+
+builder.Services.AddAuthentication(
+    options =>
+    {
+        options.DefaultAuthenticateScheme = "Jwt";
+        options.DefaultChallengeScheme = "Jwt";
+       }).AddJwtBearer("Jwt", options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            RequireExpirationTime = true,
+            ClockSkew = TimeSpan.Zero,
+
+            // ?? Estes valores devem ser IGUAIS aos do AuthServer
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+       
+    });
+
+builder.Services.AddAuthorization();
 //Configuração do AutoMapper
 var config = new AutoMapper.MapperConfiguration(cfg =>
 {
@@ -33,16 +64,48 @@ IMapper mapper = config.CreateMapper();
 builder.Services.AddSingleton(mapper);
 //-
 //Configurando repositorio
-builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+builder.Services.AddScoped(typeof(IBaseRepository<CartHeader>),
+    typeof(BaseRepository<CartHeader, ApiContext>));
+builder.Services.AddScoped(typeof(IBaseRepository<CartDetail>),
+    typeof(BaseRepository<CartDetail, ApiContext>));
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddSingleton<IRabbitMqMessageSender, RabbitMqMessageSender>();
 // Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "E-Commerce.CartApi", Version = "v1" });
+    c.EnableAnnotations(); 
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = @"Enter 'Bearer' [space] and your token!",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
 
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        },
+                        Scheme = "oauth2",
+                        Name = "Bearer",
+                        In= ParameterLocation.Header
+                    },
+                    new List<string> ()
+                }
+                });
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

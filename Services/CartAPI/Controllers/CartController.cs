@@ -1,22 +1,30 @@
 ﻿using System.Net;
+using System.Security.Claims;
 using CartAPI.Dto;
 using CartAPI.Helpers.Exceptions;
+using CartAPI.Services;
 using CartAPI.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SharedBase.Constants.RabbitMQ;
+using SharedBase.Dtos.Cart;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace CartAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CartController : ControllerBase
     {
         private readonly ICartService _cartService;
+        private IRabbitMqMessageSender _rabbitMQMessageSender;
 
-        public CartController(ICartService cartService)
+        public CartController(ICartService cartService, IRabbitMqMessageSender rabbitMQMessageSender)
         {
             _cartService = cartService;
+            _rabbitMQMessageSender = rabbitMQMessageSender;
         }
 
         [SwaggerOperation(
@@ -36,6 +44,13 @@ namespace CartAPI.Controllers
             }
             try
             {
+                var userId = User.FindFirst(ClaimTypes.Name)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized("Usuário não autenticado.");
+
+                if (userId != cartModel.UserId )
+                    return StatusCode(401, "Você não tem permissão para manipular este registro."); 
+
                 var cart = await _cartService.Create(cartModel);
                 if(cart == null) return NotFound();
                 return Ok(cart);
@@ -67,6 +82,13 @@ namespace CartAPI.Controllers
             }
             try
             {
+                var finduserId = User.FindFirst(ClaimTypes.Name)?.Value;
+                if (string.IsNullOrEmpty(finduserId))
+                    return Unauthorized("Usuário não autenticado.");
+
+                if (finduserId != userId)
+                    return StatusCode(401, "Você não tem permissão para manipular este registro.");
+
                 var cart = await _cartService.GetByUserId(userId);
                 if (cart.CartHeader == null) return NotFound();
                 return Ok(cart);
@@ -98,6 +120,13 @@ namespace CartAPI.Controllers
             }
             try
             {
+                var finduserId = User.FindFirst(ClaimTypes.Name)?.Value;
+                if (string.IsNullOrEmpty(finduserId))
+                    return Unauthorized("Usuário não autenticado.");
+
+                if (finduserId != cartModel.UserId)
+                    return StatusCode(401, "Você não tem permissão para manipular este registro.");
+
                 var cart = await _cartService.Update(cartModel);
                 if (cart == false) return NotFound();
                 return Ok(cart);
@@ -129,6 +158,14 @@ namespace CartAPI.Controllers
             }
             try
             {
+                var finduserId = User.FindFirst(ClaimTypes.Name)?.Value;
+                if (string.IsNullOrEmpty(finduserId))
+                    return Unauthorized("Usuário não autenticado.");
+
+                var findUserByCartDetail = await _cartService.GetCartHeaderByCartDetailId(cartDetailId);
+                if (finduserId != findUserByCartDetail.UserId)
+                    return StatusCode(401, "Você não tem permissão para manipular este registro.");
+
                 var cart = await _cartService.Delete(cartDetailId);
                 if (cart == false) return NotFound();
                 return Ok(cart);
@@ -160,6 +197,14 @@ namespace CartAPI.Controllers
             }
             try
             {
+                var finduserId = User.FindFirst(ClaimTypes.Name)?.Value;
+                if (string.IsNullOrEmpty(finduserId))
+                    return Unauthorized("Usuário não autenticado.");
+
+                var CartHeader = await _cartService.GetCartHeaderId(cartHeaderId);
+                if (finduserId != CartHeader.UserId)
+                    return StatusCode(401, "Você não tem permissão para manipular este registro.");
+
                 var cart = await _cartService.Clear(cartHeaderId);
                 if (cart == false) return NotFound();
                 return Ok(cart);
@@ -173,6 +218,35 @@ namespace CartAPI.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
 
+        }
+
+        [SwaggerOperation(
+        Summary = "Checkout da Compra",
+        Description = "Rota responsavel por realizar o checkout da compra e manda o carrinho para o rabbitMq"
+         )]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Carrinho não encontrado.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Carrinho limpo.")]
+        [HttpPost]
+        [Route("CheckOut")]
+        public async Task<ActionResult<CheckOutCartDto>> CheckOut(CheckOutCartDto checkOut)
+        {
+            var finduserId = User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(finduserId))
+                return Unauthorized("Usuário não autenticado.");
+
+            if (finduserId != checkOut.UserId)
+                return StatusCode(401, "Você não tem permissão para manipular este registro.");
+
+            var cart = await _cartService.GetByUserId(checkOut.UserId);
+            if (cart == null) return StatusCode(404, "Nenhum Registro Localizado");
+
+            checkOut.CartDetail = cart.CartDetail;
+            checkOut.DateTime = DateTime.Now;
+
+            _rabbitMQMessageSender.SendMessage(checkOut, ConfigRabbitMq.checkOutQueue);
+            //await _cartService.Clear(cart.CartHeader.Id);
+
+            return Ok(checkOut);
         }
     }
 }

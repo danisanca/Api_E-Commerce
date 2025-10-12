@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using CartAPI.Dto;
 using CartAPI.Models;
-
+using SharedBase.Dtos.Cart;
 namespace CartAPI.Data.Mapping.Dtos
 {
     public class DtoToModel : Profile

@@ -3,11 +3,11 @@ using CartAPI.Dto;
 using CartAPI.Helpers.Exceptions;
 using CartAPI.Models;
 using CartAPI.Repositories;
-using CartAPI.Repositories.Base;
 using CartAPI.Services.Interface;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-
+using SharedBase.Repository;
+using SharedBase.Dtos.Cart;
 namespace CartAPI.Services
 {
     public class CartService:ICartService
@@ -188,6 +188,47 @@ namespace CartAPI.Services
                     throw new FailureRequestException(404, "Carrinho não encontrado");
                 }
                 return await _baseCartHeader.DeleteAsync(cartHeaderId);
+            }
+            catch (FailureRequestException ex)
+            {
+
+                throw new FailureRequestException(ex.StatusCode, ex.Message);
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<CartHeaderDto> GetCartHeaderByCartDetailId(Guid cartDeatilId)
+        {
+            try
+            {
+                var cartDetail = await _baseCartDetail.SelectByIdAsync(cartDeatilId);
+                if (cartDetail == null) throw new FailureRequestException(404, "CartDetailId não existe.");
+                return _mapper.Map<CartHeaderDto>(await _baseCartHeader.SelectByIdAsync(cartDetail.CartHeaderId));
+
+            }
+            catch (FailureRequestException ex)
+            {
+
+                throw new FailureRequestException(ex.StatusCode, ex.Message);
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception(ex.Message);
+            }
+        }
+        public async Task<CartHeaderDto> GetCartHeaderId(Guid cartHeaderId)
+        {
+            try
+            {
+                var carHeader = await _baseCartHeader.SelectByIdAsync(cartHeaderId);
+                if (carHeader == null) throw new FailureRequestException(404, "CartDetailId não existe.");
+                return _mapper.Map<CartHeaderDto>(carHeader);
+
             }
             catch (FailureRequestException ex)
             {

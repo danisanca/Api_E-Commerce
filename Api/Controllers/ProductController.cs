@@ -1,16 +1,17 @@
-﻿using ApiEstoque.Dto.Shop;
-using ApiEstoque.Helpers;
-using ApiEstoque.Services.Exceptions;
-using ApiEstoque.Services;
-using ApiEstoque.Services.Interface;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.Net;
-using ApiEstoque.Dto.Product;
-using ApiEstoque.Models;
-using Microsoft.AspNetCore.Identity;
+﻿using System.Net;
+using System.Security.Claims;
 using ApiEstoque.Constants;
+using ApiEstoque.Dto.Product;
+using ApiEstoque.Dto.Shop;
+using ApiEstoque.Helpers;
+using ApiEstoque.Models;
+using ApiEstoque.Services;
+using ApiEstoque.Services.Exceptions;
+using ApiEstoque.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace ApiEstoque.Controllers
@@ -53,7 +54,7 @@ namespace ApiEstoque.Controllers
             }
             try
             {
-                var userId = User.FindFirst(ClaimTypeCustom.Id)?.Value;
+                var userId = User.FindFirst(ClaimTypes.Name)?.Value;
                 if (string.IsNullOrEmpty(userId))
                     return Unauthorized("Usuário não autenticado.");
 
@@ -96,7 +97,7 @@ namespace ApiEstoque.Controllers
             try
             {
                 //Validação
-                var userId = User.FindFirst(ClaimTypeCustom.Id)?.Value;
+                var userId = User.FindFirst(ClaimTypes.Name)?.Value;
                 if (string.IsNullOrEmpty(userId))
                     return Unauthorized("Usuário não autenticado.");
 
@@ -144,7 +145,7 @@ namespace ApiEstoque.Controllers
             try
             {
                 //Validação
-                var userId = User.FindFirst(ClaimTypeCustom.Id)?.Value;
+                var userId = User.FindFirst(ClaimTypes.Name)?.Value;
                 if (string.IsNullOrEmpty(userId))
                     return Unauthorized("Usuário não autenticado.");
 
@@ -191,7 +192,7 @@ namespace ApiEstoque.Controllers
             }
             try
             {
-                var userId = User.FindFirst(ClaimTypeCustom.Id)?.Value;
+                var userId = User.FindFirst(ClaimTypes.Name)?.Value;
                 if (string.IsNullOrEmpty(userId))
                     return Unauthorized("Usuário não autenticado.");
 

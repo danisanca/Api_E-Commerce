@@ -2,6 +2,7 @@
 using CartAPI.Data;
 using CartAPI.Dto;
 using CartAPI.Models;
+using SharedBase.Dtos.Cart;
 using Microsoft.EntityFrameworkCore;
 
 namespace CartAPI.Repositories

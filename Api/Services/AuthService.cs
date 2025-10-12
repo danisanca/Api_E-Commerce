@@ -75,7 +75,7 @@ namespace ApiEstoque.Services
 
         private ClaimsPrincipal? GetTokenPrincipal(string token)
         {
-
+            var jwtSection = _config.GetSection("Jwt");
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.GetSection("Jwt:Key").Value));
 
             var validation = new TokenValidationParameters
@@ -83,9 +83,12 @@ namespace ApiEstoque.Services
                 IssuerSigningKey = securityKey,
                 ValidateLifetime = false,
                 ValidateActor = false,
-                ValidateIssuer = false,
-                ValidateAudience = false,
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidIssuer = jwtSection["Issuer"],
+                ValidAudience = jwtSection["Audience"],
             };
+
             return new JwtSecurityTokenHandler().ValidateToken(token, validation, out _);
         }
 
@@ -106,22 +109,27 @@ namespace ApiEstoque.Services
             var userClaims = await _userManager.GetClaimsAsync(user);
             var userRoles = await _userManager.GetRolesAsync(user);
 
-            var claims = new List<Claim>(userClaims)
+            var claims = new List<Claim>();
+            // Adiciona roles como claims
+            foreach (var role in userClaims)
             {
-                new Claim(ClaimTypeCustom.Name, user.UserName),
-                new Claim(ClaimTypeCustom.Id, user.Id)
-            };
-
+                claims.Add(role);
+            }
             // Adiciona roles como claims
             foreach (var role in userRoles)
             {
-                claims.Add(new Claim(ClaimTypeCustom.Role, role));
+                claims.Add(new Claim(ClaimTypes.Role, role));
             }
+
+           
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var jwtSection = _config.GetSection("Jwt");
 
             var token = new JwtSecurityToken(
+                issuer: jwtSection["Issuer"],      // ✅ quem gerou o token
+                audience: jwtSection["Audience"],
                 claims: claims,
                 expires: DateTime.Now.AddMinutes(60),
                 signingCredentials: creds

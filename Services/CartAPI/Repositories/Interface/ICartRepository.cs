@@ -1,6 +1,5 @@
-﻿using CartAPI.Dto;
-using CartAPI.Models;
-
+﻿using CartAPI.Models;
+using SharedBase.Dtos.Cart;
 namespace CartAPI.Repositories
 {
     public interface ICartRepository

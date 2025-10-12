@@ -29,4 +29,8 @@
     <Folder Include="Controllers\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\SharedBase\SharedBase.csproj" />
+  </ItemGroup>
+
 </Project>

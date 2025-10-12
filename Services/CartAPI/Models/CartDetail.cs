@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using CartAPI.Models.Base;
+using SharedBase.Models;
 
 namespace CartAPI.Models
 {
-    public class CartDetail:BaseEntity
+    public class CartDetail: BaseEntity
     {
         public Guid CartHeaderId { get; set; }
         public virtual CartHeader CartHeader { get; set; }

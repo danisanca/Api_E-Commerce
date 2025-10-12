@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using CartAPI.Models.Base;
+using SharedBase.Models;
 
 namespace CartAPI.Models
 {

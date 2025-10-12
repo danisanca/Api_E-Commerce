@@ -94,25 +94,28 @@ namespace ApiEstoque.Initializer
                 Email = "marcos_sanca@example.com",
             };
 
-            var resultAdmin = await _user.CreateAsync(adminUser, "Daniel@123");
+            var resultAdmin = await _user.CreateAsync(adminUser, "Marcos@123");
             if (resultAdmin.Succeeded)
             {
                 await _user.AddToRoleAsync(adminUser, RoleHelper.GetRoleName(TypeUserRole.Admin));
-                await _user.AddClaimsAsync(adminUser, new[]
-                {
-                new Claim(ClaimTypeCustom.Email, adminUser.Email),
-                new Claim(ClaimTypeCustom.PreferredUserName, adminUser.UserName)
-            });
+
+               
+                await _user.AddClaimsAsync(adminUser, new Claim[]
+                    {
+                        new Claim(ClaimTypes.Name, adminUser.Id),
+                        new Claim(ClaimTypes.Email, adminUser.Email),
+                        new Claim(ClaimTypes.GivenName, adminUser.UserName)
+                    });
 
                 var addressAdmin = new AddressCreateDto
                 {
-                    street = "Rua:Francisco Marigo 1388",
+                    street = "Rua:Francisco Marigo 9632",
                     complement = "N/D",
                     neighborhood = "Jd. Cruzeiro do Sul",
                     city = "São Carlos",
-                    state = "SP",
+                    state = "SC",
                     zipcode = "13572091",
-                    cellPhone = "16993937320",
+                    cellPhone = "16998988782",
                     userId = adminUser.Id
                 };
                 _address.Create(addressAdmin);
@@ -131,26 +134,62 @@ namespace ApiEstoque.Initializer
             if (resultStandard.Succeeded)
             {
                 await _user.AddToRoleAsync(standardUser, RoleHelper.GetRoleName(TypeUserRole.User));
-                await _user.AddClaimsAsync(standardUser, new[]
-                {
-                new Claim(ClaimTypeCustom.Email, standardUser.Email),
-                new Claim(ClaimTypeCustom.PreferredUserName, standardUser.UserName)
-            });
+                await _user.AddToRoleAsync(standardUser, RoleHelper.GetRoleName(AccessRole.Standard));
+                await _user.AddClaimsAsync(standardUser, new Claim[]
+                     {
+                        new Claim(ClaimTypes.Name, standardUser.Id),
+                        new Claim(ClaimTypes.Email, standardUser.Email),
+                        new Claim(ClaimTypes.GivenName, standardUser.UserName)
+                     });
 
                 var addressStandard = new AddressCreateDto
                 {
-                    street = "Rua:Francisco Marigo 1388",
+                    street = "Rua:Francisco Marigo 6548",
                     complement = "N/D",
                     neighborhood = "Jd. Cruzeiro do Sul",
                     city = "São Carlos",
-                    state = "SP",
+                    state = "SC",
                     zipcode = "13572091",
-                    cellPhone = "16993937320",
+                    cellPhone = "16789895845",
                     userId = standardUser.Id
                 };
                 _address.Create(addressStandard);
             }
-        
+
+            // Criar usuário padrão
+            var sellerUser = new UserModel
+            {
+                FirstName = "danilo",
+                LastName = "oliveira",
+                UserName = "danilosanca",
+                Email = "danilo_sanca@example.com",
+            };
+
+            var resultSeller = await _user.CreateAsync(standardUser, "Danilo@123");
+            if (resultStandard.Succeeded)
+            {
+                await _user.AddToRoleAsync(sellerUser, RoleHelper.GetRoleName(TypeUserRole.User));
+                await _user.AddToRoleAsync(sellerUser, RoleHelper.GetRoleName(AccessRole.Standard));
+                await _user.AddClaimsAsync(sellerUser, new Claim[]
+                     {
+                        new Claim(ClaimTypes.Name, sellerUser.Id),
+                        new Claim(ClaimTypes.Email, sellerUser.Email),
+                        new Claim(ClaimTypes.GivenName, sellerUser.UserName)
+                     });
+
+                var addressStandard = new AddressCreateDto
+                {
+                    street = "Rua:Francisco Marigo 8311",
+                    complement = "N/D",
+                    neighborhood = "Jd. Cruzeiro do Sul",
+                    city = "São Carlos",
+                    state = "SC",
+                    zipcode = "13572091",
+                    cellPhone = "16656565685",
+                    userId = sellerUser.Id
+                };
+                _address.Create(addressStandard);
+            }
 
         }
         

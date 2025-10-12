@@ -1,6 +1,6 @@
 ﻿namespace ApiEstoque.Constants
 {
-    public static class ClaimTypeCustom
+    public static class ClaimTypeCustoms
     {
         /// <summary>Unique Identifier for the End-User at the Issuer.</summary>
         public const string Subject = "sub";

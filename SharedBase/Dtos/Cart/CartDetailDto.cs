@@ -1,4 +1,4 @@
-﻿namespace CartAPI.Dto
+﻿namespace SharedBase.Dtos.Cart
 {
     public class CartDetailDto
     {
