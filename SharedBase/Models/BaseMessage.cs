@@ -1,8 +1,10 @@
-﻿namespace SharedBase.Models
+﻿using System.Text.Json.Serialization;
+
+namespace SharedBase.Models
 {
     public class BaseMessage
     {
         public Guid Id { get; set; }
-        public DateTime MessageCreated { get; set; }
+        public DateTime MessageCreated { get; set; } = DateTime.UtcNow;
     }
 }

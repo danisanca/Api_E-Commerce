@@ -1,20 +1,20 @@
 ﻿using System.Text;
 using System.Text.Json;
-using CartAPI.Services.Interface;
+using OrderAPI.RabbitMq.RabbitMQSender.Interface;
 using RabbitMQ.Client;
+using SharedBase.Dtos.Cart;
 using SharedBase.Dtos.RabbitMq;
 using SharedBase.Models;
 
-namespace CartAPI.Services
+namespace OrderAPI.RabbitMq.RabbitMQSender
 {
-    public class RabbitMqMessageSender : IRabbitMqMessageSender, IDisposable
+    public class RabbitMQMessageSender : IRabbitMQMessageSender, IDisposable
     {
-      
         private IConnection _connection;
         private readonly IConfiguration _config;
         private IChannel _channel;
 
-        public RabbitMqMessageSender(IConfiguration config)
+        public RabbitMQMessageSender(IConfiguration config)
         {
             _config = config;
         }
@@ -33,6 +33,7 @@ namespace CartAPI.Services
             Console.WriteLine("✅ Conexão RabbitMQ inicializada no CartAPI");
         }
 
+
         public async Task SendMessage(BaseMessage message, string queueName)
         {
             if (!ConnectionExists())
@@ -46,24 +47,13 @@ namespace CartAPI.Services
                 exclusive: false,
                 autoDelete: false,
                 arguments: null);
-            var body = GetMessageAsByteArray(message);
+            var json = JsonSerializer.Serialize<PaymentMsgDto>((PaymentMsgDto)message);
+            var body = Encoding.UTF8.GetBytes(json);
             var props = new BasicProperties();
             await _channel.BasicPublishAsync("", queueName, false, props, body);
-            Console.WriteLine($"✅ Mensagem enviada para a fila {queueName}.");
-
+            Console.WriteLine($"✅ Mensagem enviada para a fila '{queueName}'.");
 
         }
-        private byte[] GetMessageAsByteArray(BaseMessage message)
-        {
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = true,
-            };
-            var json = JsonSerializer.Serialize<CheckOutCartMsgDto>((CheckOutCartMsgDto)message, options);
-            var body = Encoding.UTF8.GetBytes(json);
-            return body;
-        }
-
         private bool ConnectionExists()
         {
             return _connection != null && _connection.IsOpen;

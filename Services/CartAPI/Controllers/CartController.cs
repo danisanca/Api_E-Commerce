@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedBase.Constants.RabbitMQ;
 using SharedBase.Dtos.Cart;
+using SharedBase.Dtos.RabbitMq;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace CartAPI.Controllers
@@ -228,7 +229,7 @@ namespace CartAPI.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, "Carrinho limpo.")]
         [HttpPost]
         [Route("CheckOut")]
-        public async Task<ActionResult<CheckOutCartDto>> CheckOut(CheckOutCartDto checkOut)
+        public async Task<ActionResult<CheckOutCartMsgDto>> CheckOut()
         {
             var finduserId = User.FindFirst(ClaimTypes.Name)?.Value;
             if (string.IsNullOrEmpty(finduserId))
@@ -240,8 +241,12 @@ namespace CartAPI.Controllers
             if (finduserId != cart.CartHeader.UserId)
                 return StatusCode(401, "Você não tem permissão para manipular este registro.");
 
+            CheckOutCartMsgDto checkOut = new CheckOutCartMsgDto();
+
+            checkOut.Id = cart.CartHeader.Id;
+            checkOut.UserId = cart.CartHeader.UserId;
+            checkOut.ListCount = cart.CartDetail.Count();
             checkOut.CartDetail = cart.CartDetail;
-            checkOut.DateTime = DateTime.Now;
 
             _rabbitMQMessageSender.SendMessage(checkOut, ConfigRabbitMq.checkOutQueue);
             //await _cartService.Clear(cart.CartHeader.Id);
@@ -250,3 +255,16 @@ namespace CartAPI.Controllers
         }
     }
 }
+
+ /*
+ / Cart
+ 1° checkoutqueue - Gerada pelo carrinho
+ / Order
+ 2° orderpaymentprocessqueue - Gerada pelo orderm
+/ Payment
+ 3° orderpaymentprocessqueue - Consome a queue da order
+ Devolve uma orderpaymentresultqueue
+/ Order
+ 4° orderpaymentresultqueue - Consome o status e atualiza a ordem processada pelo serviço de pagamento.
+ */
+

@@ -1,5 +1,6 @@
 ﻿
-using CartAPI.Models.Base;
+
+using SharedBase.Models;
 
 namespace CartAPI.Repositories.Base
 {

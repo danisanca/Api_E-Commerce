@@ -9,5 +9,6 @@ namespace SharedBase.Constants.RabbitMQ
     public static class ConfigRabbitMq
     {
         public const string checkOutQueue = "checkoutqueue";
+        public const string orderPaymentProcessQueue = "orderpaymentprocessqueue";
     }
 }

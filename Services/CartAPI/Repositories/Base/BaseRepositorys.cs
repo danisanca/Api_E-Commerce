@@ -1,8 +1,8 @@
 ﻿using CartAPI.Data;
 using CartAPI.Models;
-using CartAPI.Models.Base;
 using CartAPI.Repositories.Base;
 using Microsoft.EntityFrameworkCore;
+using SharedBase.Models;
 
 namespace ApiEstoque.Repository.Base
 {
