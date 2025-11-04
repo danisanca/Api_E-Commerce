@@ -3,7 +3,6 @@ using ApiEstoque.Constants;
 using ApiEstoque.Dto.User;
 using ApiEstoque.Helpers;
 using ApiEstoque.Models;
-using ApiEstoque.Repository.Base;
 using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;

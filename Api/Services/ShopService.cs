@@ -2,11 +2,11 @@
 using ApiEstoque.Constants;
 using ApiEstoque.Dto.Shop;
 using ApiEstoque.Models;
-using ApiEstoque.Repository.Base;
 using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
 using AutoMapper;
+using SharedBase.Repository;
 
 namespace ApiEstoque.Services
 {

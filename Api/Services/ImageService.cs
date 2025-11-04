@@ -3,11 +3,11 @@ using ApiEstoque.Dto.Categories;
 using ApiEstoque.Dto.Image;
 using ApiEstoque.Models;
 using ApiEstoque.Repository;
-using ApiEstoque.Repository.Base;
 using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
 using AutoMapper;
+using SharedBase.Repository;
 
 namespace ApiEstoque.Services
 {
@@ -152,7 +152,7 @@ namespace ApiEstoque.Services
             {
                 var result = await _imageRepository.GetByUrl(url);
                 if (result == null) throw new FailureRequestException(404, "Id da imagem não localizado.");
-                return await _baseRepository.DeleteAsync(result.id);
+                return await _baseRepository.DeleteAsync(result.Id);
             }
             catch (FailureRequestException ex)
             {

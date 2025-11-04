@@ -1,5 +1,6 @@
-﻿using ApiEstoque.Models;
-using ApiEstoque.Models.Base;
+﻿using ApiEstoque.Constants;
+using SharedBase.Models;
+using ApiEstoque.Models;
 
 namespace ApiEstoque.Models
 {
@@ -10,5 +11,6 @@ namespace ApiEstoque.Models
         public Guid shopId { get; set; }
         public virtual ProductModel product { get; set; }
         public virtual ShopModel shop { get; set; }
+        public string status { get; set; } = FilterGetRoutes.Ativo.ToString();
     }
 }

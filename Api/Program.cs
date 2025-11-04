@@ -1,24 +1,24 @@
 
+using System.Net;
+using System.Reflection;
+using System.Text;
 using ApiEstoque.Data;
 using ApiEstoque.Data.Mapping.Dtos;
+using ApiEstoque.Initializer;
+using ApiEstoque.Models;
 using ApiEstoque.Repository;
 using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services;
 using ApiEstoque.Services.Interface;
 using ApiEstoque.Services.Security;
-using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Net;
-using ApiEstoque.Repository.Base;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using ApiEstoque.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using ApiEstoque.Initializer;
-using System.Reflection;
+using Microsoft.OpenApi.Models;
+using SharedBase.Repository;
 namespace ApiEstoque
 {
     public class Program
@@ -50,8 +50,8 @@ namespace ApiEstoque
                 .AddDbContext<ApiContext>(
                     options => options.UseSqlServer(builder.Configuration.GetConnectionString("DataBase"))
                 );
-
             //-
+
             //Configurando Identity
             builder.Services.AddIdentity<UserModel, IdentityRole>(options =>
             {
@@ -85,12 +85,17 @@ namespace ApiEstoque
             }).AddCookie("Cookies");
             //-
 
-        
-
-
+            //-Configurando os Repositories Base
+            builder.Services.AddScoped(typeof(IBaseRepository<AddressModel>), typeof(BaseRepository<AddressModel, ApiContext>));
+            builder.Services.AddScoped(typeof(IBaseRepository<CategoriesModel>), typeof(BaseRepository<CategoriesModel, ApiContext>));
+            builder.Services.AddScoped(typeof(IBaseRepository<DiscountModel>), typeof(BaseRepository<DiscountModel, ApiContext>));
+            builder.Services.AddScoped(typeof(IBaseRepository<HistoryMovimentModel>), typeof(BaseRepository<HistoryMovimentModel, ApiContext>));
+            builder.Services.AddScoped(typeof(IBaseRepository<ImageModel>), typeof(BaseRepository<ImageModel, ApiContext>));
+            builder.Services.AddScoped(typeof(IBaseRepository<ProductModel>), typeof(BaseRepository<ProductModel, ApiContext>));
+            builder.Services.AddScoped(typeof(IBaseRepository<ShopModel>), typeof(BaseRepository<ShopModel, ApiContext>));
+            builder.Services.AddScoped(typeof(IBaseRepository<StockModel>), typeof(BaseRepository<StockModel, ApiContext>));
             //-Configurando os Repositories
             builder.Services.AddTransient<IAuthService, AuthService>();
-            builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<ICategoriesRepository, CategoriesRepository>();
             builder.Services.AddScoped<ICategoriesService, CategoriesService>();
@@ -112,8 +117,10 @@ namespace ApiEstoque
             //-
             // Add services to the container.
             builder.Services.AddControllers();
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
+
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "E-Commerce.MainApi", Version = "v1" });

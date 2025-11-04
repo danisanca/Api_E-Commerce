@@ -70,5 +70,7 @@ namespace SharedBase.Repository
         {
             return await _dataset.AsNoTracking().ToListAsync();
         }
+        
+
     }
 }

@@ -8,7 +8,7 @@ namespace ApiEstoque.Data.Mapping.Models
     {
         public void Configure(EntityTypeBuilder<HistoryMovimentModel> builder)
         {
-            builder.HasKey(x => x.id);
+            builder.HasKey(x => x.Id);
             builder.Property(x => x.amount).IsRequired().HasMaxLength(45);
             builder.Property(x => x.action).IsRequired().HasMaxLength(24);
             builder.Property(x => x.productId).IsRequired();
@@ -16,8 +16,8 @@ namespace ApiEstoque.Data.Mapping.Models
             builder.Property(x => x.userId).IsRequired();
             builder.HasOne(x => x.user).WithMany(h => h.historyMoviments).HasForeignKey(x => x.userId);
             builder.Property(x => x.status).IsRequired().HasMaxLength(24);
-            builder.Property(x => x.createdAt).IsRequired();
-            builder.Property(x => x.updatedAt).IsRequired();
+            builder.Property(x => x.CreatedAt).IsRequired();
+            builder.Property(x => x.UpdatedAt).IsRequired();
         }
     }
 }

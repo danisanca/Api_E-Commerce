@@ -3,11 +3,11 @@ using ApiEstoque.Dto.User;
 using ApiEstoque.Helpers;
 using ApiEstoque.Models;
 using ApiEstoque.Repository;
-using ApiEstoque.Repository.Base;
 using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
 using AutoMapper;
+using SharedBase.Repository;
 using System.Collections.Generic;
 
 namespace ApiEstoque.Services
@@ -35,7 +35,7 @@ namespace ApiEstoque.Services
         {
             try
             {
-                var findCategories = await _baseRepository.SelectAllByStatusAsync();
+                var findCategories = await _categoriesRepository.SelectAllByStatusAsync();
                 if (findCategories == null) return new List<CategoriesDto>();
                 return _mapper.Map<List<CategoriesDto>>(findCategories); 
             }

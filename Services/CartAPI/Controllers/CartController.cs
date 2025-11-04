@@ -249,22 +249,12 @@ namespace CartAPI.Controllers
             checkOut.CartDetail = cart.CartDetail;
 
             _rabbitMQMessageSender.SendMessage(checkOut, ConfigRabbitMq.checkOutQueue);
-            //await _cartService.Clear(cart.CartHeader.Id);
+            await _cartService.Clear(cart.CartHeader.Id);
 
             return Ok(checkOut);
         }
     }
 }
 
- /*
- / Cart
- 1° checkoutqueue - Gerada pelo carrinho
- / Order
- 2° orderpaymentprocessqueue - Gerada pelo orderm
-/ Payment
- 3° orderpaymentprocessqueue - Consome a queue da order
- Devolve uma orderpaymentresultqueue
-/ Order
- 4° orderpaymentresultqueue - Consome o status e atualiza a ordem processada pelo serviço de pagamento.
- */
+
 

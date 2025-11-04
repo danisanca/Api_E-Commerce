@@ -1,4 +1,5 @@
-﻿using ApiEstoque.Models.Base;
+﻿using ApiEstoque.Constants;
+using SharedBase.Models;
 
 namespace ApiEstoque.Models
 {
@@ -10,6 +11,7 @@ namespace ApiEstoque.Models
 
         public IEnumerable<ProductModel> products { get; set; }
         public IEnumerable<StockModel> stock { get; set; }
+        public string status { get; set; } = FilterGetRoutes.Ativo.ToString();
 
     }
 }

@@ -3,12 +3,12 @@ using ApiEstoque.Constants;
 using ApiEstoque.Dto.HistoryMoviment;
 using ApiEstoque.Models;
 using ApiEstoque.Repository;
-using ApiEstoque.Repository.Base;
 using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using SharedBase.Repository;
 
 namespace ApiEstoque.Services
 {

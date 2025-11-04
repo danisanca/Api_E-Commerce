@@ -1,13 +1,13 @@
 ﻿using ApiEstoque.Dto.Address;
 using ApiEstoque.Dto.Adress;
 using ApiEstoque.Models;
-using ApiEstoque.Repository.Base;
 using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
 using AutoMapper;
 using MercadoPago.Resource.User;
 using Microsoft.AspNetCore.Identity;
+using SharedBase.Repository;
 
 namespace ApiEstoque.Services
 {
@@ -92,7 +92,7 @@ namespace ApiEstoque.Services
                 var findAddress = await _baseRepository.SelectByIdAsync(addressUpdate.id);
                 if (findAddress == null) throw new FailureRequestException(404, "Não existe endereço cadastrado para esse ID");
                 _mapper.Map(addressUpdate, findAddress);
-                findAddress.updatedAt = DateTime.UtcNow;
+                findAddress.UpdatedAt = DateTime.UtcNow;
                 return await _baseRepository.UpdateAsync(findAddress);
             }
             catch (FailureRequestException ex)

@@ -4,11 +4,11 @@ using ApiEstoque.Dto.Product;
 using ApiEstoque.Dto.Stock;
 using ApiEstoque.Models;
 using ApiEstoque.Repository;
-using ApiEstoque.Repository.Base;
 using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
 using AutoMapper;
+using SharedBase.Repository;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
 
@@ -65,7 +65,7 @@ namespace ApiEstoque.Services
                 {
                     images = productModel.images,
                     shopId = productModel.shopId,
-                    productId = product.id
+                    productId = product.Id
                 };
                 var image = await _imageService.Create(modelImage);
                 if (image == null) throw new FailureRequestException(409, "Falha ao cadastrar imagem.");
@@ -109,7 +109,7 @@ namespace ApiEstoque.Services
                     var imageDto = new ImageCreateDto
                     {
                         images = productModel.NewImages,
-                        productId = result.id,
+                        productId = result.Id,
                         shopId = result.shopId
                     };
                     await _imageService.Create(imageDto); // Faz upload no bucket e salva URLs no banco
@@ -171,7 +171,7 @@ namespace ApiEstoque.Services
 
                 // Coleta IDs em lote
                 var categoryIds = products.Select(p => p.categoriesId).Distinct().ToList();
-                var productIds = products.Select(p => p.id).ToList();
+                var productIds = products.Select(p => p.Id).ToList();
 
                 // Busca em lote
                 var categories = await _categoriesService.GetAllByIds(categoryIds);
@@ -187,19 +187,19 @@ namespace ApiEstoque.Services
 
                 var result = products.Select(product => new ProductDetailsDto
                 {
-                    Id = product.id,
+                    Id = product.Id,
                     ShopId = product.shopId,
                     NameShop = shop.name,
                     Name = product.name,
                     Price = product.price,
                     Categoria = categoryDict.TryGetValue(product.categoriesId, out var catName) ? catName : "Não Categorizado",
-                    UrlImages = imagesDict.TryGetValue(product.id, out var urls) ? urls : new List<string>(),
+                    UrlImages = imagesDict.TryGetValue(product.Id, out var urls) ? urls : new List<string>(),
                     Description = product.description,
-                    IsNew = (DateTime.UtcNow - product.createdAt).TotalDays <= 7,
-                    Stock = stockDict.TryGetValue(product.id, out var stock) && stock.amount > 0
+                    IsNew = (DateTime.UtcNow - product.CreatedAt).TotalDays <= 7,
+                    Stock = stockDict.TryGetValue(product.Id, out var stock) && stock.amount > 0
                         ? _mapper.Map<StockDto>(stock)
                         : null,
-                    Discount = discountDict.TryGetValue(product.id, out var discount)
+                    Discount = discountDict.TryGetValue(product.Id, out var discount)
                         ? new PercentDiscountDto
                         {
                             id = discount.id,
@@ -227,14 +227,14 @@ namespace ApiEstoque.Services
         {
             try
             {
-                var products = await _baseRepository.SelectAllByStatusAsync();
+                var products = await _productRepository.SelectAllByStatusAsync();
                 if (products == null || !products.Any())
                     return new List<ProductDetailsDto>();
 
                 // Coleta IDs para busca em lote
                 var categoryIds = products.Select(p => p.categoriesId).Distinct().ToList();
                 var shopIds = products.Select(p => p.shopId).Distinct().ToList();
-                var productIds = products.Select(p => p.id).ToList();
+                var productIds = products.Select(p => p.Id).ToList();
 
                 // Buscas em lote
                 var categories = await _categoriesService.GetAllByIds(categoryIds);
@@ -252,19 +252,19 @@ namespace ApiEstoque.Services
 
                 var result = products.Select(product => new ProductDetailsDto
                 {
-                    Id = product.id,
+                    Id = product.Id,
                     ShopId = product.shopId,
                     NameShop = shopDict.TryGetValue(product.shopId, out var shopName) ? shopName : "Loja Desconhecida",
                     Name = product.name,
                     Price = product.price,
                     Categoria = categoryDict.TryGetValue(product.categoriesId, out var categoryName) ? categoryName : "Não Categorizado",
-                    UrlImages = imageDict.TryGetValue(product.id, out var urls) ? urls : new List<string>(),
+                    UrlImages = imageDict.TryGetValue(product.Id, out var urls) ? urls : new List<string>(),
                     Description = product.description,
-                    IsNew = (DateTime.UtcNow - product.createdAt).TotalDays <= 7,
-                    Stock = stockDict.TryGetValue(product.id, out var stock) && stock.amount > 0
+                    IsNew = (DateTime.UtcNow - product.CreatedAt).TotalDays <= 7,
+                    Stock = stockDict.TryGetValue(product.Id, out var stock) && stock.amount > 0
                         ? _mapper.Map<StockDto>(stock)
                         : null,
-                    Discount = discountDict.TryGetValue(product.id, out var discount)
+                    Discount = discountDict.TryGetValue(product.Id, out var discount)
                         ? new PercentDiscountDto {
                             id = discount.id,
                             updatedAt = discount.updatedAt,
@@ -296,7 +296,7 @@ namespace ApiEstoque.Services
 
                 var categoryIds = products.Select(p => p.categoriesId).Distinct().ToList();
                 var shopIds = products.Select(p => p.shopId).Distinct().ToList();
-                var productIds = products.Select(p => p.id).ToList();
+                var productIds = products.Select(p => p.Id).ToList();
 
                 var shops = await _shopService.GetAllByIds(shopIds);
                 var categories = await _categoriesService.GetAllByIds(categoryIds);
@@ -312,19 +312,19 @@ namespace ApiEstoque.Services
 
                 var result = products.Select(product => new ProductDetailsDto
                 {
-                    Id = product.id,
+                    Id = product.Id,
                     ShopId = product.shopId,
                     NameShop = shopDict.TryGetValue(product.shopId, out var shopName) ? shopName : "Loja Desconhecida",
                     Name = product.name,
                     Price = product.price,
                     Categoria = categoryDict.TryGetValue(product.categoriesId, out var categoryName) ? categoryName : "Não Categorizado",
-                    UrlImages = imageDict.TryGetValue(product.id, out var urls) ? urls : new List<string>(),
+                    UrlImages = imageDict.TryGetValue(product.Id, out var urls) ? urls : new List<string>(),
                     Description = product.description,
-                    IsNew = (DateTime.UtcNow - product.createdAt).TotalDays <= 7,
-                    Stock = stockDict.TryGetValue(product.id, out var stock) && stock.amount > 0
+                    IsNew = (DateTime.UtcNow - product.CreatedAt).TotalDays <= 7,
+                    Stock = stockDict.TryGetValue(product.Id, out var stock) && stock.amount > 0
                         ? _mapper.Map<StockDto>(stock)
                         : null,
-                    Discount = discountDict.TryGetValue(product.id, out var discount)
+                    Discount = discountDict.TryGetValue(product.Id, out var discount)
                         ? new PercentDiscountDto
                         {
                             id = discount.id,

@@ -1,6 +1,6 @@
 ﻿using ApiEstoque.Constants;
-using ApiEstoque.Models.Base;
 using Microsoft.AspNetCore.Identity;
+using SharedBase.Models;
 
 namespace ApiEstoque.Models
 {
@@ -15,6 +15,7 @@ namespace ApiEstoque.Models
         public DateTime RefreshTokenExpiry { get; set; }
 
         public IEnumerable<HistoryMovimentModel> historyMoviments { get; set; }
+        public string status { get; set; } = FilterGetRoutes.Ativo.ToString();
 
     }
 }

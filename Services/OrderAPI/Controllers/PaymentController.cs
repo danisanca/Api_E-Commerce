@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using OrderAPI.Dtos;
 using OrderAPI.Services.Interface;
+using SharedBase.Dtos.Cart;
 using SharedBase.Dtos.RabbitMq;
 using SharedBase.Helpers.Exceptions;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace OrderAPI.Controllers
 {
@@ -20,7 +22,14 @@ namespace OrderAPI.Controllers
         {
             _paymentService = paymentService;
         }
-
+        [SwaggerOperation(
+           Summary = "Pagamento Com Mercado Pago",
+           Description = "Rota responsavel por realizar o pagamento do pedido via mercado pago."
+         )]
+        [SwaggerResponse(StatusCodes.Status409Conflict, "Problemas para processar pagamento.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Carrilho Localizado.", typeof(MercadoPagoResult))]
+        [HttpPost]
+        [Route("CheckOut")]
         [HttpPost]
         [Route("PaymentMercadoPago")]
         public async Task<IActionResult> PaymentMercadoPago([FromBody] PaymentRequestDto paymentRequestDto)

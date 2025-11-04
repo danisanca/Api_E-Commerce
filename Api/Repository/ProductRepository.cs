@@ -46,5 +46,19 @@ namespace ApiEstoque.Repository
         {
             return await _db.Product.SingleOrDefaultAsync(p => p.name == name && p.shopId == idShop);
         }
+
+        public async Task<IEnumerable<ProductModel>> SelectAllByStatusAsync(FilterGetRoutes status = FilterGetRoutes.Ativo)
+        {
+            try
+            {
+                if (status == FilterGetRoutes.Ativo) return await _db.Product.Where(g => g.status == status.ToString()).ToListAsync();
+                else if (status == FilterGetRoutes.Desabilitado) return await _db.Product.Where(g => g.status == status.ToString()).ToListAsync();
+                else return await _db.Product.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

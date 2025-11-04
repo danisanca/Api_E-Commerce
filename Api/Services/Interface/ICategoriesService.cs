@@ -11,5 +11,6 @@ namespace ApiEstoque.Services.Interface
         Task<CategoriesDto> GetByName(string name);
         Task<CategoriesDto> GetById(Guid id);
         Task<List<CategoriesDto>> GetAllByIds(List<Guid> Ids);
+
     }
 }

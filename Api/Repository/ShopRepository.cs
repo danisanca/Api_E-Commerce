@@ -21,7 +21,7 @@ namespace ApiEstoque.Repository
         }
         public async Task<List<ShopModel>> GetAllByIds(List<Guid> ids)
         {
-            return await _db.Shop.Where(c => ids.Contains(c.id))
+            return await _db.Shop.Where(c => ids.Contains(c.Id))
                          .ToListAsync();
         }
     }

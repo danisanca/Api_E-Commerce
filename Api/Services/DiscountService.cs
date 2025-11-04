@@ -3,11 +3,11 @@ using ApiEstoque.Dto.Discount;
 using ApiEstoque.Dto.Stock;
 using ApiEstoque.Models;
 using ApiEstoque.Repository;
-using ApiEstoque.Repository.Base;
 using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
 using AutoMapper;
+using SharedBase.Repository;
 
 namespace ApiEstoque.Services
 {
@@ -53,7 +53,7 @@ namespace ApiEstoque.Services
             {
                 DiscountModel findDiscount = await _baseRepository.SelectByIdAsync(id);
                 if (findDiscount == null) throw new FailureRequestException(404, "Não existe um desconto com esse id.");
-                return await _baseRepository.DeleteAsync(findDiscount.id);
+                return await _baseRepository.DeleteAsync(findDiscount.Id);
             }
             catch (FailureRequestException ex)
             {
@@ -77,7 +77,7 @@ namespace ApiEstoque.Services
                 {
                     findDiscount.percentDiscount = (float)discountUpdate.percentDiscount;
                 }
-                findDiscount.updatedAt = DateTime.Now;
+                findDiscount.UpdatedAt = DateTime.Now;
                 return await _baseRepository.UpdateAsync(findDiscount);
             }
             catch (FailureRequestException ex)

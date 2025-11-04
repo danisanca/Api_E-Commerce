@@ -1,4 +1,5 @@
-﻿using ApiEstoque.Models.Base;
+﻿using ApiEstoque.Constants;
+using SharedBase.Models;
 
 namespace ApiEstoque.Models
 {
@@ -13,5 +14,6 @@ namespace ApiEstoque.Models
         public string cellPhone { get; set; }
         public string userId { get; set; }
         public virtual UserModel user { get; set; }
+        public string status { get; set; } = FilterGetRoutes.Ativo.ToString();
     }
 }

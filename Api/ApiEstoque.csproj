@@ -38,7 +38,10 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
-    <Folder Include="Models\User\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SharedBase\SharedBase.csproj" />
   </ItemGroup>
 
 </Project>

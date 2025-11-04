@@ -15,5 +15,6 @@ namespace SharedBase.Repository
         Task<bool> DeleteAsync(Guid item);
         Task<T> SelectByIdAsync(Guid id);
         Task<List<T>> SelectAllByIdAsync();
+        
     }
 }

@@ -3,11 +3,11 @@ using ApiEstoque.Dto.HistoryMoviment;
 using ApiEstoque.Dto.Stock;
 using ApiEstoque.Models;
 using ApiEstoque.Repository;
-using ApiEstoque.Repository.Base;
 using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
 using AutoMapper;
+using SharedBase.Repository;
 
 namespace ApiEstoque.Services
 {
@@ -58,7 +58,7 @@ namespace ApiEstoque.Services
                     else
                     {
                         findStock.amount += stockUpdate.amount;
-                        findStock.updatedAt = DateTime.UtcNow;
+                        findStock.UpdatedAt = DateTime.UtcNow;
                         var stock = await _baseRepository.UpdateAsync(findStock);
                         if (stock == false) throw new FailureRequestException(404, "Houve um problema na atualização do estoque.");
                         var historyModel = new HistoryMovimentCreateDto()
@@ -78,7 +78,7 @@ namespace ApiEstoque.Services
                     stockUpdate.action == MovimentAction.Venda.ToString())
                 {
                     findStock.amount -= stockUpdate.amount;
-                    findStock.updatedAt = DateTime.UtcNow;
+                    findStock.UpdatedAt = DateTime.UtcNow;
                     var stock = await _baseRepository.UpdateAsync(findStock);
                     if (stock == false) throw new FailureRequestException(404, "Houve um problema na baixa do produto no estoque.");
                     var historyModel = new HistoryMovimentCreateDto()
@@ -94,7 +94,7 @@ namespace ApiEstoque.Services
                 else if (stockUpdate.action == MovimentAction.Acerto.ToString())
                 {
                     findStock.amount = stockUpdate.amount;
-                    findStock.updatedAt = DateTime.UtcNow;
+                    findStock.UpdatedAt = DateTime.UtcNow;
                     var stock = await _baseRepository.UpdateAsync(findStock);
                     if (stock == false) throw new FailureRequestException(404, "Houve um problema na baixa do produto no estoque.");
                     var historyModel = new HistoryMovimentCreateDto()
@@ -174,7 +174,7 @@ namespace ApiEstoque.Services
             {
                 var findStock = await _baseRepository.SelectByIdAsync(idStock);
                 if (findStock == null) throw new FailureRequestException(404, "Id do stock não localizado.");
-                return await _baseRepository.DeleteAsync(findStock.id); 
+                return await _baseRepository.DeleteAsync(findStock.Id); 
             }
             catch (FailureRequestException ex)
             {

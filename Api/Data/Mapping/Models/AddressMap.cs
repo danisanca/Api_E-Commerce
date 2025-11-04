@@ -9,7 +9,7 @@ namespace ApiEstoque.Data.Mapping.Models
     {
         public void Configure(EntityTypeBuilder<AddressModel> builder)
         {
-            builder.HasKey(x => x.id);
+            builder.HasKey(x => x.Id);
             builder.Property(x => x.street).IsRequired().HasMaxLength(255);
             builder.Property(x => x.complement).IsRequired().HasMaxLength(255);
             builder.Property(x => x.neighborhood).HasMaxLength(255);
@@ -20,8 +20,8 @@ namespace ApiEstoque.Data.Mapping.Models
             builder.Property(x => x.userId).IsRequired();
             builder.HasOne(x => x.user).WithOne().HasForeignKey<AddressModel>(x => x.userId) ;
             builder.Property(x => x.status).IsRequired().HasMaxLength(24);
-            builder.Property(x => x.createdAt).IsRequired();
-            builder.Property(x => x.updatedAt).IsRequired();
+            builder.Property(x => x.CreatedAt).IsRequired();
+            builder.Property(x => x.UpdatedAt).IsRequired();
         }
     }
 }
