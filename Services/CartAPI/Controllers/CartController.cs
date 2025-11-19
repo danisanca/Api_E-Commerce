@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using CartAPI.Dto;
 using CartAPI.Helpers.Exceptions;
+using CartAPI.Models;
 using CartAPI.Services;
 using CartAPI.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -91,7 +92,7 @@ namespace CartAPI.Controllers
                     return StatusCode(401, "Você não tem permissão para manipular este registro.");
 
                 var cart = await _cartService.GetByUserId(userId);
-                if (cart.CartHeader == null) return NotFound();
+                
                 return Ok(cart);
             }
             catch (FailureRequestException ex)
@@ -168,7 +169,8 @@ namespace CartAPI.Controllers
                     return StatusCode(401, "Você não tem permissão para manipular este registro.");
 
                 var cart = await _cartService.Delete(cartDetailId);
-                if (cart == false) return NotFound();
+                if (cart == false) 
+                    return NotFound();
                 return Ok(cart);
             }
             catch (FailureRequestException ex)
@@ -250,11 +252,12 @@ namespace CartAPI.Controllers
 
             _rabbitMQMessageSender.SendMessage(checkOut, ConfigRabbitMq.checkOutQueue);
             await _cartService.Clear(cart.CartHeader.Id);
+           
+          
+
 
             return Ok(checkOut);
         }
     }
 }
-
-
 

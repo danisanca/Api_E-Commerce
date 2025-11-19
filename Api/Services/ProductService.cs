@@ -18,6 +18,7 @@ namespace ApiEstoque.Services
     {
         private readonly IBaseRepository<ProductModel> _baseRepository;
         private readonly IProductRepository _productRepository;
+
         private readonly IShopService _shopService;
         private readonly ICategoriesService _categoriesService;
         private readonly IImageService _imageService;
@@ -159,15 +160,15 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<List<ProductDetailsDto>> GetAllWithDetailsByIdShop(Guid idShop)
+        public async Task<ProductViewModel> GetAllWithDetailsByIdShop(Guid idShop, FilterGetRoutes status = FilterGetRoutes.All, int limit = 20, int page = 0, string category = "")
         {
             try
             {
                 var shop = await _shopService.GetById(idShop);
                 if (shop == null) throw new FailureRequestException(404, "Nenhum shop localizado.");
 
-                var products = await _productRepository.GetAllByIdShop(idShop);
-                if (products == null || !products.Any()) return new List<ProductDetailsDto>();
+                var products = await _productRepository.GetAllByIdShop(idShop, status, limit, page, category: category);
+                if (products == null || !products.Any()) return new ProductViewModel();
 
                 // Coleta IDs em lote
                 var categoryIds = products.Select(p => p.categoriesId).Distinct().ToList();
@@ -209,7 +210,12 @@ namespace ApiEstoque.Services
                         : null
                 }).ToList();
 
-                return result;
+                var countProdutos = await _productRepository.CountProducts(category: category);
+                return new ProductViewModel()
+                {
+                    Products = result,
+                    SizeList = countProdutos
+                };
             }
             catch (FailureRequestException ex)
             {
@@ -223,13 +229,13 @@ namespace ApiEstoque.Services
 
 
         //Controller sem authenticação
-        public async Task<List<ProductDetailsDto>> GetAllWithDetails()
+        public async Task<ProductViewModel> GetAllWithDetails(int limit = 20, int page = 0, string category = "")
         {
             try
             {
-                var products = await _productRepository.SelectAllByStatusAsync();
+                var products = await _productRepository.SelectAllByStatusAsync(limit:limit,page:page, category: category);
                 if (products == null || !products.Any())
-                    return new List<ProductDetailsDto>();
+                    return new ProductViewModel();
 
                 // Coleta IDs para busca em lote
                 var categoryIds = products.Select(p => p.categoriesId).Distinct().ToList();
@@ -273,7 +279,12 @@ namespace ApiEstoque.Services
                         : null
                 }).ToList();
 
-                return result;
+                var countProdutos = await _productRepository.CountProducts(category: category);
+                return new ProductViewModel()
+                {
+                    Products = result,
+                    SizeList = countProdutos
+                };
             }
             catch (FailureRequestException ex)
             {
@@ -285,7 +296,7 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<List<ProductDetailsDto>> GetAllWithDetailsLikeName(string name)
+        public async Task<ProductViewModel> GetAllWithDetailsLikeName(string name)
         {
             try
             {
@@ -334,7 +345,12 @@ namespace ApiEstoque.Services
                         : null
                 }).ToList();
 
-                return result;
+                var countProdutos = await _productRepository.CountProducts();
+                return new ProductViewModel()
+                {
+                    Products = result,
+                    SizeList = countProdutos
+                };
             }
             catch (FailureRequestException ex)
             {
@@ -354,6 +370,58 @@ namespace ApiEstoque.Services
                 var findProduct = await _baseRepository.SelectByIdAsync(id);
                 if (findProduct == null) throw new FailureRequestException(404, "Nenhum produto localizado.");
                 return _mapper.Map<ProductDto>(findProduct);
+            }
+            catch (FailureRequestException ex)
+            {
+                throw new FailureRequestException(ex.StatusCode, ex.Message);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<ProductDetailsDto> GetWithDetailsById(Guid id)
+        {
+            try
+            {
+                // Busca o produto específico
+                var product = await _baseRepository.SelectByIdAsync(id);
+                if (product == null) throw new FailureRequestException(404, "Nenhum produto localizado.");
+
+                // Busca os dados relacionados apenas desse produto
+                var category = await _categoriesService.GetById(product.categoriesId);
+                var shop = await _shopService.GetById(product.shopId);
+                var images = await _imageService.GetAllByProductsIds(new List<Guid> { product.Id });
+                var stock = await _stockService.GetByProductId(product.Id);
+                var discount = await _discountService.GetByProductId(product.Id);
+
+                // Monta o DTO de retorno
+                var dto = new ProductDetailsDto
+                {
+                    Id = product.Id,
+                    ShopId = product.shopId,
+                    NameShop = shop?.name ?? "Loja Desconhecida",
+                    Name = product.name,
+                    Price = product.price,
+                    Categoria = category?.name ?? "Não Categorizado",
+                    UrlImages = images?.Select(i => i.url).ToList() ?? new List<string>(),
+                    Description = product.description,
+                    IsNew = (DateTime.UtcNow - product.CreatedAt).TotalDays <= 7,
+                    Stock = stock != null && stock.amount > 0
+                        ? _mapper.Map<StockDto>(stock)
+                        : null,
+                    Discount = discount != null && discount.percentDiscount > 0
+                        ? new PercentDiscountDto
+                        {
+                            id = discount.id,
+                            updatedAt = discount.updatedAt,
+                            percentDiscount = discount.percentDiscount
+                        }
+                        : null
+                };
+
+                return dto;
             }
             catch (FailureRequestException ex)
             {

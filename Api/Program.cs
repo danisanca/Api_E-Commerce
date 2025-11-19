@@ -115,6 +115,19 @@ namespace ApiEstoque
             builder.Services.AddScoped<IAddressService, AddressService>();
             builder.Services.AddScoped<IDbInitializer, DbInitializer>();
             //-
+            //CorsConfig
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAngularApp",
+                    policy =>
+                    {
+                        policy
+                            .WithOrigins("http://localhost:4200") // endereço do Angular
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()
+                            .AllowCredentials(); // se estiver usando autenticação com cookies ou tokens
+                    });
+            });
             // Add services to the container.
             builder.Services.AddControllers();
 
@@ -156,6 +169,7 @@ namespace ApiEstoque
             });
 
             var app = builder.Build();
+            app.UseCors("AllowAngularApp");
             var initializer = app.Services.CreateScope().ServiceProvider.GetService<IDbInitializer>();
 
             // Configure the HTTP request pipeline.

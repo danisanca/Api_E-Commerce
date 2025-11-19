@@ -24,7 +24,7 @@ namespace ApiEstoque.Controllers
         private readonly IShopService _shopService;
 
         public ProductController(IProductService productService,
-            IShopService shopService, 
+            IShopService shopService,
             UserManager<UserModel> userManager
         )
         {
@@ -42,7 +42,7 @@ namespace ApiEstoque.Controllers
         [SwaggerResponse(StatusCodes.Status409Conflict, "Falha no cadastrado")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Categoria não encontrada")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Produto ja cadastrado")]
-        [SwaggerResponse(StatusCodes.Status200OK, "Produto Cadastrado",typeof(ProductDto))]
+        [SwaggerResponse(StatusCodes.Status200OK, "Produto Cadastrado", typeof(ProductDto))]
         [Authorize]
         [HttpPost]
         [Route("Create")]
@@ -59,7 +59,7 @@ namespace ApiEstoque.Controllers
                     return Unauthorized("Usuário não autenticado.");
 
                 var findOwnerShop = await _shopService.GetByUserId(userId);
-                if(findOwnerShop.userId != userId) throw new FailureRequestException(401, "O id do shop informado não pertence a você.");
+                if (findOwnerShop.userId != userId) throw new FailureRequestException(401, "O id do shop informado não pertence a você.");
 
                 ProductDto product = await _productService.Create(productCreateDto);
                 if (product == null)
@@ -106,7 +106,7 @@ namespace ApiEstoque.Controllers
                     throw new FailureRequestException(401, "O id do produto não Existe");
 
                 var findOwnerShop = await _shopService.GetByUserId(userId);
-                if (findProduct.shopId != findOwnerShop.id) 
+                if (findProduct.shopId != findOwnerShop.id)
                     throw new FailureRequestException(401, "O id do produto informado não pertence a você.");
 
                 //Atualização
@@ -136,7 +136,7 @@ namespace ApiEstoque.Controllers
         [Authorize]
         [HttpPut]
         [Route("ChangeStatusById")]
-        public async Task<ActionResult> ChangeStatusById( Guid idProduct,bool isActive)
+        public async Task<ActionResult> ChangeStatusById(Guid idProduct, bool isActive)
         {
             if (!ModelState.IsValid)
             {
@@ -181,10 +181,10 @@ namespace ApiEstoque.Controllers
         [SwaggerResponse(StatusCodes.Status401Unauthorized, "Usuário não autorizado / Sem Permissão ao Registro")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "Usuário não encontrado")]
         [SwaggerResponse(StatusCodes.Status200OK, "Lista de produtos retornada")]
-        [Authorize]
+        //[Authorize]
         [HttpGet]
         [Route("GetAllWithDetailsByIdShop/{shopId}")]
-        public async Task<ActionResult> GetAllWithDetailsByIdShop(Guid shopId)
+        public async Task<ActionResult> GetAllWithDetailsByIdShop(Guid shopId, [FromQuery] FilterGetRoutes status = FilterGetRoutes.All, [FromQuery] int limit = 20, [FromQuery] int page = 0, [FromQuery] string category = "")
         {
             if (!ModelState.IsValid)
             {
@@ -195,11 +195,11 @@ namespace ApiEstoque.Controllers
                 var userId = User.FindFirst(ClaimTypes.Name)?.Value;
                 if (string.IsNullOrEmpty(userId))
                     return Unauthorized("Usuário não autenticado.");
-
+               
                 var findOwnerShop = await _shopService.GetById(shopId);
                 if (findOwnerShop.userId != userId) throw new FailureRequestException(401, "O id do shop informado não pertence a você.");
-
-                List<ProductDetailsDto> products = await _productService.GetAllWithDetailsByIdShop(shopId);
+                
+                ProductViewModel products = await _productService.GetAllWithDetailsByIdShop(shopId,status, limit, page,category);
                 if (products == null)
                 {
                     return NotFound();
@@ -218,12 +218,12 @@ namespace ApiEstoque.Controllers
 
         //Rotas Sem Authenticação
         [SwaggerOperation(
-       Summary = "Busca todos os produtos Ativos.",
-       Description = "Busca todos os produtos ativos de todas as lojas com as informações de disconto,imagem e estoque.")]
+         Summary = "Busca todos os produtos Ativos.",
+         Description = "Busca todos os produtos ativos de todas as lojas com as informações de disconto,imagem e estoque.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Lista de produtos retornada")]
         [HttpGet]
         [Route("GetAllWithDetails")]
-        public async Task<ActionResult> GetAllWithDetails()
+        public async Task<ActionResult> GetAllWithDetails([FromQuery] int limit = 20, [FromQuery] int page = 0, [FromQuery] string category = "")
         {
             if (!ModelState.IsValid)
             {
@@ -231,7 +231,7 @@ namespace ApiEstoque.Controllers
             }
             try
             {
-                List<ProductDetailsDto> products = await _productService.GetAllWithDetails();
+                ProductViewModel products = await _productService.GetAllWithDetails(limit, page, category);
                 if (products == null)
                 {
                     return NotFound();
@@ -249,8 +249,8 @@ namespace ApiEstoque.Controllers
         }
 
         [SwaggerOperation(
-      Summary = "Busca todos os produtos ativos por nome",
-      Description = "Busca todos os produtos ativos de todas as lojas com as informações de disconto,imagem e estoque com base na palavra informada.")]
+        Summary = "Busca todos os produtos ativos por nome",
+        Description = "Busca todos os produtos ativos de todas as lojas com as informações de disconto,imagem e estoque com base na palavra informada.")]
         [SwaggerResponse(StatusCodes.Status200OK, "Lista de produtos retornada")]
         [HttpGet]
         [Route("GetAllWithDetailsLikeName")]
@@ -262,7 +262,7 @@ namespace ApiEstoque.Controllers
             }
             try
             {
-                List<ProductDetailsDto> product = await _productService.GetAllWithDetailsLikeName(name);
+                ProductViewModel product = await _productService.GetAllWithDetailsLikeName(name);
                 if (product == null)
                 {
                     return NotFound();
@@ -279,6 +279,40 @@ namespace ApiEstoque.Controllers
             }
         }
 
-        
+
+
+        [SwaggerOperation(
+         Summary = "Buscar o produto pelo id",
+         Description = "Rota responsavel por buscar apenas um produto via id")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Produto não encontrado")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Produto Encontrado", typeof(ProductDetailsDto))]
+        [HttpGet]
+        [Route("GetWithDetailsById/{idProduct}")]
+        public async Task<ActionResult> GetWithDetailsById(Guid idProduct)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                //Atualização
+                var result = await _productService.GetWithDetailsById(idProduct);
+                if (result == null)
+                {
+                    return NotFound();
+                }
+                else return Ok(result);
+            }
+            catch (FailureRequestException ex)
+            {
+                return StatusCode(ex.StatusCode, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
+            }
+
+        }
     }
 }

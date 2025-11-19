@@ -209,7 +209,7 @@ namespace ApiEstoque.Services
             try
             {
                 var findStock = await _stockRepository.GetByProductId(idProduct);
-                if (findStock == null) throw new FailureRequestException(404, "Não há estoque para esse id.");
+                if (findStock == null) return new StockDto();
                 return _mapper.Map<StockDto>(findStock);
             }
             catch (FailureRequestException ex)

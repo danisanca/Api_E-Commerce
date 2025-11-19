@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using OrderAPI.Dtos;
 using OrderAPI.Models;
 using OrderAPI.Repository.Interface;
 using OrderAPI.Services.Interface;
+using SharedBase.Dtos.Cart;
 using SharedBase.Helpers.Exceptions;
 
 namespace OrderAPI.Services
@@ -41,16 +43,19 @@ namespace OrderAPI.Services
             }
         }
 
-        public async Task<OrderHeader> GetHeaderById(Guid id)
+        public async Task<OrderHeaderDto> GetHeaderById(Guid id)
         {
             try
             {
                 var result = await _orderRepository.GetById(id);
-
                 if (result == null)
-                    throw new FailureRequestException(409, "Não foi possivel criar o pedido de compra");
+                    return null;
+                var orderHeader = _mapper.Map<OrderHeaderDto>(result);
+                var orderDetails = _mapper.Map<List<OrderDetailsDto>>(result.OrderDetails);
+                orderHeader.OrderDetailsDto = orderDetails;
+                
 
-                return result;
+                return orderHeader ;
 
             }
             catch (FailureRequestException ex)

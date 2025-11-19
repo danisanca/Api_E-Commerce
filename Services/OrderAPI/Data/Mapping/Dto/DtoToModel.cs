@@ -15,7 +15,7 @@ namespace OrderAPI.Data.Mapping.Dto
             #endregion
 
             #region OrderDetail
-            CreateMap<OrderDetailsDto, OrderDetailsDto>()
+            CreateMap<OrderDetail, OrderDetailsDto>()
                     .ReverseMap();
             #endregion
         }

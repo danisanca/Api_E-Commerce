@@ -10,6 +10,7 @@ namespace SharedBase.Constants
     {
         Pix,
         Boleto,
-        CreditCard
+        CreditCard,
+        MercadoPago
     }
 }

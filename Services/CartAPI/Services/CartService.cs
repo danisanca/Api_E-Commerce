@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Reflection.PortableExecutable;
+using AutoMapper;
 using CartAPI.Dto;
 using CartAPI.Helpers.Exceptions;
 using CartAPI.Models;
@@ -6,8 +7,8 @@ using CartAPI.Repositories;
 using CartAPI.Services.Interface;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using SharedBase.Repository;
 using SharedBase.Dtos.Cart;
+using SharedBase.Repository;
 namespace CartAPI.Services
 {
     public class CartService:ICartService
@@ -31,33 +32,42 @@ namespace CartAPI.Services
         {
             try
             {
-                if (cartModel.CartHeaderId == Guid.Empty)
-                {
-                    var cartHeader = await _baseCartHeader.InsertAsync(new CartHeader()
-                    {
-                        Id = Guid.NewGuid(),
-                        UserId = cartModel.UserId
-                    });
+                CartDto cart = await _cartRepository.GetByUserId(cartModel.UserId);
+                if (cart.CartHeader == null) {
+                    
+                        var cartHeader = await _baseCartHeader.InsertAsync(new CartHeader()
+                        {
+                            Id = Guid.NewGuid(),
+                            UserId = cartModel.UserId
+                        });
+                    var cartDetails = new List<CartDetail>
+                        {
+                            new CartDetail
+                            {
+                                Id = Guid.NewGuid(),
+                                CartHeaderId = cartHeader.Id,
+                                Count = cartModel.item.Count,
+                                ProductId = cartModel.item.ProductId,
+                                Discount = cartModel.item.Discount,
+                                Price = cartModel.item.Price,
+                                ProductName = cartModel.item.ProductName,
+                                Description = cartModel.item.Description,
+                            }
+                        };
 
-                    var cartDetails = cartModel.itemCarts.Select(item => new CartDetail
-                    {
-                        Id = Guid.NewGuid(),
-                        CartHeaderId = cartHeader.Id,
-                        Count = item.Count,
-                        ProductId = item.ProductId
-                    }).ToList();
-                    var reuslt = await _baseCartDetail.InsertRangeAsync(cartDetails);
 
-                    CartDto cartResult = new()
-                    {
-                        CartHeader = _mapper.Map<CartHeaderDto>(cartHeader),
-                        CartDetail = _mapper.Map<List<CartDetailDto>>(cartDetails)
-                    };
-                
-                    return cartResult;
+                     var reuslt = await _baseCartDetail.InsertRangeAsync(cartDetails);
+
+                        CartDto cartResult = new()
+                        {
+                            CartHeader = _mapper.Map<CartHeaderDto>(cartHeader),
+                            CartDetail = _mapper.Map<List<CartDetailDto>>(cartDetails)
+                        };
+
+                        return cartResult;
+                    
                 }
-                throw new FailureRequestException(409, "Você ja tem um carrinho. Não é possivel recriar.");
-
+                else throw new FailureRequestException(409, "Você ja tem um carrinho. Não é possivel recriar.");
             }
             catch (FailureRequestException ex)
             {
@@ -77,7 +87,8 @@ namespace CartAPI.Services
             {
                 CartDto cart = await _cartRepository.GetByUserId(userId);
 
-                if (cart.CartHeader == null) throw new FailureRequestException(404, "Usuario não possui um carrinho de compras.");
+                if (cart.CartHeader == null)
+                    return new CartDto();
 
                 else return cart;
             }
@@ -106,25 +117,17 @@ namespace CartAPI.Services
                 // 1. Buscar todos os itens atuais no banco
                 var currentDetails = await _cartRepository.GetAllCartDetailsByCartHeaderId(cartModel.CartHeaderId);
 
-                // 2. Identificar ids dos produtos enviados no update
-                var incomingProductIds = cartModel.itemCarts.Select(i => i.ProductId).ToHashSet();
 
-                // 3. Remover os itens que não estão mais no carrinho
-                var toRemove = currentDetails.Where(cd => !incomingProductIds.Contains(cd.ProductId)).ToList();
-                foreach (var item in toRemove)
-                {
-                    await _baseCartDetail.DeleteAsync(item.Id);
-                }
+                
 
                 // 4. Atualizar ou inserir os itens enviados
-                foreach (var item in cartModel.itemCarts)
-                {
-                    var existingDetail = currentDetails.FirstOrDefault(cd => cd.ProductId == item.ProductId);
+             
+                    var existingDetail = currentDetails.FirstOrDefault(cd => cd.ProductId == cartModel.item.ProductId);
 
                     if (existingDetail != null)
                     {
                         // Atualiza a quantidade
-                        existingDetail.Count = item.Count;
+                        existingDetail.Count = cartModel.item.Count;
                         await _baseCartDetail.UpdateAsync(existingDetail);
                     }
                     else
@@ -134,12 +137,16 @@ namespace CartAPI.Services
                         {
                             Id = Guid.NewGuid(),
                             CartHeaderId = findCartHeader.Id,
-                            ProductId = item.ProductId,
-                            Count = item.Count
+                            ProductId = cartModel.item.ProductId,
+                            Count = cartModel.item.Count,
+                            Discount = cartModel.item.Discount,
+                            Price = cartModel.item.Price,
+                            ProductName = cartModel.item.ProductName,
+                            Description = cartModel.item.Description,
                         };
                         await _baseCartDetail.InsertAsync(newDetail);
                     }
-                }
+                
 
                 return true;
             }

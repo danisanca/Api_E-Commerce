@@ -28,8 +28,8 @@ namespace ApiEstoque.Controllers
         Description = "Busca todas as categorias cadastradas.")]
         [SwaggerResponse(StatusCodes.Status200OK, "lista de cartegoria localizada", typeof(List<CategoriesDto>))]
         [HttpGet]
-        [Route("GetAllCategories")]
-        public async Task<ActionResult> GetAllCategories()
+        [Route("GetAll")]
+        public async Task<ActionResult> GetAll()
         {
             if (!ModelState.IsValid)
             {

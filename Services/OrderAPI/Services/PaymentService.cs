@@ -1,8 +1,10 @@
 ﻿
+using AutoMapper;
 using Azure.Core;
 using MercadoPago.Client.Common;
 using MercadoPago.Client.Preference;
 using OrderAPI.Dtos;
+using OrderAPI.Models;
 using OrderAPI.Services.Interface;
 
 namespace OrderAPI.Services
@@ -10,8 +12,10 @@ namespace OrderAPI.Services
     public class PaymentService : IPaymentService
     {
         private readonly IOrderServices _orderServices;
-        public PaymentService(IOrderServices orderServices) {
+        private readonly IMapper _mapper;
+        public PaymentService(IOrderServices orderServices, IMapper mapper) {
             _orderServices = orderServices;
+            _mapper = mapper;
         }
         public async Task<MercadoPagoResult> PaymentMercadoPago(PaymentRequestDto paymentRequestDto)
         {
@@ -56,13 +60,14 @@ namespace OrderAPI.Services
             var client = new PreferenceClient();
             var createdPreference = await client.CreateAsync(preference);
 
-            var orderHeader = await _orderServices.GetHeaderById(paymentRequestDto.OrderHeaderId);
+            var orderHeader = _mapper.Map<OrderHeader>( await _orderServices.GetHeaderById(paymentRequestDto.OrderHeaderId));
             orderHeader.ExternalReference = external_reference_Controll;
             orderHeader.PreferenceId = createdPreference.Id;
             orderHeader.InitPoint = createdPreference.SandboxInitPoint;
             orderHeader.ReferenceCreatedAt = DateTime.UtcNow;
             orderHeader.ExpireAt = DateTime.UtcNow.AddMinutes(10);
 
+            
             await _orderServices.UpdateHeader(orderHeader);
 
             var result = new MercadoPagoResult (){ apiUrl = createdPreference.SandboxInitPoint };

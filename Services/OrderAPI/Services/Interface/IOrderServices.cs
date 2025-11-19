@@ -1,4 +1,5 @@
-﻿using OrderAPI.Models;
+﻿using OrderAPI.Dtos;
+using OrderAPI.Models;
 
 namespace OrderAPI.Services.Interface
 {
@@ -6,6 +7,6 @@ namespace OrderAPI.Services.Interface
     {
         Task<bool> Create(OrderHeader header);
         Task<bool> UpdateHeader(OrderHeader header);
-        Task<OrderHeader> GetHeaderById(Guid id);
+        Task<OrderHeaderDto> GetHeaderById(Guid id);
     }
 }

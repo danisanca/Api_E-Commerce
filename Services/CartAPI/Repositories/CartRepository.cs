@@ -31,10 +31,27 @@ namespace CartAPI.Repositories
 
         public async Task<CartDto> GetByUserId(string userId)
         {
-            CartDto cart = new();
-            cart.CartHeader = _mapper.Map<CartHeaderDto>(await _db.CartHeader.FirstOrDefaultAsync(x => x.UserId == userId));
-            cart.CartDetail = _mapper.Map<List<CartDetailDto>>(await _db.CartDetail.Where(c => c.CartHeaderId == cart.CartHeader.Id).ToListAsync());
-            
+            // Carrega o CartHeader SEM tracking
+            var cartHeader = await _db.CartHeader
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.UserId == userId);
+
+            if (cartHeader == null)
+                return new CartDto();
+
+            // Carrega os detalhes SEM tracking
+            var cartDetails = await _db.CartDetail
+                .AsNoTracking()
+                .Where(c => c.CartHeaderId == cartHeader.Id)
+                .ToListAsync();
+
+            // Monta retorno
+            var cart = new CartDto
+            {
+                CartHeader = _mapper.Map<CartHeaderDto>(cartHeader),
+                CartDetail = _mapper.Map<List<CartDetailDto>>(cartDetails)
+            };
+
             return cart;
         }
 

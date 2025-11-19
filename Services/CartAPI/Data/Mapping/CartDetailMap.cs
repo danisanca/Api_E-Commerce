@@ -13,6 +13,9 @@ namespace CartAPI.Data.Mapping
             builder.HasOne(x => x.CartHeader).WithMany(h => h.CartDetails)
                 .HasForeignKey(x => x.CartHeaderId).OnDelete(DeleteBehavior.Cascade);
             builder.Property(x => x.Count).IsRequired();
+            builder.Property(x => x.Price).IsRequired();
+            builder.Property(x => x.Discount).IsRequired();
+            builder.Property(x => x.Description).IsRequired();
             builder.Property(x => x.ProductId).IsRequired();
         }
     }

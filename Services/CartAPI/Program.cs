@@ -81,8 +81,22 @@ builder.Services.AddSwaggerGen(c => {
             },
             new List<string> () 
         } }); 
-}); 
-var app = builder.Build(); 
+});
+//CorsConfig
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularApp",
+        policy =>
+        {
+            policy
+                .WithOrigins("http://localhost:4200") // endereço do Angular
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials(); // se estiver usando autenticação com cookies ou tokens
+        });
+});
+var app = builder.Build();
+app.UseCors("AllowAngularApp");
 var inicializeChannel = app.Services.CreateScope().ServiceProvider.GetService<IRabbitMqMessageSender>(); 
 
 // Configure the HTTP request pipeline.

@@ -2,9 +2,8 @@
 {
     public class CartCreateDto
     {
-        public Guid CartHeaderId { get; set; } = new Guid();
         public string UserId { get; set; }
-        public IEnumerable<ItemCartDto> itemCarts { get; set; }
+        public ItemCartDto item { get; set; }
 
     }
     

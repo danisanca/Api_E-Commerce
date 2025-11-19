@@ -66,7 +66,6 @@ namespace ApiEstoque.Services
         }
 
         
-
         public async Task<bool> Update(DiscountUpdateDto discountUpdate)
         {
             try
@@ -89,12 +88,14 @@ namespace ApiEstoque.Services
                 throw new Exception(e.Message);
             }
         }
+
+
         public async Task<DiscountDto> GetByProductId(Guid idProduct)
         {
             try
             {
                 DiscountModel findDiscount = await _discountRepository.GetByProductId(idProduct);
-                if (findDiscount == null) throw new FailureRequestException(404, "Não existe um desconto para esse produto.");
+                if (findDiscount == null) return new DiscountDto();
                 return _mapper.Map<DiscountDto>(findDiscount);
             }
             catch (FailureRequestException ex)
@@ -106,6 +107,8 @@ namespace ApiEstoque.Services
                 throw new Exception(e.Message);
             }
         }
+
+
         public async Task<DiscountDto> GetById(Guid id)
         {
             try

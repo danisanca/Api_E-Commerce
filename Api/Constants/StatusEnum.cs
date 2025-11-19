@@ -1,4 +1,6 @@
-﻿namespace ApiEstoque.Constants
+﻿using System.Text.Json.Serialization;
+
+namespace ApiEstoque.Constants
 {
 
     public enum StandartStatus
@@ -6,6 +8,7 @@
         Ativo,
         Desabilitado
     }
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum FilterGetRoutes
     {
         All,

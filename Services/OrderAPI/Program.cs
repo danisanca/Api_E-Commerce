@@ -63,6 +63,7 @@ builder.Services.AddSingleton(mapper);
 
 //Configurando repositorio
 builder.Services.AddScoped<IOrderHeaderRepository, OrderHeaderRepository>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IOrderServices, OrderServices>();
 builder.Services.AddHostedService<RabbitMQCheckoutConsumer>();
 
@@ -102,8 +103,21 @@ builder.Services.AddSwaggerGen(c =>
                 }
                 });
 });
-
+//CorsConfig
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularApp",
+        policy =>
+        {
+            policy
+                .WithOrigins("http://localhost:4200") // endereço do Angular
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials(); // se estiver usando autenticação com cookies ou tokens
+        });
+});
 var app = builder.Build();
+app.UseCors("AllowAngularApp");
 var inicializeChannel = app.Services.CreateScope().ServiceProvider.GetService<IRabbitMQMessageSender>();
 
 // Configure the HTTP request pipeline.

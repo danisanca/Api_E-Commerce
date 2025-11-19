@@ -133,7 +133,7 @@ namespace ApiEstoque.Services
             try
             {
                 var findImage = await _imageRepository.GetAllByProductsIds(ids);
-                if (findImage == null) throw new FailureRequestException(404, "nenhuma imagen encontrada para a lista de ids");
+                if (findImage == null) return new List<ImageDto>();
                 return _mapper.Map<List<ImageDto>>(findImage);
             }
             catch (FailureRequestException ex)

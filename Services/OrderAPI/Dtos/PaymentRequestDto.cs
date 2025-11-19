@@ -15,6 +15,6 @@ namespace OrderAPI.Dtos
         public string DocumentNumber { get; set; }
         public decimal TotalPrice { get; set; }
         public Guid OrderHeaderId { get; set; }
-        public List<OrderDetail> Itens { get; set; }
+        public List<OrderDetailsDto> Itens { get; set; }
     }
 }

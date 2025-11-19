@@ -17,7 +17,8 @@ namespace OrderAPI.Repository
 
         public async Task<bool> Create(OrderHeader header)
         {
-            if (header == null) return false;
+            if (header == null) 
+                return false;
             _context.OrderHeader.Add(header);
             await _context.SaveChangesAsync();
             return true;
@@ -25,7 +26,17 @@ namespace OrderAPI.Repository
 
         public async Task<OrderHeader> GetById(Guid id)
         {
-            return await _context.OrderHeader.FirstOrDefaultAsync(x => x.Id == id);
+            var orderHeader = await _context.OrderHeader.FirstOrDefaultAsync(x => x.Id == id);
+            if (orderHeader != null)
+            {
+                var orderDetail = await _context.OrderDetail.Where(x => x.OrderHeaderId == id).ToListAsync();
+                orderHeader.OrderDetails = orderDetail;
+                return orderHeader;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task<bool> Update(OrderHeader header)

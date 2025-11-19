@@ -15,7 +15,5 @@ namespace ApiEstoque.Models
         public DateTime RefreshTokenExpiry { get; set; }
 
         public IEnumerable<HistoryMovimentModel> historyMoviments { get; set; }
-        public string status { get; set; } = FilterGetRoutes.Ativo.ToString();
-
     }
 }
