@@ -18,7 +18,10 @@ Inclui também um conjunto de **testes automatizados**, integrados à solução,
 - **AutoMapper**
 - **SQL Server**
 - **JWT Bearer**
+- **RabbitMQ**
+- **IdentityServer**
 - **Mercado Pago**
+- **Microsserviços**
 
 ### 🧪 Testes Automatizados
 - **xUnit**
@@ -48,6 +51,9 @@ Api/
 │-- Models/
 │-- Repositories/
 │-- Services/
+Services/
+│-- CartApi/
+│-- OrderApi/
 
 ApiTests/
 │-- Controllers/
