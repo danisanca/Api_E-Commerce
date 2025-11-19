@@ -1,10 +1,9 @@
-﻿using ApiEstoque.Data;
-using ApiEstoque.Helpers;
+﻿using System.Data;
+using ApiEstoque.Constants;
+using ApiEstoque.Data;
 using ApiEstoque.Models;
 using ApiEstoque.Repository.Interface;
 using Microsoft.EntityFrameworkCore;
-using ApiEstoque.Helpers;
-using System.Net.NetworkInformation;
 
 namespace ApiEstoque.Repository
 {
@@ -17,35 +16,29 @@ namespace ApiEstoque.Repository
             _db = db;
         }
 
-        public async Task<CategoriesModel> CreateCategories(CategoriesModel categories)
+        public async Task<List<CategoriesModel>> GetAllByIds(List<Guid> ids)
         {
-            await _db.Categories.AddAsync(categories);
-            await _db.SaveChangesAsync();
-            return categories;
+            return await _db.Categories.Where(c => ids.Contains(c.Id))
+                         .ToListAsync();
         }
 
-        public async Task<List<CategoriesModel>> GetAllCategories(FilterGetRoutes status)
-        {
-            if (status == FilterGetRoutes.Ativo) return await _db.Categories.Where(g => g.status == status.ToString()).ToListAsync();
-            else if (status == FilterGetRoutes.Desabilitado) return await _db.Categories.Where(g => g.status == status.ToString()).ToListAsync();
-            else return await _db.Categories.ToListAsync();
-        }
-
-        public async Task<CategoriesModel> GetCategoriesById(int id)
-        {
-            return await _db.Categories.FirstOrDefaultAsync(x => x.id == id);
-        }
-
-        public async Task<CategoriesModel> GetCategoriesByName(string name)
+        public async Task<CategoriesModel> GetByName(string name)
         {
             return await _db.Categories.Where(x => x.name == name).FirstOrDefaultAsync();
         }
 
-        public async Task<bool> UpdateCategories(CategoriesModel categories)
+        public async Task<IEnumerable<CategoriesModel>> SelectAllByStatusAsync(FilterGetRoutes status = FilterGetRoutes.Ativo)
         {
-            _db.Categories.Update(categories);
-            await _db.SaveChangesAsync();
-            return true;
+            try
+            {
+                if (status == FilterGetRoutes.Ativo) return await _db.Categories.Where(g => g.status == status.ToString()).ToListAsync();
+                else if (status == FilterGetRoutes.Desabilitado) return await _db.Categories.Where(g => g.status == status.ToString()).ToListAsync();
+                else return await _db.Categories.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

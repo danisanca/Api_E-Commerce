@@ -1,10 +1,12 @@
-﻿using ApiEstoque.Dto.Shop;
-using ApiEstoque.Helpers;
+﻿using System.Security.Policy;
+using ApiEstoque.Constants;
+using ApiEstoque.Dto.Shop;
 using ApiEstoque.Models;
 using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
 using AutoMapper;
+using SharedBase.Repository;
 
 namespace ApiEstoque.Services
 {
@@ -12,48 +14,36 @@ namespace ApiEstoque.Services
     {
         private readonly IMapper _mapper;
         private readonly IShopRepository _shopRepository;
-        private readonly IUserRepository _userRepository;
+        private readonly IBaseRepository<ShopModel> _baseRepository;
+        private readonly IUserService _userService;
 
-        public ShopService(IMapper mapper, IShopRepository shopRepository, IUserRepository userRepository)
+        public ShopService(IMapper mapper, 
+            IShopRepository shopRepository,
+            IBaseRepository<ShopModel> baseRepository, 
+            IUserService userService)
         {
             _mapper = mapper;
             _shopRepository = shopRepository;
-            _userRepository = userRepository;
-        }
+            _baseRepository = baseRepository;
+            _userService = userService;
 
-        public async Task<bool> ActiveShop(int shopId)
-        {
-            try
-            {
-                var result = await _shopRepository.GetShopById(shopId);
-                if (result == null) throw new FailureRequestException(404, "Id do shop não localizado.");
-                if(result.status == StandartStatus.Ativo.ToString()) throw new FailureRequestException(409, "O shop ja se encontra ativo.");
-                result.status = StandartStatus.Ativo.ToString();
-                return await _shopRepository.UpdateShop(result);
-            }
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
         }
-
         public async Task<ShopDto> CreateShop(ShopCreateDto shopCreateDto)
         {
             try
             {
-                var findUser = await _userRepository.GetUserById(shopCreateDto.userId);
-                if (findUser == null) throw new FailureRequestException(404, "Usuario não localizado.");
-                if (findUser.typeAccount == TypeUserEnum.Owner.ToString()) throw new FailureRequestException(409, "Usuario já possui uma loja.");
                 
+
+                var userHasShop = await _shopRepository.GetByUserId(shopCreateDto.userId.ToString());
+                if(userHasShop != null) throw new FailureRequestException(409, "Usuario ja possui uma loja");
+
                 ShopModel shop = _mapper.Map<ShopModel>(shopCreateDto);
-                shop.status = StandartStatus.Ativo.ToString();
-                await _shopRepository.UpdateShop(shop);
-                findUser.typeAccount = TypeUserEnum.Owner.ToString();
-                return _mapper.Map<ShopDto>(await _userRepository.UpdateUser(findUser));
+                await _baseRepository.InsertAsync(shop);
+
+                var setRole = await _userService.SetSellerRole(shopCreateDto.userId);
+                if (setRole != true) throw new FailureRequestException(404, "Falha ao configurar usuario");
+
+                return _mapper.Map<ShopDto>(shop);
             }
             catch (FailureRequestException ex)
             {
@@ -65,15 +55,26 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<bool> DisableShop(int shopId)
+        public async Task<bool> ChangeStatusById(Guid shopId, bool isActive)
         {
             try
             {
-                var result = await _shopRepository.GetShopById(shopId);
-                if (result == null) throw new FailureRequestException(404, "Id da loja não localizado.");
-                if (result.status == StandartStatus.Desabilitado.ToString()) throw new FailureRequestException(409, "A loja ja se encontra desabilitado.");
-                result.status = StandartStatus.Desabilitado.ToString();
-                return await _shopRepository.UpdateShop(result);
+                var result = await _baseRepository.SelectByIdAsync(shopId);
+                if (result == null) throw new FailureRequestException(404, "Id do shop não localizado.");
+
+                if (isActive == true)
+                {
+                    if (result.status == StandartStatus.Ativo.ToString()) throw new FailureRequestException(404, "Shop já esta ativo.");
+                    result.status = StandartStatus.Ativo.ToString();
+                    return await _baseRepository.UpdateAsync(result);
+                }
+                else
+                {
+                    if (result.status == StandartStatus.Desabilitado.ToString()) throw new FailureRequestException(404, "Shop já esta desativado.");
+                    result.status = StandartStatus.Desabilitado.ToString();
+                    return await _baseRepository.UpdateAsync(result);
+                }
+
             }
             catch (FailureRequestException ex)
             {
@@ -85,29 +86,12 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<List<ShopDto>> GetAllShops(FilterGetRoutes status = FilterGetRoutes.All)
-        {
-            try
-            {
-                var findShop = await _shopRepository.GetAllShops(status);
-                if (findShop == null) return new List<ShopDto>();
-                return _mapper.Map<List<ShopDto>>(findShop);
-            }
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
 
-        public async Task<ShopDto> GetShopById(int id)
+        public async Task<ShopDto> GetById(Guid id)
         {
             try
             {
-                var findShop = await _shopRepository.GetShopById(id);
+                var findShop = await _baseRepository.SelectByIdAsync(id);
                 if(findShop == null) throw new FailureRequestException(404, "Id da loja não localizado.");
                 return _mapper.Map<ShopDto>(findShop);
             }
@@ -121,29 +105,11 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<ShopDto> GetShopByName(string name)
+        public async Task<ShopDto> GetByUserId(string userId)
         {
             try
             {
-                var findShop = await _shopRepository.GetShopByName(name);
-                if (findShop == null) throw new FailureRequestException(404, "Nome da loja não localizado.");
-                return _mapper.Map<ShopDto>(findShop);
-            }
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        public async Task<ShopDto> GetShopByUserId(int userId)
-        {
-            try
-            {
-                var findShop = await _shopRepository.GetShopByUserId(userId);
+                var findShop = await _shopRepository.GetByUserId(userId);
                 if (findShop == null) throw new FailureRequestException(404, "Nenhuma loja encontrar para o id do usuario");
                 return _mapper.Map<ShopDto>(findShop);
             }
@@ -161,11 +127,29 @@ namespace ApiEstoque.Services
         {
             try
             {
-                var findShop = await _shopRepository.GetShopById(shopUpdateDto.shopId); 
+                var findShop = await _baseRepository.SelectByIdAsync(shopUpdateDto.shopId); 
                 if (findShop == null) throw new FailureRequestException(404, "Nenhuma loja encontrar para o id");
                 if (findShop.name == shopUpdateDto.name) throw new FailureRequestException(409, "O nome nao pode ser o mesmo que esta cadastrado.");
                 findShop.name = shopUpdateDto.name;
-                return await _shopRepository.UpdateShop(findShop);
+                return await _baseRepository.UpdateAsync(findShop);
+            }
+            catch (FailureRequestException ex)
+            {
+                throw new FailureRequestException(ex.StatusCode, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<List<ShopDto>> GetAllByIds(List<Guid> ids)
+        {
+            try
+            {
+                var findShop = await _shopRepository.GetAllByIds(ids);
+                if (findShop == null) throw new FailureRequestException(404, "Nenhuma loja encontrar para os ids.");
+                return _mapper.Map<List<ShopDto>>(findShop);
             }
             catch (FailureRequestException ex)
             {

@@ -15,38 +15,16 @@ namespace ApiEstoque.Repository
             _db = db;
         }
 
-        public async Task<DiscountModel> AddDiscount(DiscountModel discountModel)
+        public async Task<List<DiscountModel>> GetAllByProductsIds(List<Guid> ids)
         {
-            await _db.Discount.AddAsync(discountModel);
-            await _db.SaveChangesAsync();
-            return discountModel;
+            return await _db.Discount.Where(c => ids.Contains(c.productId))
+                        .ToListAsync();
         }
 
-        public async Task<bool> DeleteDiscount(DiscountModel discountModel)
-        {
-            _db.Discount.Remove(discountModel);
-            await _db.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<List<DiscountModel>> GetAllDiscountsByShopId(int idShop)
-        {
-            return await _db.Discount
-            .Where(d => _db.Product
-                .Any(p => p.id == d.productId && p.shopId == idShop))
-            .ToListAsync();
-        }
-
-        public async Task<DiscountModel> GetDiscountByProductId(int productId)
+        public async Task<DiscountModel> GetByProductId(Guid productId)
         {
             return await _db.Discount.FirstOrDefaultAsync(x => x.productId == productId);
         }
 
-        public async Task<bool> UpdateDiscount(DiscountModel discountModel)
-        {
-            _db.Discount.Update(discountModel);
-            await _db.SaveChangesAsync();
-            return true;
-        }
     }
 }

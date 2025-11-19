@@ -8,12 +8,12 @@ namespace ApiEstoque.Data.Mapping.Models
     {
         public void Configure(EntityTypeBuilder<DiscountModel> builder)
         {
-            builder.HasKey(x => x.id);
-            builder.Property(x => x.description).IsRequired().HasMaxLength(255);
+            builder.HasKey(x => x.Id);
             builder.Property(x => x.percentDiscount).IsRequired();
             builder.Property(x => x.productId).IsRequired();
-            builder.Property(x => x.createdAt).IsRequired();
-            builder.Property(x => x.updatedAt).IsRequired();
+            builder.Property(x => x.status).IsRequired().HasMaxLength(24);
+            builder.Property(x => x.CreatedAt).IsRequired();
+            builder.Property(x => x.UpdatedAt).IsRequired();
         }
     }
 }

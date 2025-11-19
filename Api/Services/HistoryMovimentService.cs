@@ -1,11 +1,14 @@
-﻿using ApiEstoque.Dto.HistoryMoviment;
-using ApiEstoque.Helpers;
+﻿using System.Security.Policy;
+using ApiEstoque.Constants;
+using ApiEstoque.Dto.HistoryMoviment;
 using ApiEstoque.Models;
 using ApiEstoque.Repository;
 using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
+using SharedBase.Repository;
 
 namespace ApiEstoque.Services
 {
@@ -13,34 +16,38 @@ namespace ApiEstoque.Services
     {
         private readonly IMapper _mapper;
         private readonly IHistoryMovimentRepository _historyMovimentRepository;
-        private readonly IShopRepository _shopRepository;
-        private readonly IProductRepository _productRepository;
-        private readonly IUserRepository _userRepository;
+        private readonly UserManager<UserModel> _userManager;
+        private readonly IBaseRepository<HistoryMovimentModel> _baseRepository;
 
-        public HistoryMovimentService(IMapper mapper, IHistoryMovimentRepository historyMovimentRepository,
-            IShopRepository shopRepository, IProductRepository productRepository, IUserRepository userRepository)
+        public HistoryMovimentService (IMapper mapper, 
+            IHistoryMovimentRepository historyMovimentRepository,
+            UserManager<UserModel> userManager,
+            IBaseRepository<HistoryMovimentModel> baseRepository
+            )
         {
             _mapper = mapper;
-            _userRepository = userRepository;
+            _userManager = userManager;
+            _baseRepository = baseRepository;
             _historyMovimentRepository = historyMovimentRepository;
-            _shopRepository = shopRepository;
-            _productRepository = productRepository;
         }
 
-        public async Task<HistoryMovimentDto> CreateHistoryMoviment(HistoryMovimentCreateDto model)
+        public async Task<HistoryMovimentDto> Create(HistoryMovimentCreateDto model)
         {
             try
             {
-                var findProduct = await _productRepository.GetProductById(model.productId);
-                if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
-                var findUser = await _userRepository.GetUserById(model.userId);
+                var findUser = await _userManager.FindByIdAsync(model.userId.ToString());
                 if (findUser == null) throw new FailureRequestException(404, "Id do usuario nao localizado");
-                if (model.action != MovimentAction.Entrada.ToString() && model.action != MovimentAction.Saida.ToString()
-                   && model.action != MovimentAction.Acerto.ToString() && model.action != MovimentAction.Venda.ToString()) 
+                if (model.action != MovimentAction.Entrada.ToString() &&
+                    model.action != MovimentAction.Saida.ToString() && 
+                    model.action != MovimentAction.Venda.ToString() && 
+                    model.action != MovimentAction.Devolução.ToString() &&
+                    model.action != MovimentAction.Acerto.ToString() &&
+                    model.action != MovimentAction.Bloqueio.ToString() &&
+                    model.action != MovimentAction.Desbloqueio.ToString()) 
                     throw new FailureRequestException(404, "Tipo de Movimentação Invalida.");
                 var history = _mapper.Map<HistoryMovimentModel>(model);
                 
-                return _mapper.Map<HistoryMovimentDto>(await _historyMovimentRepository.AddHistory(history));
+                return _mapper.Map<HistoryMovimentDto>(await _baseRepository.InsertAsync(history));
             }
             catch (FailureRequestException ex)
             {
@@ -52,14 +59,12 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<List<HistoryMovimentDto>> GetAllHistoryMovimentByProductId(int idProduct)
+        public async Task<List<HistoryMovimentDto>> GetAllByProductId(Guid idProduct)
         {
             
             try
             {
-                var findProduct = await _productRepository.GetProductById(idProduct);
-                if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizado");
-                var findHistory = await _historyMovimentRepository.GetAllHistoryMovimentByProductId(idProduct);
+               var findHistory = await _historyMovimentRepository.GetAllHistoryMovimentByProductId(idProduct);
                 if (findHistory == null) return new List<HistoryMovimentDto>();
                 return _mapper.Map<List<HistoryMovimentDto>>(findHistory);
             }
@@ -73,33 +78,12 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<List<HistoryMovimentDto>> GetAllHistoryMovimentByShopId(int idShop)
-        {
-            
-            try
-            {
-                var findShop = await _shopRepository.GetShopById(idShop);
-                if (findShop == null) throw new FailureRequestException(404, "Id do shop nao localizado");
-                var findHistory = await _historyMovimentRepository.GetAllHistoryMovimentByShopId(idShop);
-                if (findHistory == null) return new List<HistoryMovimentDto>();
-                return _mapper.Map<List<HistoryMovimentDto>>(findHistory);
-            }
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
-        public async Task<HistoryMovimentDto> GetHistoryMovimentById(int id)
+        public async Task<HistoryMovimentDto> GetById(Guid id)
         {
            
             try
             {
-                var history = await _historyMovimentRepository.GetHistoryMovimentById(id);
+                var history = await _baseRepository.SelectByIdAsync(id);
                 if (history == null) throw new FailureRequestException(404, "Id do historico não localizado.");
                 return _mapper.Map<HistoryMovimentDto>(history);
             }

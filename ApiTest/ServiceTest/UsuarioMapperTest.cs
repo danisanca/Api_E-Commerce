@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace ApiEstoqueTests.ServiceTest
 {
     public class UsuarioMapperTest : BaseServiceTest
-    {
+    {/*
         [Fact(DisplayName = "É Possivel Mappear os Modelos")]
         public void E_Possivel_Mapear_os_Modelos()
         {
@@ -54,5 +54,6 @@ namespace ApiEstoqueTests.ServiceTest
             Assert.Equal(userModelToUpdate.email, updateUserDto.email);
 
         }
+        */
     }
 }

@@ -6,13 +6,14 @@ namespace ApiEstoque.Services.Interface
 {
     public interface IImageService
     {
-        Task<ImageDto> CreateImage(ImageCreateDto image);
-        Task<bool> UpdateImage(ImageUpdateDto image);
-        Task<bool> ActiveImage(int id);
-        Task<bool> DisableImage(int id);
-        Task<List<ImageDto>> GetAllImages(FilterGetRoutes status = FilterGetRoutes.All);
-        Task<ImageDto> GetImageById(int id);
-        Task<ImageDto> GetImageByUrl(string url);
-        Task<List<ImageDto>> GetImagesByIdProduct(int idProduct);
+        Task<ImageDto> Create(ImageCreateDto image);
+        Task<bool> Delete(Guid id);
+        Task<ImageDto> GetById(Guid id);
+
+        //Somente em Serviços
+        Task<ImageDto> GetByUrl(string url);
+        Task<List<string>> GetAllByIdProduct(Guid idProduct);
+        Task<List<ImageDto>> GetAllByProductsIds(List<Guid> ids);
+        Task<bool> DeleteByUrl(string url);
     }
 }

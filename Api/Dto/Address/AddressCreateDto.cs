@@ -27,7 +27,6 @@ namespace ApiEstoque.Dto.Adress
         [Required(ErrorMessage = "Telefone é um campo obrigatório.")]
         public string cellPhone { get; set; }
 
-        [Required(ErrorMessage = "Id do usuario é um campo obrigatório.")]
-        public int userId { get; set; }
+        public string? userId { get; set; } = "";
     }
 }

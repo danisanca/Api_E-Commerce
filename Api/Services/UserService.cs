@@ -1,48 +1,41 @@
-﻿using ApiEstoque.Dto.User;
+﻿using System.Security.Claims;
+using ApiEstoque.Constants;
+using ApiEstoque.Dto.User;
 using ApiEstoque.Helpers;
 using ApiEstoque.Models;
 using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
-using AutoMapper;
-using ApiEstoque.Helpers;
-using ApiEstoque.Dto.Adress;
+using MercadoPago.Resource.User;
+using Microsoft.AspNetCore.Identity;
+using static ApiEstoque.Constants.Roles;
 
 namespace ApiEstoque.Services
 {
     public class UserService : IUserService
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IAddressRepository _addressRepository;
-        private readonly IMapper _mapper;
-        private readonly string _tokenAdmin;
-        public UserService(IUserRepository userRepository, IMapper mapper, IConfiguration configuration, IAddressRepository addressRepository)
+        private readonly UserManager<UserModel> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IAddressService _addressService;
+        public UserService(
+            UserManager<UserModel> userManager,
+            RoleManager<IdentityRole> roleManager,
+            IAddressService addressService)
         {
-            _userRepository = userRepository;
-            _mapper = mapper;
-            _tokenAdmin = configuration["Tokens:TokenAdmin"]; ;
-            _addressRepository = addressRepository;
+            _userManager = userManager;
+            _roleManager = roleManager;
+            _addressService = addressService;
         }
 
-        public async Task<UserDto> CreateUser(UserCreateDto userCreate, TypeUserEnum typeUser, string? TokenAdmin = null)
+        public async Task<IdentityResult> ChangePassword(ChangePasswordDto changePasswordDto)
         {
             try
             {
-                UserModel findEmail = await _userRepository.GetUserByEmail(userCreate.email);
-                if (findEmail != null) throw new FailureRequestException(409,"E-mail ja cadastrado");
-                UserModel findUsername = await _userRepository.GetUserByUsername(userCreate.username);
-                if (findUsername != null) throw new FailureRequestException(409,"Username ja cadastrado");
-                if (TokenAdmin != null && TokenAdmin != _tokenAdmin) throw new FailureRequestException(401,$"TokenAdmin Invalido");
+                var user = await _userManager.FindByIdAsync(changePasswordDto.userId);
+                if (user == null)
+                    return IdentityResult.Failed(new IdentityError { Description = "Usuário não encontrado." });
 
-
-                var model = _mapper.Map<UserModel>(userCreate);
-                model.SetPasswordHash();
-                model.status = StandartStatus.Ativo.ToString();
-                if (typeUser == TypeUserEnum.Standart) model.typeAccount = TypeUserEnum.Standart.ToString();
-                if (typeUser == TypeUserEnum.Admin) model.typeAccount = TypeUserEnum.Admin.ToString();
-                if (typeUser == TypeUserEnum.Owner) model.typeAccount = TypeUserEnum.Owner.ToString();
-                
-                return _mapper.Map<UserDto>(await _userRepository.AddUser(model));
+                return await _userManager.ChangePasswordAsync(user, changePasswordDto.currentPassword, changePasswordDto.newPassword);
             }
             catch (FailureRequestException ex)
             {
@@ -52,167 +45,52 @@ namespace ApiEstoque.Services
             {
                 throw new Exception(e.Message);
             }
+          
         }
 
-        public async Task<List<UserDto>> GetAllUsers(FilterGetRoutes status = FilterGetRoutes.All)
+        public async Task<bool> Create(UserCreateDto userCreateDto)
         {
             try
             {
-                var findUsers = await _userRepository.GetAllUsers(status);
-                if (findUsers == null) return new List<UserDto>();
-                return _mapper.Map<List<UserDto>>(findUsers);
-            }
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
-        public async Task<UserDto> GetUserByEmail(string email)
-        {
-            try
-            {
-                UserModel findUser = await _userRepository.GetUserByEmail(email);
-                if (findUser == null) throw new FailureRequestException(404, "E-mail não cadastrado");
-                return _mapper.Map<UserDto>(findUser);
-            }
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
-        public async Task<UserDto> GetUserById(int idUser)
-        {
-            try
-            {
-                UserModel findUser = await _userRepository.GetUserById(idUser);
-                if (findUser == null) throw new FailureRequestException(404, "Id do usuario não localizado");
-                return _mapper.Map<UserDto>(findUser);
-            }
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
-        public async Task<UserDto> GetUserByUsername(string username)
-        {
-            try
-            {
-                UserModel findUser = await _userRepository.GetUserByUsername(username);
-                if (findUser == null) throw new FailureRequestException(404, "Username não localizado");
-                return _mapper.Map<UserDto>(findUser);
-            }
-
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
-        public async Task<bool> UpdateUser(UserUpdateDto userUpdate)
-        {
-            try
-            {
-                UserModel findUser = await _userRepository.GetUserById(userUpdate.id);
-                if (findUser == null) throw new FailureRequestException(404, "Id do usuario não localizado");
-                if (findUser.email != userUpdate.email)
+                var identityUser = new UserModel
                 {
-                    UserModel findEmail = await _userRepository.GetUserByEmail(userUpdate.email);
-                    if (findEmail != null) throw new FailureRequestException(409, "E-mail ja cadastro");
-                    findUser.email = userUpdate.email;
-                }
-                findUser.name = userUpdate.name;
-                
-                return await _userRepository.UpdateUser(findUser);
-            }
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
-        public async Task<bool> ActiveUser(int idUser)
-        {
-            try
-            {
-                UserModel findUser = await _userRepository.GetUserById(idUser);
-                if (findUser == null) throw new FailureRequestException(404, "Id do usuario não localizado");
-                if (findUser.status == StandartStatus.Ativo.ToString()) throw new FailureRequestException(409, "Usuario ja esta ativo");
-                findUser.status = StandartStatus.Ativo.ToString();
-                return await _userRepository.UpdateUser(findUser);
-            }
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
-        public async Task<bool> DisableUser(int idUser)
-        {
-            try
-            {
-                UserModel findUser = await _userRepository.GetUserById(idUser);
-                if (findUser == null) throw new FailureRequestException(404, "Id do usuario não localizado");
-                if (findUser.status == StandartStatus.Desabilitado.ToString()) throw new FailureRequestException(409, "Usuario ja esta Desabilitado");
-                findUser.status = StandartStatus.Desabilitado.ToString();
-                return await _userRepository.UpdateUser(findUser);
-            }
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
-        public async Task<UserFullDto> GetUserFullByIdUser(int idUser)
-        {
-            try
-            {
-                UserModel findUser = await _userRepository.GetUserById(idUser);
-                if (findUser == null) throw new FailureRequestException(404, "Id do usuario não localizado");
-                AddressModel findAddress = await _addressRepository.GetAddressByUserId(idUser);
-                if (findAddress == null) throw new FailureRequestException(404, "Endereço para o id do usuario não foi localizado");
-                var userDto = _mapper.Map<UserDto>(findUser);
-                var modelUser = new UserFullDto
-                {
-                    id = userDto.id,
-                    name = userDto.name,
-                    username = userDto.username,
-                    email = userDto.email,
-                    status = userDto.status,
-                    typeAccount = userDto.typeAccount,
-                    address = _mapper.Map<AddressDto>(findAddress),
+                    UserName = userCreateDto.UserName,
+                    Email = userCreateDto.Email,
+                    FirstName = userCreateDto.FirstName,
+                    LastName = userCreateDto.LastName,
                 };
-                return modelUser;
+
+                var result = await _userManager.CreateAsync(identityUser, userCreateDto.Password);
+                if (result.Succeeded)
+                {
+                    //Verifica se existe uma role User, caso nao exita ele cria a role para atribuir ao usuario
+                    if (!_roleManager.RoleExistsAsync(RoleHelper.GetRoleName(TypeUserRole.User)).GetAwaiter().GetResult())
+                    {
+                        await _roleManager.CreateAsync(new IdentityRole(RoleHelper.GetRoleName(TypeUserRole.User)));
+                    }
+                    if (!_roleManager.RoleExistsAsync(RoleHelper.GetRoleName(AccessRole.Standard)).GetAwaiter().GetResult())
+                    {
+                        await _roleManager.CreateAsync(new IdentityRole(RoleHelper.GetRoleName(AccessRole.Standard)));
+                    }
+                    //Vinculo a Role ao id do usuario.
+                    await _userManager.AddToRoleAsync(identityUser, RoleHelper.GetRoleName(TypeUserRole.User));
+                    await _userManager.AddToRoleAsync(identityUser, RoleHelper.GetRoleName(AccessRole.Standard));
+
+                    //Cria a claim e vincula ao usuario
+                    await _userManager.AddClaimsAsync(identityUser, new Claim[]
+                    {
+                        new Claim(ClaimTypes.Name, identityUser.Id),
+                        new Claim(ClaimTypes.Email, identityUser.Email),
+                        new Claim(ClaimTypes.GivenName, identityUser.UserName)
+                    });
+                    //Cria o endereço
+                    var model = userCreateDto.AddressCreateDto;
+                    model.userId = identityUser.Id;
+                    await _addressService.Create(model);
+                
+                }
+
+                return result.Succeeded;
             }
             catch (FailureRequestException ex)
             {
@@ -220,22 +98,26 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message); ;
+                throw new Exception(e.Message);
             }
         }
 
-        public async Task<bool> ChangePassword(ChangePasswordDto modelPassword)
+        public async Task<UserDto> GetById(string id)
         {
             try
-            {
-                UserModel findUser = await _userRepository.GetUserById(modelPassword.idUser);
-                if (findUser == null) throw new FailureRequestException(404, "Id do usuario não localizado");
-                var currentPassword = modelPassword.CurrentPassword.CreateHash();
-                if (currentPassword != findUser.password) throw new FailureRequestException(404, "Senha Atual Incorreta");
-                if (modelPassword.NewPassword != modelPassword.ConfirmNewPassword) throw new FailureRequestException(404, "Você digitou senhas diferentes na confirmação.");
-                findUser.password = modelPassword.NewPassword.CreateHash();
+            { 
+                var findUser = await _userManager.FindByIdAsync(id);
+                if (findUser == null) throw new FailureRequestException(404, "Não existe usuario com esse id");
+                var addressDto = await _addressService.GetByUserId(findUser.Id);
+                return new UserDto
+                {
+                    id = id,
+                    nomeCompleto=$"{findUser.FirstName} {findUser.LastName}",
+                    email = findUser.Email,
+                    status = findUser.Status,
+                    address = addressDto
+                };
 
-                return await _userRepository.UpdateUser(findUser);
             }
             catch (FailureRequestException ex)
             {
@@ -243,7 +125,51 @@ namespace ApiEstoque.Services
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message); ;
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<bool> SetSellerRole(string idUser)
+        {
+            try
+            {
+                var findUser = await _userManager.FindByIdAsync(idUser);
+                if (!_roleManager.RoleExistsAsync(RoleHelper.GetRoleName(AccessRole.Seller)).GetAwaiter().GetResult())
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(RoleHelper.GetRoleName(AccessRole.Seller)));
+                }
+                //Vinculo a Role ao id do usuario.
+                await _userManager.AddToRoleAsync(findUser, RoleHelper.GetRoleName(AccessRole.Seller));
+                return true;
+            }
+            catch (FailureRequestException ex)
+            {
+                throw new FailureRequestException(ex.StatusCode, ex.Message);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<bool> Update(UserUpdateDto userUpdateDto)
+        {
+            try
+            {
+                var findUser = await _userManager.FindByIdAsync(userUpdateDto.id);
+                if (findUser == null) throw new FailureRequestException(404, "Não existe usuario com esse id");
+                findUser.Email = userUpdateDto.email;
+                findUser.UpdatedAt = DateTime.Now;
+                await _userManager.UpdateAsync(findUser);
+                return true;
+            }
+            catch (FailureRequestException ex)
+            {
+                throw new FailureRequestException(ex.StatusCode, ex.Message);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
             }
         }
     }

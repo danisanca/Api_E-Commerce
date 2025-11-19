@@ -1,27 +1,19 @@
-﻿using ApiEstoque.Helpers;
+﻿using ApiEstoque.Constants;
+using Microsoft.AspNetCore.Identity;
+using SharedBase.Models;
 
 namespace ApiEstoque.Models
 {
-    public class UserModel
+    public class UserModel : IdentityUser
     {
-        public int id { get; set; }
-        public string name { get; set; }
-        public string username { get; set; }
-        public string password { get; set; }
-        public string email { get; set; }
-        public string status { get; set; }
-        public string typeAccount { get; set; }
-        public DateTime createdAt { get; set; } = DateTime.Now;
-        public DateTime updatedAt { get; set; } = DateTime.Now;
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Status { get; set; } = FilterGetRoutes.Ativo.ToString();
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        public string? RefreshToken { get; set; }
+        public DateTime RefreshTokenExpiry { get; set; }
 
         public IEnumerable<HistoryMovimentModel> historyMoviments { get; set; }
-        public IEnumerable<HistoryPurchaseModel> historyPurchases { get; set; }
-        public IEnumerable<ScoreProductModel> scoreProducts { get; set; }
-        public IEnumerable<EvidenceModel> evidences { get; set; }
-
-        public void SetPasswordHash()
-        {
-            password = password.CreateHash();
-        }
     }
 }

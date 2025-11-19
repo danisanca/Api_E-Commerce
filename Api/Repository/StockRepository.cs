@@ -14,50 +14,20 @@ namespace ApiEstoque.Repository
             _db = db;
         }
 
-        public async Task<StockModel> AddStock(StockModel stockModel)
-        {
-            await _db.Stock.AddAsync(stockModel);
-            await _db.SaveChangesAsync();
-            return stockModel;
-        }
-
-        public async Task<StockModel> GetStockByProductId(int idProduct)
+        public async Task<StockModel> GetByProductId(Guid idProduct)
         {
             return await _db.Stock.FirstOrDefaultAsync(x => x.productId == idProduct);
         }
 
-        public async Task<List<StockModel>> GetAllStockByShopId(int idShop)
+        public async Task<List<StockModel>> GetAllByProductsIds(List<Guid> ids)
         {
-            return await _db.Stock.Join(
-                    _db.Product,
-                    stock => stock.productId,
-                    product => product.id,
-                    (stock, product) => new
-                    {
-                        stock,
-                        product.shopId
-                    }
-                ).Where(joined => joined.shopId == idShop)
-                .Select(joined => joined.stock).ToListAsync();
+            return await _db.Stock.Where(c => ids.Contains(c.productId))
+                        .ToListAsync();
         }
 
-        public async Task<StockModel> GetStockById(int id)
+        public async Task<StockModel> GetByProductAndShop(Guid idProduct, Guid idShop)
         {
-            return await _db.Stock.FirstOrDefaultAsync(x => x.id == id);
-        }
-
-        public async Task<bool> UpdateStock(StockModel stockModel)
-        {
-            _db.Stock.Update(stockModel);
-            await _db.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<bool> DeleteStock(StockModel stockModel)
-        {
-            _db.Stock.Remove(stockModel);
-            await _db.SaveChangesAsync();
-            return true;
+            return await _db.Stock.FirstOrDefaultAsync(x => x.productId == idProduct && x.shopId == idShop);
         }
     }
 }

@@ -1,16 +1,16 @@
-﻿using ApiEstoque.Dto.Adress;
+﻿using ApiEstoque.Dto.Address;
+using ApiEstoque.Dto.Adress;
 
 namespace ApiEstoque.Dto.User
 {
     public class UserDto
     {
-        public int id { get; set; }
-        public string name { get; set; }
-        public string username { get; set; }
+        public string id { get; set; }
+        public string nomeCompleto { get; set; }
         public string email { get; set; }
         public string status { get; set; }
-        public string typeAccount { get; set; }
 
-        
+        public AddressViewDto address { get; set; }
+
     }
 }

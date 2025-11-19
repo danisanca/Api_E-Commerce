@@ -1,22 +1,22 @@
-﻿using ApiEstoque.Dto.Product;
-using ApiEstoque.Helpers;
-using ApiEstoque.Models;
-using System.Net.NetworkInformation;
+﻿using ApiEstoque.Constants;
+using ApiEstoque.Dto.Product;
 
 namespace ApiEstoque.Services.Interface
 {
     public interface IProductService
     {
-        Task<ProductDto> CreateProduct(ProductCreateDto productModel);
-        Task<bool> UpdateProduct(ProductUpdateDto productModel);
-        Task<bool> ActiveProduct(int idProduct);
-        Task<bool> DisableProduct(int idProduct);
-        Task<List<ProductDto>> GetAllProductsByShopId(int idShop,FilterGetRoutes status = FilterGetRoutes.All);
-        Task<ProductDto> GetProductById(int id);
-        Task<List<ProductDto>> GetAllProductByCategoryId(int idCategory, int idShop);
-        Task<ProductDto> GetProductByName(string name, int idShop);
-        Task<ProductFullDto> GetProductFullById(int id);
-        Task<ProductFullDto> GetProductFullByName(string name, int idShop);
-        Task<List<ProductFullDto>> GetAllProductsFullActive();
+        //Serviços Publicos
+        Task<ProductViewModel> GetAllWithDetails(int limit = 20, int page = 0, string category = "");
+        Task<ProductViewModel> GetAllWithDetailsLikeName(string name);
+        Task<ProductDetailsDto> GetWithDetailsById(Guid id);
+
+        //Serviços do Propietario da loja
+        Task<ProductDto> Create(ProductCreateDto productModel);
+        Task<bool> Update(ProductUpdateDto productModel);
+        Task<bool> ChangeStatus(Guid idProduct,bool isActive);
+        Task<ProductViewModel> GetAllWithDetailsByIdShop(Guid idShop, FilterGetRoutes status = FilterGetRoutes.All,int limit = 20, int page = 0, string category = "");
+
+        //Somente em Serviços
+        Task<ProductDto> GetById(Guid id);
     }
 }

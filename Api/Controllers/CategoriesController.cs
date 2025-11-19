@@ -7,6 +7,8 @@ using ApiEstoque.Services.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using ApiEstoque.Dto.Login;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ApiEstoque.Controllers
 {
@@ -21,35 +23,13 @@ namespace ApiEstoque.Controllers
             _categoriesService = categoriesService;
         }
 
-        [HttpPost]
-        [Route("CreateCategories")]
-        public async Task<ActionResult> CreateCategories([FromBody] CategoriesCreateDto categoriesCreate)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            try
-            {
-                var result = await _categoriesService.CreateCategories(categoriesCreate);
-                if (result == null) return NotFound();
-                
-                else return Ok(result);
-
-            }
-            catch (FailureRequestException ex)
-            {
-                return StatusCode(ex.StatusCode, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
-
+        [SwaggerOperation(
+        Summary = "Buscar lista de Categorias",
+        Description = "Busca todas as categorias cadastradas.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "lista de cartegoria localizada", typeof(List<CategoriesDto>))]
         [HttpGet]
-        [Route("GetAllCategories")]
-        public async Task<ActionResult> GetAllCategories()
+        [Route("GetAll")]
+        public async Task<ActionResult> GetAll()
         {
             if (!ModelState.IsValid)
             {
@@ -57,55 +37,7 @@ namespace ApiEstoque.Controllers
             }
             try
             {
-                var result = await _categoriesService.GetAllCategories();
-                if (result == null) return NotFound();
-                else return Ok(result);
-            }
-            catch (FailureRequestException ex)
-            {
-                return StatusCode(ex.StatusCode, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
-
-        [HttpGet]
-        [Route("GetAllActiveCategories")]
-        public async Task<ActionResult> GetAllActiveCategories()
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            try
-            {
-                var result = await _categoriesService.GetAllCategories(FilterGetRoutes.Ativo);
-                if (result == null) return NotFound();
-                else return Ok(result);
-            }
-            catch (FailureRequestException ex)
-            {
-                return StatusCode(ex.StatusCode, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
-
-        [HttpGet]
-        [Route("GetAllDesactiveCategories")]
-        public async Task<ActionResult> GetAllDesactiveCategories()
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            try
-            {
-                var result = await _categoriesService.GetAllCategories(FilterGetRoutes.Desabilitado);
+                var result = await _categoriesService.GetAll();
                 if (result == null) return NotFound();
                 else return Ok(result);
             }
@@ -119,125 +51,5 @@ namespace ApiEstoque.Controllers
             }
         }
         
-        [HttpGet]
-        [Route("GetCategoryById/{IdCategory}")]
-        public async Task<ActionResult> GetCategoryById(int IdCategory)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            try
-            {
-                var result = await _categoriesService.GetCategoriesById(IdCategory);
-                if (result == null) return NotFound();
-                else return Ok(result);
-
-            }
-            catch (FailureRequestException ex)
-            {
-                return StatusCode(ex.StatusCode, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
-        
-        [HttpGet]
-        [Route("GetCategoryByName/{categoryName}")]
-        public async Task<ActionResult> GetCategoryByName(string categoryName)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            try
-            {
-                var result = await _categoriesService.GetCategoriesByName(categoryName);
-                if (result == null) return NotFound();
-                else return Ok(result);
-            }
-            catch (FailureRequestException ex)
-            {
-                return StatusCode(ex.StatusCode, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
-      
-        [HttpPut]
-        [Route("UpdateCategories")]
-        public async Task<ActionResult> UpdateCategories([FromBody] CategoriesUpdateDto categoryUpdate)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            try
-            {
-                var result = await _categoriesService.UpdateCategories(categoryUpdate);
-                if (result == false) return NotFound();
-                else return Ok(result);
-            }
-            catch (FailureRequestException ex)
-            {
-                return StatusCode(ex.StatusCode, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
-       
-        [HttpPut]
-        [Route("ActiveCategoriesById/{idCategory}")]
-        public async Task<ActionResult> ActiveCategoriesById(int idCategory)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            try
-            {
-                var result = await _categoriesService.ActiveCategories(idCategory);
-                if (result == false) return NotFound();
-                else return Ok(result);
-            }
-            catch (FailureRequestException ex)
-            {
-                return StatusCode(ex.StatusCode, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
-
-        [HttpPut]
-        [Route("DisableCategoriesById/{idCategory}")]
-        public async Task<ActionResult> DisableCategoriesById(int idCategory)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            try
-            {
-                var result = await _categoriesService.DisableCategories(idCategory);
-                if (result == false) return NotFound();
-                else return Ok(result);
-            }
-            catch (FailureRequestException ex)
-            {
-                return StatusCode(ex.StatusCode, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
     }
 }

@@ -1,15 +1,18 @@
-﻿using ApiEstoque.Dto.Stock;
+﻿using ApiEstoque.Dto.Discount;
+using ApiEstoque.Dto.Stock;
 using ApiEstoque.Models;
 
 namespace ApiEstoque.Services.Interface
 {
     public interface IStockService
     {
-        Task<StockDto> CreateStock(StockCreateDto stockCreate);
-        Task<bool> UpdateStock(StockUpdateDto stockUpdate);
-        Task<bool> DeleteStockById(int idStock);
-        Task<StockDto> GetStockById(int id);
-        Task<StockDto> GetStockByProductId(int idProduct);
-        Task<List<StockDto>> GetAllStockByShopId(int idShop);
+        Task<bool> Update(StockUpdateDto stockUpdate);
+        Task<bool> ChangeStatusById(StockChangeStatusDto model);
+
+
+        //Somente em Serviços
+        Task<StockDto> GetByProductId(Guid idProduct);
+        Task<List<StockDto>> GetAllByProductsIds(List<Guid> ids);
+        Task<StockDto> GetById(Guid id);
     }
 }

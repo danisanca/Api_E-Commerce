@@ -12,14 +12,16 @@ namespace ApiEstoque.Dto.Product
         public float price { get; set; }
 
         [Required(ErrorMessage = "Id da Categoria é um campo obrigatório.")]
-        public int categoriesId { get; set; }
+        public Guid categoriesId { get; set; }
 
         [Required(ErrorMessage = "Id da Loja é um campo obrigatório.")]
-        public int shopId { get; set; }
+        public Guid shopId { get; set; }
 
 
         [StringLength(255, ErrorMessage = "Descrição deve ter no maximo {1} characters.")]
         [Required(ErrorMessage = "Descrição é um campo obrigatório.")]
         public string description { get; set; }
+
+        public List<IFormFile>? images { get; set; }
     }
 }

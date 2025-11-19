@@ -1,13 +1,16 @@
-﻿namespace ApiEstoque.Models
+﻿using ApiEstoque.Constants;
+using SharedBase.Models;
+using ApiEstoque.Models;
+
+namespace ApiEstoque.Models
 {
-    public class StockModel
+    public class StockModel : BaseEntity
     {
-        public int id { get; set; }
         public float amount { get; set; }
-        public string status { get; set; }
-        public int productId { get; set; }
+        public Guid productId { get; set; }
+        public Guid shopId { get; set; }
         public virtual ProductModel product { get; set; }
-        public DateTime createdAt { get; set; } = DateTime.Now;
-        public DateTime updatedAt { get; set; } = DateTime.Now;
+        public virtual ShopModel shop { get; set; }
+        public string status { get; set; } = FilterGetRoutes.Ativo.ToString();
     }
 }

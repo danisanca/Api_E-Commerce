@@ -1,15 +1,13 @@
-﻿using ApiEstoque.Dto.Categories;
+﻿using ApiEstoque.Constants;
+using ApiEstoque.Dto.Categories;
 using ApiEstoque.Dto.Image;
-using ApiEstoque.Helpers;
 using ApiEstoque.Models;
 using ApiEstoque.Repository;
 using ApiEstoque.Repository.Interface;
 using ApiEstoque.Services.Exceptions;
 using ApiEstoque.Services.Interface;
 using AutoMapper;
-using System;
-using System.Collections.Generic;
-using static System.Net.Mime.MediaTypeNames;
+using SharedBase.Repository;
 
 namespace ApiEstoque.Services
 {
@@ -17,46 +15,50 @@ namespace ApiEstoque.Services
     {
         private readonly IMapper _mapper;
         private readonly IImageRepository _imageRepository;
-        private readonly IProductRepository _productRepository;
+        private readonly IBaseRepository<ImageModel> _baseRepository;
 
-        public ImageService(IMapper mapper, IImageRepository imageRepository, IProductRepository productRepository)
+        public ImageService(IMapper mapper, IImageRepository imageRepository,
+           IBaseRepository<ImageModel> baseRepository)
         {
             _mapper = mapper;
             _imageRepository = imageRepository;
-            _productRepository = productRepository;
+            _baseRepository = baseRepository;
         }
 
-        public async Task<bool> ActiveImage(int id)
-        {
-            
-                try
-                {
-                    ImageModel image = await _imageRepository.GetImageById(id);
-                    if (image == null) throw new FailureRequestException(404, "Id da imagem não localizado.");
-                    if (image.status == StandartStatus.Ativo.ToString()) throw new FailureRequestException(409, "Imagem ja esta ativa.");
-                    image.status = StandartStatus.Ativo.ToString();
-                    return await _imageRepository.UpdateImage(image);
+        
+        public async Task<ImageDto> Create(ImageCreateDto image)
+        {// Todo: Implementar depois logica de salvamento da imagem no bucket
+            try
+            {
+                //ImageModel getByUrl = await _imageRepository.GetByUrl(image.url);
+                //if (getByUrl != null) throw new FailureRequestException(409, "Url da imagem ja cadastrada.");
 
+                var model = new ImageModel()
+                {
+                    url = image.productId.ToString(), // ajustar Posteriormente
+                    size = 1f,
+                    shopId = image.shopId,
+                    productId = image.productId
+
+                };
+                return _mapper.Map<ImageDto>(await _baseRepository.InsertAsync(model));
             }
-                catch (FailureRequestException ex)
-                {
-                    throw new FailureRequestException(ex.StatusCode, ex.Message);
-                }
-                catch (Exception e)
-                {
-                    throw new Exception(e.Message);
-                }
+            catch (FailureRequestException ex)
+            {
+                throw new FailureRequestException(ex.StatusCode, ex.Message);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
-
-        public async Task<ImageDto> CreateImage(ImageCreateDto image)
+        public async Task<bool> Delete(Guid id)
         {
             try
             {
-                ImageModel getByUrl = await _imageRepository.GetImageByUrl(image.url);
-                if (getByUrl != null) throw new FailureRequestException(409, "Url da imagem ja cadastrada.");
-                var model = _mapper.Map<ImageModel>(image);
-                model.status = StandartStatus.Ativo.ToString();
-                return _mapper.Map<ImageDto>(await _imageRepository.CreateImage(model));
+                ImageModel result = await _baseRepository.SelectByIdAsync(id);
+                if (result == null) throw new FailureRequestException(404, "Id da imagem não localizado.");
+                return await _baseRepository.DeleteAsync(id);
             }
             catch (FailureRequestException ex)
             {
@@ -68,49 +70,11 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<bool> DisableImage(int id)
+        public async Task<ImageDto> GetById(Guid id)
         {
             try
             {
-                ImageModel image = await _imageRepository.GetImageById(id);
-                if (image == null) throw new FailureRequestException(404, "Id da imagem não localizado.");
-                if (image.status == StandartStatus.Desabilitado.ToString()) throw new FailureRequestException(409, "Imagem ja esta desabilitada.");
-                image.status = StandartStatus.Desabilitado.ToString();
-                return await _imageRepository.UpdateImage(image);
-            }
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
-        public async Task<List<ImageDto>> GetAllImages(FilterGetRoutes status = FilterGetRoutes.All)
-        {
-            try
-            {
-                var findImages = await _imageRepository.GetAllImages(status);
-                if (findImages == null) return new List<ImageDto>();
-                return _mapper.Map<List<ImageDto>>(findImages);
-            }
-            catch (FailureRequestException ex)
-            {
-                throw new FailureRequestException(ex.StatusCode, ex.Message);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
-        public async Task<ImageDto> GetImageById(int id)
-        {
-            try
-            {
-                var findImage = await _imageRepository.GetImageById(id);
+                var findImage = await _baseRepository.SelectByIdAsync(id);
                 if (findImage == null) throw new FailureRequestException(404, "Id da imagem nao localizada");
                 return _mapper.Map<ImageDto>(findImage);
             }
@@ -124,14 +88,17 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<List<ImageDto>> GetImagesByIdProduct(int idProduct)
+        public async Task<List<string>> GetAllByIdProduct(Guid idProduct)
         {
             try
             {
-                var findProduct = await _productRepository.GetProductById(idProduct);
-                if (findProduct == null) throw new FailureRequestException(404, "Id do produto nao localizada");
-                var findImages = await _imageRepository.GetImagesByIdProduct(idProduct);
-                return _mapper.Map<List<ImageDto>>(findImages);
+                var findImages = await _imageRepository.GetAllByIdProduct(idProduct);
+                var listUrl = new List<string>();
+                foreach (var image in findImages)
+                {
+                    listUrl.Add(image.url);
+                }
+                return listUrl;
             }
             catch (FailureRequestException ex)
             {
@@ -143,11 +110,11 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<ImageDto> GetImageByUrl(string url)
+        public async Task<ImageDto> GetByUrl(string url)
         {
             try
             {
-                var findImage = await _imageRepository.GetImageByUrl(url);
+                var findImage = await _imageRepository.GetByUrl(url);
                 if (findImage == null) throw new FailureRequestException(404, "Id da imagem nao localizada");
                 return _mapper.Map<ImageDto>(findImage);
             }
@@ -161,17 +128,31 @@ namespace ApiEstoque.Services
             }
         }
 
-        public async Task<bool> UpdateImage(ImageUpdateDto image)
+        public async Task<List<ImageDto>> GetAllByProductsIds(List<Guid> ids)
         {
             try
             {
-                var findImage = await _imageRepository.GetImageById(image.idImage);
-                if (findImage == null) throw new FailureRequestException(404, "Id da imagem nao localizada");
-                var findUrl = await _imageRepository.GetImageByUrl(image.url);
-                if (findUrl != null) throw new FailureRequestException(404, "Url ja cadastrada");
-                var model = _mapper.Map<ImageModel>(findImage);
-                model.url = image.url;
-                return await _imageRepository.UpdateImage(model);
+                var findImage = await _imageRepository.GetAllByProductsIds(ids);
+                if (findImage == null) return new List<ImageDto>();
+                return _mapper.Map<List<ImageDto>>(findImage);
+            }
+            catch (FailureRequestException ex)
+            {
+                throw new FailureRequestException(ex.StatusCode, ex.Message);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public async Task<bool> DeleteByUrl(string url)
+        {
+            try
+            {
+                var result = await _imageRepository.GetByUrl(url);
+                if (result == null) throw new FailureRequestException(404, "Id da imagem não localizado.");
+                return await _baseRepository.DeleteAsync(result.Id);
             }
             catch (FailureRequestException ex)
             {

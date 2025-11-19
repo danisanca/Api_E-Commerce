@@ -1,4 +1,7 @@
-﻿using ApiEstoque.Data;
+﻿using System.Collections.Generic;
+using System.Data;
+using ApiEstoque.Constants;
+using ApiEstoque.Data;
 using ApiEstoque.Helpers;
 using ApiEstoque.Models;
 using ApiEstoque.Repository.Interface;
@@ -15,49 +18,89 @@ namespace ApiEstoque.Repository
             _db = db;
         }
 
-        public async Task<ProductModel> CreateProduct(ProductModel productModel)
+
+        public async Task<List<ProductModel>> GetAllByIdShop(Guid idShop, FilterGetRoutes status = FilterGetRoutes.All, int limit = 20, int page = 0, string category = "")
         {
-            await _db.Product.AddAsync(productModel);
-            await _db.SaveChangesAsync();
-            return productModel;
+            if (status == FilterGetRoutes.All)
+            {
+                return await _db.Product.Include(c => c.categories)
+             .Where(x => x.shopId == idShop && x.categories.name.ToLower() == category.ToLower()).Skip(page * limit).Take(limit)
+             .ToListAsync();
+            }
+            else
+            {
+                return await _db.Product.Include(c => c.categories)
+             .Where(x => x.shopId == idShop && x.status == status.ToString() && x.categories.name.ToLower() == category.ToLower()).Skip(page * limit).Take(limit)
+             .ToListAsync();
+
+            }
+            
         }
 
-        public async Task<List<ProductModel>> GetAllProductByCategoryId(int id, int idShop)
+        public async Task<List<ProductModel>> GetAllLikeName(string name)
         {
-            return await _db.Product.Where(x => x.categoriesId == id && x.shopId == idShop).ToListAsync();
+            return await _db.Product
+         .Where(x => x.name.Contains(name))
+         .ToListAsync();
         }
 
-        public async Task<List<ProductModel>> GetAllProductsActive()
+        public async Task<ProductModel> GetByNameAndIdShop(string name, Guid idShop)
         {
-            var query = from product in _db.Product
-                        join stock in _db.Stock on product.id equals stock.productId
-                        where product.status == "Ativo"
-                        select product;
-
-            return await query.Distinct().ToListAsync();
+            return await _db.Product.SingleOrDefaultAsync(p => p.name == name && p.shopId == idShop);
         }
 
-        public async Task<List<ProductModel>> GetAllProductsByShopId(FilterGetRoutes status, int idShop)
+        public async Task<IEnumerable<ProductModel>> SelectAllByStatusAsync( FilterGetRoutes status = FilterGetRoutes.Ativo, int limit = 20, int page = 0, string category = "")
         {
-            if (status != FilterGetRoutes.All) return await _db.Product.Where(x => x.status == status.ToString() && x.shopId == idShop).ToListAsync();
-            else return await _db.Product.Where(x => x.shopId == idShop).ToListAsync();
+            try
+            {
+                if (category == "")
+                {
+                    if (status == FilterGetRoutes.Ativo) 
+                        return await _db.Product.Where(g => g.status == status.ToString()).Skip(page * limit).Take(limit).ToListAsync();
+                    else if (status == FilterGetRoutes.Desabilitado) 
+                        return await _db.Product.Where(g => g.status == status.ToString()).Skip(page * limit).Take(limit).ToListAsync();
+                    else 
+                        return await _db.Product.Skip(page * limit).Take(limit).ToListAsync();
+                }
+                else
+                {
+                    if (status == FilterGetRoutes.Ativo)
+                        return await _db.Product.Include(c=>c.categories).Where(g => g.status == status.ToString() && g.categories.name.ToLower() == category.ToLower() ).Skip(page * limit).Take(limit).ToListAsync();
+                    else if (status == FilterGetRoutes.Desabilitado)
+                        return await _db.Product.Include(c => c.categories).Where(g => g.status == status.ToString() && g.categories.name.ToLower() == category.ToLower()).Skip(page * limit).Take(limit).ToListAsync();
+                    else
+                        return await _db.Product.Include(c => c.categories).Where(g => g.categories.name.ToLower() == category.ToLower()).Skip(page * limit).Take(limit).ToListAsync();
+                }
+                   
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
-        public async Task<ProductModel> GetProductById(int id)
+        public async Task<int> CountProducts(FilterGetRoutes status = FilterGetRoutes.Ativo, string category = "")
         {
-            return await _db.Product.FirstOrDefaultAsync(x => x.id == id);
-        }
-
-        public async Task<ProductModel> GetProductByName(string name, int idShop)
-        {
-            return await _db.Product.Where(x => x.name == name && x.shopId == idShop).FirstOrDefaultAsync();
-        }
-
-        public async Task<bool> UpdateProduct(ProductModel productModel)
-        {
-            _db.Product.Update(productModel);
-            await _db.SaveChangesAsync();
-            return true;
+            try
+            {
+                if (category != "")
+                {
+                    if (status == FilterGetRoutes.Ativo) return _db.Product.Include(c => c.categories).Where(g => g.status == status.ToString() && g.categories.name.ToLower() == category.ToLower()).Count();
+                    else if (status == FilterGetRoutes.Desabilitado) return _db.Product.Include(c => c.categories).Where(g => g.status == status.ToString() && g.categories.name.ToLower() == category.ToLower()).Count();
+                    else return _db.Product.Include(c => c.categories).Where(g => g.categories.name.ToLower() == category.ToLower()).Count();
+                }
+                else
+                {
+                    if (status == FilterGetRoutes.Ativo) return _db.Product.Where(g => g.status == status.ToString()).Count();
+                    else if (status == FilterGetRoutes.Desabilitado) return _db.Product.Where(g => g.status == status.ToString()).Count();
+                    else return _db.Product.Count();
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

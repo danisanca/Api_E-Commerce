@@ -18,7 +18,7 @@ namespace ApiEstoqueTests.ServiceTest
         public static String statusActiveUserMok { get; set; }
         public static String typeAccountUserMok { get; set; }
         public static String statusDisableUserMok { get; set; }
-
+        /*
         public List<UserDto> listaUserDto = new List<UserDto>();
         public UserDto userDto;
         public UserDto disableUserDto;
@@ -85,6 +85,6 @@ namespace ApiEstoqueTests.ServiceTest
             };
 
         }
-
+        */
     }
 }

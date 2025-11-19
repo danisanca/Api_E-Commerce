@@ -1,4 +1,5 @@
-﻿using ApiEstoque.Data;
+﻿using System.Data;
+using ApiEstoque.Data;
 using ApiEstoque.Helpers;
 using ApiEstoque.Models;
 using ApiEstoque.Repository.Interface;
@@ -15,40 +16,21 @@ namespace ApiEstoque.Repository
             _db = db;
         }
 
-        public async Task<ImageModel> CreateImage(ImageModel image)
-        {
-            await _db.Image.AddAsync(image);
-            await _db.SaveChangesAsync();
-            return image; 
-        }
-
-        public async Task<List<ImageModel>> GetAllImages(FilterGetRoutes status)
-        {
-            if (status == FilterGetRoutes.Ativo) return await _db.Image.Where(g => g.status == status.ToString()).ToListAsync();
-            else if (status == FilterGetRoutes.Desabilitado) return await _db.Image.Where(g => g.status == status.ToString()).ToListAsync();
-            else return await _db.Image.ToListAsync();
-        }
-
-        public async Task<ImageModel> GetImageById(int id)
-        {
-            return await _db.Image.FirstOrDefaultAsync(x => x.id == id);
-        }
-
-        public async Task<List<ImageModel>> GetImagesByIdProduct(int idProduct)
+        public async Task<List<ImageModel>> GetAllByIdProduct(Guid idProduct)
         {
             return await _db.Image.Where(x => x.productId == idProduct).ToListAsync();
         }
 
-        public async Task<ImageModel> GetImageByUrl(string url)
+        public async Task<List<ImageModel>> GetAllByProductsIds(List<Guid> ids)
+        {
+            return await _db.Image.Where(c => ids.Contains(c.productId))
+                         .ToListAsync();
+        }
+
+        public async Task<ImageModel> GetByUrl(string url)
         {
             return await _db.Image.FirstOrDefaultAsync(x => x.url == url);
         }
-
-        public async Task<bool> UpdateImage(ImageModel image)
-        {
-            _db.Image.Update(image);
-            await _db.SaveChangesAsync();
-            return true;
-        }
+        
     }
 }

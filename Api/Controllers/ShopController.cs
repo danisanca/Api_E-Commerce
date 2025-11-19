@@ -1,36 +1,61 @@
-﻿using ApiEstoque.Dto.User;
-using ApiEstoque.Helpers;
-using ApiEstoque.Services.Exceptions;
-using ApiEstoque.Services;
-using ApiEstoque.Services.Interface;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.Net;
+﻿using System.Net;
+using System.Security.Claims;
+using ApiEstoque.Constants;
+using ApiEstoque.Dto.Product;
 using ApiEstoque.Dto.Shop;
+using ApiEstoque.Dto.User;
+using ApiEstoque.Helpers;
+using ApiEstoque.Models;
+using ApiEstoque.Services;
+using ApiEstoque.Services.Exceptions;
+using ApiEstoque.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ApiEstoque.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ShopController : ControllerBase
     {
         private readonly IShopService _shopService;
+        private readonly UserManager<UserModel> _userManager;
 
-        public ShopController(IShopService shopService)
+        public ShopController(IShopService shopService, UserManager<UserModel> userManager)
         {
             _shopService = shopService;
+            _userManager = userManager;
         }
-       
+
+        [SwaggerOperation(
+        Summary = "Cadastrar Loja",
+        Description = "Cadastra uma loja para o usuario e atualiza as permissoes de propietario."
+         )]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Usuário não autorizado / Sem Permissão ao Registro")]
+        [SwaggerResponse(StatusCodes.Status409Conflict, "Usuario ja possui uma loja.")]
+        [SwaggerResponse(StatusCodes.Status409Conflict, "Falha no cadastrado")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Loja Cadastrada", typeof(ShopDto))]
         [HttpPost]
-        [Route("CreateShop")]
-        public async Task<ActionResult> CreateShop([FromBody] ShopCreateDto shopCreateDto)
+        [Route("Create")]
+        public async Task<ActionResult> Create([FromBody] ShopCreateDto shopCreateDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             try
             {
+                var userId = User.FindFirst(ClaimTypes.Name)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized("Usuário não autenticado.");
+
+                var findUser = await _userManager.FindByIdAsync(shopCreateDto.userId.ToString());
+                if (findUser == null) throw new FailureRequestException(404, "Usuario não localizado.");
+
+                if (shopCreateDto.userId != userId)
+                    throw new FailureRequestException(401, "O id informado não pertence a você.");
+
                 ShopDto shop = await _shopService.CreateShop(shopCreateDto);
                 if (shop == null)
                 {
@@ -48,9 +73,18 @@ namespace ApiEstoque.Controllers
             }
         }
 
+
+        [SwaggerOperation(
+        Summary = "Atualizar Loja",
+        Description = "Atualiza a loja conforme os novos dados informados"
+         )]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Usuário não autorizado / Sem Permissão ao Registro")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Loja não encontrada")]
+        [SwaggerResponse(StatusCodes.Status409Conflict, "Não é possivel atualizar para o mesmo nome")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Loja Atualizada")]
         [HttpPut]
-        [Route("UpdateShopById")]
-        public async Task<ActionResult> UpdateShopById([FromBody] ShopUpdateDto shopUpdateDto)
+        [Route("Update")]
+        public async Task<ActionResult> Update([FromBody] ShopUpdateDto shopUpdateDto)
         {
             if (!ModelState.IsValid)
             {
@@ -58,6 +92,15 @@ namespace ApiEstoque.Controllers
             }
             try
             {
+                var userId = User.FindFirst(ClaimTypes.Name)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized("Usuário não autenticado.");
+
+                var findShop = await _shopService.GetById(shopUpdateDto.shopId);
+                if (findShop == null) return NotFound();
+                if (findShop.userId != userId)
+                    return StatusCode(401, "Você não tem permissão para acessar este registro.");
+
                 bool result = await _shopService.UpdateShop(shopUpdateDto);
                 if (result == false)
                 {
@@ -75,9 +118,19 @@ namespace ApiEstoque.Controllers
             }
         }
 
+
+        [SwaggerOperation(
+        Summary = "Altera status da loja",
+        Description = "Altera o status do produto para 'Desabilitado' ou 'Ativo'."
+         )]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Usuário não autorizado / Sem Permissão ao Registro")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Loja não encontrada")]
+        [SwaggerResponse(StatusCodes.Status409Conflict, "A Loja ja está ativa")]
+        [SwaggerResponse(StatusCodes.Status409Conflict, "A Loja ja está desativada")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Status Atualizado")]
         [HttpPut]
-        [Route("ActiveShopById")]
-        public async Task<ActionResult> ActiveShopById(int idShop)
+        [Route("ChangeStatusById")]
+        public async Task<ActionResult> ChangeStatusById(Guid idShop,bool isActive)
         {
             if (!ModelState.IsValid)
             {
@@ -85,7 +138,16 @@ namespace ApiEstoque.Controllers
             }
             try
             {
-                bool result = await _shopService.ActiveShop(idShop);
+                var userId = User.FindFirst(ClaimTypes.Name)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized("Usuário não autenticado.");
+
+                var findShop = await _shopService.GetById(idShop);
+                if (findShop == null) return NotFound();
+                if (findShop.userId != userId)
+                    return StatusCode(401, "Você não tem permissão para acessar este registro.");
+
+                bool result = await _shopService.ChangeStatusById(idShop,isActive);
                 if (result == false)
                 {
                     return NotFound();
@@ -102,36 +164,17 @@ namespace ApiEstoque.Controllers
             }
         }
 
-        [HttpPut]
-        [Route("DisableShopById")]
-        public async Task<ActionResult> DisableShopById(int idShop)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            try
-            {
-                bool result = await _shopService.DisableShop(idShop);
-                if (result == false)
-                {
-                    return NotFound();
-                }
-                else return Ok();
-            }
-            catch (FailureRequestException ex)
-            {
-                return StatusCode(ex.StatusCode, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
 
+        [SwaggerOperation(
+        Summary = "Buscar loja por usuario",
+        Description = "Busca a loja a partir do id do usuario informado."
+         )]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized, "Usuário não autorizado / Sem Permissão ao Registro")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "Loja não encontrada")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Loja localizada", typeof(ShopDto))]
         [HttpGet]
-        [Route("GetShopById/{idShop}")]
-        public async Task<ActionResult> GetShopById(int idShop)
+        [Route("GetByUserId/{idUser}")]
+        public async Task<ActionResult> GetByUserId(string idUser)
         {
             if (!ModelState.IsValid)
             {
@@ -139,92 +182,19 @@ namespace ApiEstoque.Controllers
             }
             try
             {
-                ShopDto shop = await _shopService.GetShopById(idShop);
-                if (shop == null)
-                {
-                    return NotFound();
-                }
-                else return Ok(shop);
-            }
-            catch (FailureRequestException ex)
-            {
-                return StatusCode(ex.StatusCode, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
+                var findUser = await _userManager.FindByIdAsync(idUser.ToString());
+                if (findUser == null) throw new FailureRequestException(404, "Usuario não localizado.");
 
-        [HttpGet]
-        [Route("GetShopByUserId/{userId}")]
-        public async Task<ActionResult> GetShopByUserId(int userId)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            try
-            {
-                ShopDto shop = await _shopService.GetShopByUserId(userId);
-                if (shop == null)
-                {
-                    return NotFound();
-                }
-                else return Ok(shop);
-            }
-            catch (FailureRequestException ex)
-            {
-                return StatusCode(ex.StatusCode, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
-        [HttpGet]
-        [Route("GetShopByName/{name}")]
-        public async Task<ActionResult> GetShopByName(string name)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            try
-            {
-                ShopDto shop = await _shopService.GetShopByName(name);
-                if (shop == null)
-                {
-                    return NotFound();
-                }
-                else return Ok(shop);
-            }
-            catch (FailureRequestException ex)
-            {
-                return StatusCode(ex.StatusCode, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
+                var userId = User.FindFirst(ClaimTypes.Name)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized("Usuário não autenticado.");
 
-        [HttpGet]
-        [Route("GetAllShopActives")]
-        public async Task<ActionResult> GetAllShopActives()
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            try
-            {
-                List<ShopDto> shops = await _shopService.GetAllShops(FilterGetRoutes.Ativo);
-                if (shops == null)
-                {
-                    return NotFound();
-                }
-                else return Ok(shops);
+                ShopDto shop = await _shopService.GetByUserId(idUser);
+                if (shop == null) return NotFound();
+                if (shop.userId != userId)
+                    return StatusCode(401, "Você não tem permissão para acessar este registro.");
+
+                return Ok(shop);
             }
             catch (FailureRequestException ex)
             {
@@ -235,57 +205,6 @@ namespace ApiEstoque.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
             }
         }
-        [HttpGet]
-        [Route("GetAllShopDisable")]
-        public async Task<ActionResult> GetAllShopDisable()
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            try
-            {
-                List<ShopDto> shops = await _shopService.GetAllShops(FilterGetRoutes.Desabilitado);
-                if (shops == null)
-                {
-                    return NotFound();
-                }
-                else return Ok(shops);
-            }
-            catch (FailureRequestException ex)
-            {
-                return StatusCode(ex.StatusCode, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
-        [HttpGet]
-        [Route("GetAllShop")]
-        public async Task<ActionResult> GetAllShop()
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            try
-            {
-                List<ShopDto> shops = await _shopService.GetAllShops();
-                if (shops == null)
-                {
-                    return NotFound();
-                }
-                else return Ok(shops);
-            }
-            catch (FailureRequestException ex)
-            {
-                return StatusCode(ex.StatusCode, ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
+       
     }
 }

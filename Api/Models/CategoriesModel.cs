@@ -1,13 +1,13 @@
-﻿namespace ApiEstoque.Models
+﻿using ApiEstoque.Constants;
+using SharedBase.Models;
+
+namespace ApiEstoque.Models
 {
-    public class CategoriesModel
+    public class CategoriesModel : BaseEntity
     {
-        public int id { get; set; }
         public string name { get; set; }
-        public string status { get; set; }
         public string? imageUrl { get; set; }
-        public DateTime createdAt { get; set; } = DateTime.Now;
-        public DateTime updatedAt { get; set; } = DateTime.Now;
+        public string status { get; set; } = FilterGetRoutes.Ativo.ToString();
 
     }
 }

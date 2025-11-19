@@ -1,15 +1,14 @@
-﻿using ApiEstoque.Models;
-using ApiEstoque.Helpers;
+﻿using ApiEstoque.Constants;
+using ApiEstoque.Models;
 
 namespace ApiEstoque.Repository.Interface
 {
     public interface ICategoriesRepository
     {
-        Task<CategoriesModel> CreateCategories(CategoriesModel categories);
-        Task<bool> UpdateCategories(CategoriesModel categories);
-        Task<List<CategoriesModel>> GetAllCategories(FilterGetRoutes status);
-        Task<CategoriesModel> GetCategoriesById(int id);
-        Task<CategoriesModel> GetCategoriesByName(string name);
+        Task<CategoriesModel> GetByName(string name);
+        Task<List<CategoriesModel>> GetAllByIds(List<Guid> ids);
+        Task<IEnumerable<CategoriesModel>> SelectAllByStatusAsync(
+            FilterGetRoutes status = FilterGetRoutes.Ativo);
 
     }
 }
